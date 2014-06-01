@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>Home</title>
+	<title>重写博客</title>
 	
 	<meta name="author" content="yjchen">
 
@@ -133,61 +133,141 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1 style="text-algin:right">Home </h1>
+  <h1>重写博客 </h1>
 </div>
+	
+<article>
+
+	<div class="col-sm-10">
+	 <span class="post-date">
+	   
+	   June 
+	   1st,
+	     
+	   2014
+	 </span>
+	  <div class="article_body">
+	  <p>之前在javaeye上写博客，还搭建过Wordpress（php+mysql的博客系统），但没申请主机，今天发现GitHub+jekyll搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）</p>
+
+<h4 id="mac">创建步骤（Mac）:</h4>
+<p>1.<strong>创建github账号和创建repository</strong></p>
+
+<p>比如我创建<code>yangjunsss</code>账号和<code>yangjunsss.github.com</code>的repository（注意带github.com后缀），并使用了GitHub Pages，比如这里工程publish到了<a href="http://yangjunsss.github.io">http://yangjunsss.github.io</a>；</p>
+
+<p>2.<strong>check out yangjunsss.github.com</strong></p>
+
+<p>可以用Github for Mac的工具来替代git clone命令会省掉很多事情，比如<a href="https://help.github.com/articles/generating-ssh-keys">add ssh</a></p>
+
+<p>3.<strong>下载jekyll</strong></p>
+
+<div class="highlight"><pre><code class="bash">sudo gem install jekyll // 会下载所有依赖的包</code></pre></div>
+
+<p>4.<strong>下载jekyll themes</strong></p>
+
+<p><a href="http://jekyllthemes.org">jekyllthemes</a>提供很多Themes，比如Dbyll，下载后，cd到这个目录（包含_layouts,_posts,_site,assets主要目录），输入<code>jekyll server --watch</code> 生成html页面，本地run起来，通过<a href="http://0.0.0.0:4000">http://0.0.0.0:4000</a>就能看到效果了。</p>
+
+<p>5.<strong>写博客</strong></p>
+
+<p>博客文件以markdown格式存储在_post目录下（用文件存储替换掉了数据库），文件名的格式为时间+标题，md基本语法看<a href="https://help.github.com/articles/markdown-basics">这里</a>，用喜爱的编辑器编辑这个文件内容就开始写博客了。</p>
+
+<p>6.<strong>push到GitHub上</strong></p>
+
+<p>通过GitHub工具push本地的更改到github上，然后一会就能通过之前的<a href="http://yangjunsss.github.io">http://yangjunsss.github.io</a>访问我的博客了。</p>
+
+<p>到此，一个简单的Blog就搭建起来了，不需要php，不需要mysql，像写code一样来写blog并通过github来管理，是不是另一番风味？！</p>
 
 
+	  </div>
 
-<article class="home">
+		
+		<ul class="tag_box list-unstyled list-inline">
+		  <li><i class="fa fa-folder-open"></i></li>
+		  
+		  
+			 
+				<li><a href="/categories.html#general-ref">
+					general <span>(1)</span>
+					
+				</a></li>
+			
+		  
+		</ul>
+		  
 
-  <h3>
-    <a href="/general/2014/06/01/newfly.html">重写博客</a>
-  </h3>
+		
+		<ul class="list-inline">
+		  <li><i class="fa fa-tags"></i></li>
+		  
+		  
+			 
+				<li>
+					<a href="/tags.html#github-ref">
+					github <span>(1)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#jekyll-ref">
+					jekyll <span>(1)</span>
+					
+					</a>
+				</li>
+			
+		  
+		  
+		</ul>
+		  
 
-  <span class="post-date">
-    
-    June
-    1st,
-    
-    2014
-  </span>
+		<hr>
 
-  <div>
-    
-    
-    <p>之前在javaeye上写博客，还搭建过Wordpress（php+mysql的博客系统），但没申请主机，今天发现GitHub+jekyll搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）</p>
+		<div>
+      <section class="share col-sm-6">
+        <h4 class="section-title">Share Post</h4>
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=重写博客"
+           onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <i class="fa fa-twitter fa-lg"></i>
+          Twitter
+        </a>
+        <a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php"
+           onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <i class="fa fa-facebook fa-lg"></i>
+          Facebook
+        </a>
+        <a class="btn btn-default btn-sm gplus"
+           onclick="window.open('https://plus.google.com/share?url='+window.location.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus fa-lg"></i>
+          Google+
+        </a>
+      </section>
 
+     <!-- <section class="col-sm-6 author">
+        <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
+        <h4 class="section-title author-name">yjchen</h4>
+        <p class="author-bio">ios dev，产品工作者，投机份子</p>
+      </section>
+!-->
+    </div>
 
-    
-    
-  </div>
-  <h5 style="text-align:right">
-    <a href="/general/2014/06/01/newfly.html">阅读</a>
-  </h5>
+    <div class="clearfix"></div>
+
+		<ul class="pager">
+		  
+		  <li class="previous disabled"><a>&larr; Previous</a></li>
+		  
+		  
+			<li class="next disabled"><a>Next &rarr;</a>
+		  
+		</ul>
+
+		<hr>
+	</div>
+	
+	<div class="col-sm-2 sidebar-2">
+	
+	</div>
 </article>
-
-<hr/>
-
-<ul class="pager"> 
-
-  
-  <li class="previous disabled">
-    <a>&larr; Newer</a>
-  </li>
-  
-  
-  <li>
-    <span class="page_number">Page: 1 of 1</span>
-  </li>
-
-  
-  <li class="next disabled">
-    <a>Older &rarr;</a>        
-  </li>
-  
-
-</ul>
-
+<div class="clearfix"></div>
 
 
 

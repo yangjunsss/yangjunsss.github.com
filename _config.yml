@@ -1,10 +1,25 @@
-# Site settings
-title: Your awesome title
-email: your-email@domain.com
-description: "Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description."
-baseurl: ""
-url: "http://yourdomain.com"
+# visit https://github.com/mojombo/jekyll/wiki/Configuration for more settings
 
-# Build settings
+paginate: 10 # pagination based on number of posts
+paginate_path: "page:num"
+exclude: ["README.md"] # files to exclude
+pygments: true
 markdown: kramdown
-permalink: pretty
+
+title: yj的博客
+description: yj的博客
+author:
+  name: yjchen
+  email: cj.yangjun@gmail.com
+  github: yangjunsss
+  twitter:
+  pinterest:
+  linkedin:
+  bio: ios dev，产品工作者，投机份子
+  email_md5: 
+
+rss_path: feed.xml
+categories_path: categories.html
+tags_path: tags.html
+
+BASE_PATH:
