@@ -2,6 +2,7 @@
 
 body{
 	color: #2c3e50;
+	background-color: #eee;
 }
 
 .sidebar {
@@ -45,7 +46,7 @@ a.nav-link:hover { color: #777 }
 
 #contact-list li .fa,
 article .share .btn {
-	-o-transition:color .2s ease-out, background 1s ease-in;
+	-o-transition:color .2s ease-out, background: 1s ease-in;
   -ms-transition:color .2s ease-out, background 1s ease-in;
   -moz-transition:color .2s ease-out, background 1s ease-in;
   -webkit-transition:color .2s ease-out, background 1s ease-in;
