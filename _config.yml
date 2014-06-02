@@ -4,18 +4,20 @@ paginate: 10 # pagination based on number of posts
 paginate_path: "page:num"
 exclude: ["README.md"] # files to exclude
 pygments: true
+#markdown: Redcarpet
 markdown: kramdown
 
 title: yj的博客
 description: yangjun,ios,yj,dev
 author:
-  name: yjchen
+  name: yj
   email: cj.yangjun@gmail.com
   github: yangjunsss
   twitter:
   pinterest:
   linkedin:
   bio: ios dev，产品工作者，投机份子
+  anu: 本博仅代表个人观点，某些地方纯属意淫
   email_md5: 
 
 rss_path: feed.xml
