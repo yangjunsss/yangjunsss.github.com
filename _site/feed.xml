@@ -7,9 +7,31 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>ios8 is coming</title>
+				<description>&lt;p&gt;&lt;a href=&quot;http://v.youku.com/v_show/id_XNzIwODkzMTM2.html&quot;&gt;WWDC2014视频在这里&lt;/a&gt;，当看到开放&lt;code&gt;Touch ID API&lt;/code&gt;时激动了，这意味着指纹识别技术正式进入大规模应用阶段，&lt;code&gt;Passcode&lt;/code&gt;要退休了；）&lt;/p&gt;
+
+&lt;p&gt;当看到Apple放开了沙盒的限制，很多人该忙起来了，苹果称之为&lt;code&gt;extension&lt;/code&gt;，这意味这App可以以widget的形式嵌入到其他应用中，会上演示了在iPhoto中应用第三方的美化工具进行编辑照片，safari中应用了翻译工具，值得一提的是在Notification Center中，App可以获得更多的交互，Taobao，JD等O2O应用该忙起来了。实际上也带来了另一个潜在的商业契机；）&lt;/p&gt;
+
+&lt;p&gt;当看到开放iCloud Kit，就笑了，为创业公司加油！&lt;/p&gt;
+
+&lt;p&gt;在游戏方面，引入了Metal，不是很懂- -&lt;/p&gt;
+
+&lt;p&gt;最后引入New Programming Language：Swift，Dev举起屌，叫了！但演示的内容略失望，演示了Sort和加密的performance，动态类型，小哥当场制作的个小游戏，亮点是同样的code可以直接从2D转为3D，总体感觉有点哗众取宠，咱拭目以待～&lt;/p&gt;
+
+&lt;p&gt;纵观整个keynote，Apple在交互性上做了很多的推进，不仅仅是应用之间，同时也在设备之间，祝愿Apple越走越远～&lt;/p&gt;
+
+&lt;p&gt;PS：这次ios更新开放了4000+个API，涉及到&lt;code&gt;Extenstion,TouchID,iCloudKit,PhotoKit,Camera APIs,HealthKit,HomeKit,Metal。&lt;/code&gt;&lt;/p&gt;
+
+</description>
+				<pubDate>Tue, 03 Jun 2014 00:00:00 +0800</pubDate>
+				<link>/ios/2014/06/03/ios8iscoming.html</link>
+				<guid isPermaLink="true">/ios/2014/06/03/ios8iscoming.html</guid>
+			</item>
+		
+			<item>
 				<title>又造轮子</title>
 				<description>&lt;p&gt;We are guessing Apple,but we don’t know the Apple is guessing us!
-喔～我们又造了一个轮子，我们用&lt;code&gt;NSMutableArray&lt;/code&gt;造了一个类似的&lt;code&gt;CFStorage&lt;/code&gt;的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是&lt;code&gt;O（1）&lt;/code&gt;，基于这样一个映像，在大数据用Array的时候就会犹豫，比如100W条数据。&lt;/p&gt;
+喔～我们又造了一个轮子，我们用&lt;code&gt;NSMutableArray&lt;/code&gt;造了一个类似的&lt;code&gt;CFStorage&lt;/code&gt;的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是&lt;code&gt;O（1）&lt;/code&gt;，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。&lt;/p&gt;
 
 &lt;p&gt;于是在oc上用&lt;code&gt;NSMutableArray&lt;/code&gt;写了一个能满足增删要求又不至于使查询性能down下来的结构，后来测试&lt;code&gt;NSMutableArray&lt;/code&gt;的增删查性能后发现，我们的确造了一个轮子。&lt;/p&gt;
 
