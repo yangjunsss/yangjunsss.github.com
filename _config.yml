@@ -8,7 +8,7 @@ pygments: true
 markdown: kramdown
 
 title: yj的博客
-description: yangjun,ios,yj,dev
+description: yj的博客,yangjun,ios,yj,dev
 author:
   name: yj
   email: cj.yangjun@gmail.com

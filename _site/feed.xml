@@ -99,8 +99,9 @@
 			</item>
 		
 			<item>
-				<title>重写博客</title>
-				<description>&lt;p&gt;之前在javaeye上写博客，还搭建过Wordpress（php+mysql的博客系统），但没申请主机，今天发现GitHub+jekyll搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）&lt;/p&gt;
+				<title>Newfly</title>
+				<description>&lt;p&gt;之前在javaeye上写博客，还搭建过Wordpress（php+mysql的博客系统），但没申请主机，今天发现
+GitHub+jekyll搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）&lt;/p&gt;
 
 &lt;h4 id=&quot;mac&quot;&gt;创建步骤（Mac）:&lt;/h4&gt;
 &lt;p&gt;1.&lt;strong&gt;创建github账号和创建repository&lt;/strong&gt;&lt;/p&gt;
@@ -143,8 +144,8 @@
 
 </description>
 				<pubDate>Sun, 01 Jun 2014 00:00:00 +0800</pubDate>
-				<link>/general/2014/06/01/newfly.html</link>
-				<guid isPermaLink="true">/general/2014/06/01/newfly.html</guid>
+				<link>/2014/06/01/newfly.html</link>
+				<guid isPermaLink="true">/2014/06/01/newfly.html</guid>
 			</item>
 		
 	</channel>
