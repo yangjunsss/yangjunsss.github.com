@@ -41,36 +41,37 @@ tagline:
     <a href="{{ site.BASE_PATH }}{{ post.url }}">阅读</a>
   </h5>
 </article>
-{% endfor %}
 <hr style="border-color: #ddd;"/>
+{% endfor %}
+
 
 <ul class="pager" style="font-size:12px;"> 
 
   {% if paginator.previous_page %}
   <li class="previous">
     {% if paginator.previous_page == 1 %}
-    <a href="{{ site.BASE_PATH }}/">&larr; Newer</a>
+    <a style="border:none" href="{{ site.BASE_PATH }}/">&larr; Newer</a>
     {% else %}
-    <a href="{{ site.BASE_PATH }}/page{{ paginator.previous_page }}">&larr; Newer</a>
+    <a style="border:none" href="{{ site.BASE_PATH }}/page{{ paginator.previous_page }}">&larr; Newer</a>
     {% endif %}
   </li>
   {% else %}
   <li class="previous disabled">
-    <a>&larr; Newer</a>
+    <a style="border:none">&larr; Newer</a>
   </li>
   {% endif %}
   
   <li>
-    <span class="page_number">Page: {{ paginator.page }} of {{ paginator.total_pages }}</span>
+    <span style="border:none" class="page_number">Page: {{ paginator.page }} of {{ paginator.total_pages }}</span>
   </li>
 
   {% if paginator.next_page %}
   <li class="next">
-    <a href="{{ site.BASE_PATH }}/page{{ paginator.next_page }}">Older &rarr;</a>
+    <a style="border:none" href="{{ site.BASE_PATH }}/page{{ paginator.next_page }}">Older &rarr;</a>
   </li>
   {% else %}
   <li class="next disabled">
-    <a>Older &rarr;</a>        
+    <a style="border:none">Older &rarr;</a>        
   </li>
   {% endif %}
 

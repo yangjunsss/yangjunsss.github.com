@@ -4,7 +4,7 @@ title: ios8 is coming
 categories: [ios]
 tags: [WWDC2014, ios]
 fullview: false
-description: WWDC2014,ios8,touchID api,Swift language
+keywords: WWDC2014,ios8,touchID api,Swift language
 ---
 
 [WWDC2014视频在这里](http://v.youku.com/v_show/id_XNzIwODkzMTM2.html)，当看到开放`Touch ID API`时激动了，这意味着指纹识别技术正式进入大规模应用阶段，`Passcode`要退休了；）
