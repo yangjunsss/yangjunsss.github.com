@@ -5,7 +5,7 @@ categories: [ios]
 tags: [WWDC2014, ios]
 fullview: false
 keywords: WWDC2014,ios8,touchID api,Swift language
-description: [WWDC2014视频在这里](http://v.youku.com/v_show/id_XNzIwODkzMTM2.html)，当看到开放`Touch ID API`时激动了，这意味着指纹识别技术正式进入大规模应用阶段，`Passcode`要退休了；）
+description: WWDC2014视频在这里，当看到开放`Touch ID API`时激动了，这意味着指纹识别技术正式进入大规模应用阶段，`Passcode`要退休了；）
 ---
 
 
