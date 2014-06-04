@@ -8,9 +8,8 @@
 		
 			<item>
 				<title>ios8 is coming</title>
-				<description>&lt;p&gt;&lt;a href=&quot;http://v.youku.com/v_show/id_XNzIwODkzMTM2.html&quot;&gt;WWDC2014视频在这里&lt;/a&gt;，当看到开放&lt;code&gt;Touch ID API&lt;/code&gt;时激动了，这意味着指纹识别技术正式进入大规模应用阶段，&lt;code&gt;Passcode&lt;/code&gt;要退休了；）&lt;/p&gt;
-
-&lt;p&gt;当看到Apple放开了沙盒的限制，很多人该忙起来了，苹果称之为&lt;code&gt;extension&lt;/code&gt;，这意味这App可以以widget的形式嵌入到其他应用中，会上演示了在iPhoto中应用第三方的美化工具进行编辑照片，safari中应用了翻译工具，值得一提的是在Notification Center中，App可以获得更多的交互，Taobao，JD等O2O应用该忙起来了。实际上也带来了另一个潜在的商业契机；）&lt;/p&gt;
+				<description>&lt;p&gt;&lt;a href=&quot;http://v.youku.com/v_show/id_XNzIwODkzMTM2.html&quot;&gt;WWDC2014视频在这里&lt;/a&gt;，当看到开放&lt;code&gt;Touch ID API&lt;/code&gt;时激动了，这意味着指纹识别技术正式进入大规模应用阶段，&lt;code&gt;Passcode&lt;/code&gt;要退休了；）
+当看到Apple放开了沙盒的限制，很多人该忙起来了，苹果称之为&lt;code&gt;extension&lt;/code&gt;，这意味这App可以以widget的形式嵌入到其他应用中，会上演示了在iPhoto中应用第三方的美化工具进行编辑照片，safari中应用了翻译工具，值得一提的是在Notification Center中，App可以获得更多的交互，Taobao，JD等O2O应用该忙起来了。实际上也带来了另一个潜在的商业契机；）&lt;/p&gt;
 
 &lt;p&gt;当看到开放iCloud Kit，就笑了，为创业公司加油！这次ios更新开放了4000+个API，涉及到Extenstion,TouchID,iCloudKit,PhotoKit,Camera APIs,HealthKit,HomeKit,Metal.&lt;/p&gt;
 
@@ -31,6 +30,8 @@
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;c--&quot;&gt;&lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Hello,World&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;它被编译在全局区域，不需要main函数，甚至连结束符；都不需要。翻了下Swift的官方文档，600+页，除了语言的基本内容：变量定义，类和结构定义，属性和方法定义，还有闭包、Function、subscript、ARC、Optional Chaining、Extensions等特性。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/media/屏幕快照 2014-06-04 11.23.08 PM.png&quot; alt=&quot;p1&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;编程语言变得越来越高级，越来越傻瓜化，我一直在意淫以后的编程技术应该只要程序员用嘴巴说或者手势就能制作出一个程式了- -&lt;/p&gt;
 
@@ -112,8 +113,8 @@
 		
 			<item>
 				<title>重写博客</title>
-				<description>&lt;p&gt;之前在javaeye上写博客，还搭建过Wordpress（php+mysql的博客系统），但没申请主机，今天发现
-GitHub+jekyll搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）&lt;/p&gt;
+				<description>&lt;p&gt;之前在&lt;code&gt;javaeye&lt;/code&gt;上写博客，还搭建过&lt;code&gt;Wordpress&lt;/code&gt;（php+mysql的博客系统），但没申请主机，今天发现
+&lt;code&gt;GitHub+jekyll&lt;/code&gt;搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）&lt;/p&gt;
 
 &lt;h4 id=&quot;mac&quot;&gt;创建步骤（Mac）:&lt;/h4&gt;
 &lt;p&gt;1.&lt;strong&gt;创建github账号和创建repository&lt;/strong&gt;&lt;/p&gt;

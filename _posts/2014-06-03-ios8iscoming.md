@@ -6,10 +6,10 @@ tags: [WWDC2014, ios]
 fullview: false
 keywords: WWDC2014,ios8,touchID api,Swift language
 description: WWDC2014视频在这里，当看到开放`Touch ID API`时激动了，这意味着指纹识别技术正式进入大规模应用阶段，`Passcode`要退休了；）
+
 ---
 
 [WWDC2014视频在这里](http://v.youku.com/v_show/id_XNzIwODkzMTM2.html)，当看到开放`Touch ID API`时激动了，这意味着指纹识别技术正式进入大规模应用阶段，`Passcode`要退休了；）
-
 当看到Apple放开了沙盒的限制，很多人该忙起来了，苹果称之为`extension`，这意味这App可以以widget的形式嵌入到其他应用中，会上演示了在iPhoto中应用第三方的美化工具进行编辑照片，safari中应用了翻译工具，值得一提的是在Notification Center中，App可以获得更多的交互，Taobao，JD等O2O应用该忙起来了。实际上也带来了另一个潜在的商业契机；）
 
 当看到开放iCloud Kit，就笑了，为创业公司加油！这次ios更新开放了4000+个API，涉及到Extenstion,TouchID,iCloudKit,PhotoKit,Camera APIs,HealthKit,HomeKit,Metal.
@@ -31,6 +31,8 @@ Swift官方介绍[详见](https://developer.apple.com/swift/)
 println("Hello,World")
 {% endhighlight %}
 它被编译在全局区域，不需要main函数，甚至连结束符；都不需要。翻了下Swift的官方文档，600+页，除了语言的基本内容：变量定义，类和结构定义，属性和方法定义，还有闭包、Function、subscript、ARC、Optional Chaining、Extensions等特性。
+
+![p1](/assets/media/屏幕快照 2014-06-04 11.23.08 PM.png)
 
 编程语言变得越来越高级，越来越傻瓜化，我一直在意淫以后的编程技术应该只要程序员用嘴巴说或者手势就能制作出一个程式了- -
 
