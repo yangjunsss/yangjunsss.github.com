@@ -3,11 +3,9 @@
 <head>
 	<meta charset="utf-8">
 	<title>yj的博客 ios8 is coming</title>
-	
 	<meta name="keywords" content="WWDC2014,ios8,touchID api,Swift language">
-	
-	<meta name="description" content="yangjun,ios,yj,dev">
-
+	<meta name="description" content="WWDC2014视频在这里，当看到开放`Touch ID API`时激动了，这意味着指纹识别技术正式进入大规模应用阶段，`Passcode`要退休了；）">
+	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -35,7 +33,7 @@
 
 <body>
 
-					<script type="text/javascript" src="http://tajs.qq.com/stats?sId=34536989" charset="UTF-8"></script>
+	<script type="text/javascript" src="http://tajs.qq.com/stats?sId=34536989" charset="UTF-8"></script>
 				
 	<nav class="navbar navbar-default visible-xs" role="navigation">
 		<!-- Brand and toggle get grouped for better mobile display -->
@@ -160,15 +158,27 @@
 
 <p>在游戏方面，引入了Metal，不是很懂- -</p>
 
-<p>最后引入New Programming Language：Swift，Dev举起屌，叫了！但演示的内容略失望，演示了Sort和加密的performance，动态类型，小哥当场制作的个小游戏，亮点是同样的code可以直接从2D转为3D，总体感觉有点哗众取宠，咱拭目以待～</p>
+<p>最后引入New Programming Language：<code>Swift</code>，Dev举起屌，叫了！演示了Sort和加密的performance，动态类型，小哥当场制作的个小游戏，亮点是同样的code可以直接从2D转为3D。Swift被设计成<code>Modern、Interactive、Safe、Fast and Powerful</code>，oc本身是很动态的语言，因为基于message forwarding的机制，底层msg_send接管了所有函数调用的this，函数名，参数和返回值，可以想象Swift会是很动态的语言。比如函数调用不会异常，数组越界不会异常，包装函数返回值，动态加载函数和变量等等都不难实现。</p>
+
+<p>Swift兼容oc的code，并被编译成优化的Native code用来保证Performance，这点可以保持怀疑；），仍然是ARC来做内存管理。</p>
+
+<p>最有趣的应该是Interactive Playgrounds了，看上去这个东西可以让你边写代码边看到运行结果，甚至出performance的数据，这应该是最新鲜和有趣的feature了</p>
+
+<p>Swift官方介绍<a href="https://developer.apple.com/swift/">详见</a></p>
+
+<p>第一个Hello World的program是这样：</p>
+
+<p><code>println("Hello,World")</code></p>
+
+<p>它被编译在全局区域，不需要main函数，甚至连结束符；都不需要。翻了下Swift的官方文档，600+页，除了语言的基本内容：变量定义，类和结构定义，属性和方法定义，还有闭包、Function、subscript、ARC、Optional Chaining、Extensions等特性。</p>
 
 <p>纵观整个keynote，Apple在交互性上做了很多的推进，不仅仅是应用之间，同时也在设备之间，祝愿Apple越走越远～</p>
 
-<p>PS：这次ios更新开放了4000+个API，涉及到<code>Extenstion,TouchID,iCloudKit,PhotoKit,Camera APIs,HealthKit,HomeKit,Metal。</code></p>
+<p>PS：这次ios更新开放了4000+个API，涉及到Extenstion,TouchID,iCloudKit,PhotoKit,Camera APIs,HealthKit,HomeKit,Metal.</p>
 
 
 	  </div>
-
+<!--
 		
 		<ul class="tag_box list-unstyled list-inline">
 		  <li><i class="fa fa-folder-open"></i></li>
@@ -210,9 +220,9 @@
 		  
 
 		<hr>
-
+-->
 		<div>
-      <section class="share col-sm-6">
+      <section class="share">
         <h4 class="section-title">Share Post</h4>
         <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=ios8 is coming"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
@@ -231,11 +241,11 @@
         </a>
 
       </section>
-      <section style="text-algin:right">
+  <!--     <section style="text-algin:right">
 <script type="text/javascript">
 document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120&choe=UTF-8&chld=L|2&chl="+encodeURI(window.location.href)+"\" width=\"120\" height=\"120\"/></img>");
 </script>
-</section>
+</section>-->
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
@@ -264,6 +274,37 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 </article>
 <div class="clearfix"></div>
 
+   <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'yangjunsss'; // required: replace example with your forum shortname
+        //var disqus_identifier = encodeURI(window.location.href);
+        //var disqus_url = encodeURI(window.location.href);
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+        <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'yangjunsss'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+    </script>
+    
+    
+    
 
 
 		<footer>

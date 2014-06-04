@@ -2,9 +2,9 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>yj的博客 一个写线程，一个读线程，crash了</title>
-	<meta name="keywords" content="">
-	<meta name="description" content="">
+	<title>yj的博客 重写博客</title>
+	<meta name="keywords" content="jekyll搭建,jekyll themes">
+	<meta name="description" content="之前在javaeye上写博客，还搭建过Wordpress（php+mysql的博客系统），但没申请主机，今天发现GitHub+jekyll搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）">
 	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -136,7 +136,7 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1>一个写线程，一个读线程，crash了 </h1>
+  <h1>重写博客 </h1>
 </div>
 	
 <article>
@@ -144,37 +144,54 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	    
-	   0th,
-	   
-	   
+	   June 
+	   1st,
+	     
+	   2014
 	 </span>
 	  <div class="article_body">
-	  <p>实际上我偷了个懒，就crash了，读写线程一般发生crash情况有：
-1.访问一个被释放的内存，比如delete或replace操作；
-2.访问越界</p>
+	  <p>之前在javaeye上写博客，还搭建过Wordpress（php+mysql的博客系统），但没申请主机，今天发现
+GitHub+jekyll搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）</p>
 
-<p>比如：</p>
+<h4 id="mac">创建步骤（Mac）:</h4>
+<p>1.<strong>创建github账号和创建repository</strong></p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">testOneReplaceThreadAndMultiThreadReadBug2</span>
-<span class="p">{</span>
-    <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">new</span><span class="p">];</span>
-    <span class="n">VideoItem</span> <span class="o">*</span><span class="n">emptyI</span> <span class="o">=</span> <span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">];</span>
-    <span class="n">NSInteger</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="n">emptyI</span><span class="p">];</span>
-    <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">++&gt;</span><span class="mi">10000000</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="p">}</span>
-        <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="n">emptyI</span><span class="p">];</span>
-        <span class="n">array</span><span class="p">[[</span><span class="n">array</span> <span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">];</span>
-        <span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
-            <span class="n">VideoItem</span> <span class="o">*</span><span class="n">e</span> <span class="o">=</span> <span class="n">array</span><span class="p">[[</span><span class="n">array</span> <span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
-        <span class="p">});</span>
-    <span class="p">}</span>
-<span class="p">}</span></code></pre></div>
+<p>比如我创建<code>yangjunsss</code>账号和<code>yangjunsss.github.com</code>的repository（注意带github.com后缀），并使用了GitHub Pages，比如这里工程publish到了<a href="http://yangjunsss.github.io">http://yangjunsss.github.io</a>；</p>
 
-<p>就会发生EXC_BAD_ACCESS</p>
+<p>2.<strong>check out yangjunsss.github.com</strong></p>
+
+<p>可以用Github for Mac的工具来替代git clone命令会省掉很多事情，比如<a href="https://help.github.com/articles/generating-ssh-keys">add ssh</a></p>
+
+<p>3.<strong>下载jekyll</strong></p>
+
+<div class="highlight"><pre><code class="bash">sudo gem install jekyll // 会下载所有依赖的包</code></pre></div>
+
+<p>4.<strong>下载jekyll themes</strong></p>
+
+<p><a href="http://jekyllthemes.org">jekyllthemes</a>提供很多Themes，比如Dbyll，下载后，cd到这个目录（包含_layouts,_posts,_site,assets主要目录），输入<code>jekyll server --watch</code> 生成html页面，本地run起来，通过<a href="http://0.0.0.0:4000">http://0.0.0.0:4000</a>就能看到效果了。</p>
+
+<p>5.<strong>写博客</strong></p>
+
+<p>博客文件以markdown格式存储在_post目录下（用文件存储替换掉了数据库），文件名的格式为时间+标题，md基本语法看<a href="https://help.github.com/articles/markdown-basics">这里</a>，用喜爱的编辑器编辑这个文件内容就开始写博客了。</p>
+
+<p>6.<strong>push到GitHub上</strong></p>
+
+<p>通过GitHub工具push本地的更改到github上，然后一会就能通过之前的<a href="http://yangjunsss.github.io">http://yangjunsss.github.io</a>访问我的博客了。</p>
+
+<p>到此，一个简单的Blog就搭建起来了，不需要php，不需要mysql，像写code一样来写blog并通过github来管理，是不是另一番风味？！</p>
+
+<p><strong>PPS:</strong></p>
+
+<p>7.<strong>二维码</strong></p>
+
+<div class="highlight"><pre><code class="javascript"><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text/javascript&quot;</span><span class="o">&gt;</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&lt;img src=\&quot;https://chart.googleapis.com/chart?cht=qr&amp;chs=120x120&amp;choe=UTF-8&amp;chld=L|2&amp;chl=&quot;</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;\&quot; width=\&quot;120\&quot; height=\&quot;120\&quot;/&gt;&lt;/img&gt;&quot;</span><span class="p">);</span>
+<span class="o">&lt;</span><span class="err">/script&gt;</span></code></pre></div>
+
+<p>8.<strong>网站统计</strong></p>
+
+<p><a href="http://ta.qq.com">腾讯统计</a></p>
+
 
 	  </div>
 <!--
@@ -184,8 +201,8 @@
 		  
 		  
 			 
-				<li><a href="/categories.html#ios-ref">
-					ios <span>(2)</span>
+				<li><a href="/categories.html#general-ref">
+					general <span>(1)</span>
 					
 				</a></li>
 			
@@ -200,15 +217,15 @@
 		  
 			 
 				<li>
-					<a href="/tags.html#Thread-ref">
-					Thread <span>()</span>
+					<a href="/tags.html#github-ref">
+					github <span>(1)</span>
 					,
 					</a>
 				</li>
 			 
 				<li>
-					<a href="/tags.html#NSMutableArray-ref">
-					NSMutableArray <span>(1)</span>
+					<a href="/tags.html#jekyll-ref">
+					jekyll <span>(1)</span>
 					
 					</a>
 				</li>
@@ -223,7 +240,7 @@
 		<div>
       <section class="share">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=一个写线程，一个读线程，crash了"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=重写博客"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -260,7 +277,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		  <li class="previous disabled"><a>&larr; Previous</a></li>
 		  
 		  
-			<li class="next disabled"><a>Next &rarr;</a>
+		  <li class="next"><a href="/ios/2014/06/02/%E5%8F%88%E9%80%A0%E8%BD%AE%E5%AD%90.html" title="又造轮子">Next &rarr;</a></li>
 		  
 		</ul>
 

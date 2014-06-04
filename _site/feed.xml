@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>yj的博客</title>
-		<description>yangjun,ios,yj,dev</description>
+		<description>yj的博客,yangjun,ios,yj,dev</description>
 		<link>/</link>
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
@@ -16,11 +16,23 @@
 
 &lt;p&gt;在游戏方面，引入了Metal，不是很懂- -&lt;/p&gt;
 
-&lt;p&gt;最后引入New Programming Language：Swift，Dev举起屌，叫了！但演示的内容略失望，演示了Sort和加密的performance，动态类型，小哥当场制作的个小游戏，亮点是同样的code可以直接从2D转为3D，总体感觉有点哗众取宠，咱拭目以待～&lt;/p&gt;
+&lt;p&gt;最后引入New Programming Language：&lt;code&gt;Swift&lt;/code&gt;，Dev举起屌，叫了！演示了Sort和加密的performance，动态类型，小哥当场制作的个小游戏，亮点是同样的code可以直接从2D转为3D。Swift被设计成&lt;code&gt;Modern、Interactive、Safe、Fast and Powerful&lt;/code&gt;，oc本身是很动态的语言，因为基于message forwarding的机制，底层msg_send接管了所有函数调用的this，函数名，参数和返回值，可以想象Swift会是很动态的语言。比如函数调用不会异常，数组越界不会异常，包装函数返回值，动态加载函数和变量等等都不难实现。&lt;/p&gt;
+
+&lt;p&gt;Swift兼容oc的code，并被编译成优化的Native code用来保证Performance，这点可以保持怀疑；），仍然是ARC来做内存管理。&lt;/p&gt;
+
+&lt;p&gt;最有趣的应该是Interactive Playgrounds了，看上去这个东西可以让你边写代码边看到运行结果，甚至出performance的数据，这应该是最新鲜和有趣的feature了&lt;/p&gt;
+
+&lt;p&gt;Swift官方介绍&lt;a href=&quot;https://developer.apple.com/swift/&quot;&gt;详见&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;第一个Hello World的program是这样：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;println(&quot;Hello,World&quot;)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;它被编译在全局区域，不需要main函数，甚至连结束符；都不需要。翻了下Swift的官方文档，600+页，除了语言的基本内容：变量定义，类和结构定义，属性和方法定义，还有闭包、Function、subscript、ARC、Optional Chaining、Extensions等特性。&lt;/p&gt;
 
 &lt;p&gt;纵观整个keynote，Apple在交互性上做了很多的推进，不仅仅是应用之间，同时也在设备之间，祝愿Apple越走越远～&lt;/p&gt;
 
-&lt;p&gt;PS：这次ios更新开放了4000+个API，涉及到&lt;code&gt;Extenstion,TouchID,iCloudKit,PhotoKit,Camera APIs,HealthKit,HomeKit,Metal。&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;PS：这次ios更新开放了4000+个API，涉及到Extenstion,TouchID,iCloudKit,PhotoKit,Camera APIs,HealthKit,HomeKit,Metal.&lt;/p&gt;
 
 </description>
 				<pubDate>Tue, 03 Jun 2014 00:00:00 +0800</pubDate>
@@ -99,7 +111,7 @@
 			</item>
 		
 			<item>
-				<title>Newfly</title>
+				<title>重写博客</title>
 				<description>&lt;p&gt;之前在javaeye上写博客，还搭建过Wordpress（php+mysql的博客系统），但没申请主机，今天发现
 GitHub+jekyll搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）&lt;/p&gt;
 
@@ -144,8 +156,8 @@ GitHub+jekyll搭建静态bolg还蛮简单，就心血来潮了，重新开始写
 
 </description>
 				<pubDate>Sun, 01 Jun 2014 00:00:00 +0800</pubDate>
-				<link>/2014/06/01/newfly.html</link>
-				<guid isPermaLink="true">/2014/06/01/newfly.html</guid>
+				<link>/general/2014/06/01/%E9%87%8D%E5%86%99%E5%8D%9A%E5%AE%A2.html</link>
+				<guid isPermaLink="true">/general/2014/06/01/%E9%87%8D%E5%86%99%E5%8D%9A%E5%AE%A2.html</guid>
 			</item>
 		
 	</channel>
