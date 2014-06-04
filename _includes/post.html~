@@ -19,7 +19,7 @@
 	  <div class="article_body">
 	  {{ content }}
 	  </div>
-
+<!--
 		{% unless page.categories == empty %}
 		<ul class="tag_box list-unstyled list-inline">
 		  <li><i class="fa fa-folder-open"></i></li>
@@ -70,7 +70,7 @@
 		{% endunless %}  
 
 		<hr>
-
+-->
 		<div>
       <section class="share col-sm-6">
         <h4 class="section-title">Share Post</h4>
