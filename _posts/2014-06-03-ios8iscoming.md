@@ -25,9 +25,9 @@ Swift兼容oc的code，并被编译成优化的Native code用来保证Performanc
 Swift官方介绍[详见](https://developer.apple.com/swift/)
 
 第一个Hello World的program是这样：
-
-`println("Hello,World")`
-
+{% highlight c++ %}
+println("Hello,World")
+{% endhighlight %}
 它被编译在全局区域，不需要main函数，甚至连结束符；都不需要。翻了下Swift的官方文档，600+页，除了语言的基本内容：变量定义，类和结构定义，属性和方法定义，还有闭包、Function、subscript、ARC、Optional Chaining、Extensions等特性。
 
 
