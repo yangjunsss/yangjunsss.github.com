@@ -33,7 +33,7 @@ println("Hello,World")
 {% endhighlight %}
 它被编译在全局区域，不需要main函数，甚至连结束符；都不需要。翻了下Swift的官方文档，600+页，除了语言的基本内容：变量定义，类和结构定义，属性和方法定义，还有闭包、Function、subscript、ARC、Optional Chaining、Extensions等特性。
 
-![p1](/assets/media/屏幕快照 2014-06-05 12.46.59 AM)
+![p1](/assets/media/屏幕快照 2014-06-05 12.46.59 AM.png)
 
 编程语言变得越来越高级，越来越傻瓜化，我一直在意淫以后的编程技术应该只要程序员用嘴巴说或者手势就能制作出一个程式了- -
 
