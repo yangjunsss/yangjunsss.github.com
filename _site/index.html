@@ -144,6 +144,49 @@
 <article class="home">
 
   <h3>
+    <a href="/ios/2014/06/06/%E8%80%81%E6%9D%BFcrash%E4%BA%86.html">老板，并发crash了！</a>
+  </h3>
+
+  <span class="post-date">
+    
+    June
+    6th,
+    
+    2014
+  </span>
+
+  <div>
+    
+    
+    <p>App在load的时候任务过重影响了性能，所以很自然的并发了，其中主线程对某个Array一直在append操作，而并发的code进行了get操作，结果就exc_bad_access了，有点不小心。Crash的测试code如下：</p>
+
+<div class="highlight"><pre><code class="objective-c"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">testOneAddAndMultiReadBug</span>
+<span class="p">{</span>
+    <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">new</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">]];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">NSInteger</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">10000000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">NSInteger</span> <span class="n">count</span> <span class="o">=</span> <span class="p">[</span><span class="n">array</span> <span class="n">count</span><span class="p">];</span>
+        <span class="n">VideoItem</span> <span class="o">*</span><span class="n">e</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span> <span class="c1">// EXC_BAD_ACCESS!</span>
+        <span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
+            <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">]];</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+
+
+    
+    
+  </div>
+  <h5 style="text-align:right">
+    <a href="/ios/2014/06/06/%E8%80%81%E6%9D%BFcrash%E4%BA%86.html">阅读</a>
+  </h5>
+</article>
+<hr style="border-color: #ddd;"/>
+
+
+<article class="home">
+
+  <h3>
     <a href="/ios/2014/06/03/ios8iscoming.html">ios8 is coming</a>
   </h3>
 
@@ -190,7 +233,8 @@
     
     
     <p><strong>We are guessing Apple,but we don’t know the Apple is guessing us!</strong>
-喔～我们又造了一个轮子，我们用<code>NSMutableArray</code>造了一个类似的<code>CFStorage</code>的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是<code>O（1）</code>，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。</p>
+喔～我们又造了一个轮子，我们用<code>NSMutableArray</code>造了一个类似的<code>CFStorage</code>的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是<code>O（1）</code>，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。
+于是在oc上用<code>NSMutableArray</code>写了一个能满足增删要求又不至于使查询性能down下来的结构，后来测试<code>NSMutableArray</code>的增删查性能后发现，我们的确造了一个轮子。</p>
 
 
     
