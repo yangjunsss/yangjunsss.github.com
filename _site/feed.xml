@@ -8,11 +8,13 @@
 		
 			<item>
 				<title>浅尝Swift（待续）</title>
-				<description>&lt;p&gt;在看了Swift的Guide，从自己对语言的了解来看Swift；）&lt;/p&gt;
+				<description>&lt;p&gt;在看了Swift的Guide，从自己对语言的了解来看Swift；）再看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？拭目以待～&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;1.忘记基本类型吧&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1.忘记基本类型和冗余的code吧&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;sf的变量定义都成了var，let，基本数据类型也成了Int，Double，String等，这些都成了对象，甚至enum这种东西都拥有了this指针和方法，所以忘记基本类型吧。&lt;/p&gt;
+
+&lt;p&gt;Apple一向的做事风格就是简化：去掉了；分隔符，if()，switch中的break等等，真给懒人造福。&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;2.有点虚名的类型定义&lt;/strong&gt;&lt;/p&gt;
 
@@ -33,6 +35,26 @@
 &lt;p&gt;&lt;strong&gt;6.Array &amp;amp;&amp;amp; Dic&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;两者都只支持单一类型了，比较赞的是支持+=操作符，直接 array+=array1,array+=element. 都支持forin操作，iterator也省事了很多。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;7.全局函数Function、内嵌Function&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;默认参数值，多个返回值，多个参数名定义，不确定参数个数，除了方便还是方便，不过特别注意的是Function的参数默认都是值传递并且是常量，如果需要更改参数内容则加上var，如果要传递指针让更改生效，则加上inout,这点会有点绕。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;8.把简洁做到极致的closure写法&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;往一个sort函数里传入closure来做排序是很常用的写法，比如swift的写法如下：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;objective-c&quot;&gt;&lt;span class=&quot;n&quot;&gt;reversed&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;names&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Bool&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s2&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;摘录来自: Apple Inc. “The Swift Programming Language”。 iBooks. https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewBook?id=881256329&lt;/p&gt;
+
+&lt;p&gt;上面这段code等同于:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;objective-c&quot;&gt;&lt;span class=&quot;n&quot;&gt;reversed&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;names&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;你们感受一下&lt;/p&gt;
 
 </description>
 				<pubDate>Sat, 07 Jun 2014 00:00:00 +0800</pubDate>

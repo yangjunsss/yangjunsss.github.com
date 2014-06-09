@@ -150,11 +150,13 @@
 	   2014
 	 </span>
 	  <div class="article_body">
-	  <p>在看了Swift的Guide，从自己对语言的了解来看Swift；）</p>
+	  <p>在看了Swift的Guide，从自己对语言的了解来看Swift；）再看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？拭目以待～</p>
 
-<p><strong>1.忘记基本类型吧</strong></p>
+<p><strong>1.忘记基本类型和冗余的code吧</strong></p>
 
 <p>sf的变量定义都成了var，let，基本数据类型也成了Int，Double，String等，这些都成了对象，甚至enum这种东西都拥有了this指针和方法，所以忘记基本类型吧。</p>
+
+<p>Apple一向的做事风格就是简化：去掉了；分隔符，if()，switch中的break等等，真给懒人造福。</p>
 
 <p><strong>2.有点虚名的类型定义</strong></p>
 
@@ -175,6 +177,26 @@
 <p><strong>6.Array &amp;&amp; Dic</strong></p>
 
 <p>两者都只支持单一类型了，比较赞的是支持+=操作符，直接 array+=array1,array+=element. 都支持forin操作，iterator也省事了很多。</p>
+
+<p><strong>7.全局函数Function、内嵌Function</strong></p>
+
+<p>默认参数值，多个返回值，多个参数名定义，不确定参数个数，除了方便还是方便，不过特别注意的是Function的参数默认都是值传递并且是常量，如果需要更改参数内容则加上var，如果要传递指针让更改生效，则加上inout,这点会有点绕。</p>
+
+<p><strong>8.把简洁做到极致的closure写法</strong></p>
+
+<p>往一个sort函数里传入closure来做排序是很常用的写法，比如swift的写法如下：</p>
+
+<div class="highlight"><pre><code class="objective-c"><span class="n">reversed</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="p">{</span> <span class="p">(</span><span class="n">s1</span><span class="o">:</span> <span class="n">String</span><span class="p">,</span> <span class="n">s2</span><span class="o">:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="k">in</span>
+<span class="k">return</span> <span class="n">s1</span> <span class="o">&gt;</span> <span class="n">s2</span>
+<span class="p">})</span></code></pre></div>
+
+<p>摘录来自: Apple Inc. “The Swift Programming Language”。 iBooks. https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewBook?id=881256329</p>
+
+<p>上面这段code等同于:</p>
+
+<div class="highlight"><pre><code class="objective-c"><span class="n">reversed</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">names</span><span class="p">,</span><span class="o">&gt;</span><span class="p">)</span></code></pre></div>
+
+<p>你们感受一下</p>
 
 
 	  </div>
