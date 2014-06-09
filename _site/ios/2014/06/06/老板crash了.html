@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	ios dev，产品工作者，投机份子
+	ios dev，产品工作者
 </div>
 
 
@@ -150,7 +150,7 @@
 	   2014
 	 </span>
 	  <div class="article_body">
-	  <p>App在load的时候任务过重影响了性能，所以很自然的并发了，其中主线程对某个Array一直在append操作，而并发的code进行了get操作，结果就exc_bad_access了，有点不小心。Crash的测试code如下：</p>
+	  <p>App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了get操作，结果就exc_bad_access了，有点不小心。写的一个Crash的测试code如下：</p>
 
 <div class="highlight"><pre><code class="objective-c"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">testOneAddAndMultiReadBug</span>
 <span class="p">{</span>
@@ -165,7 +165,7 @@
     <span class="p">}</span>
 <span class="p">}</span></code></pre></div>
 
-<p>oc的Array和Map对并发的支持的确弱了点，线程安全都需要自己做- - ，但我还是怀疑了一会，因为这里只有一个线程做append，于是翻了下实现，CFArray简化的code如下：</p>
+<p>oc的Array和Map对并发的支持的确弱了点，线程安全都需要自己保证- - ，但我还是怀疑了一会为什么会crash，因为这里只有一个线程做append，于是翻了下CFArray实现，简化code如下：</p>
 
 <div class="highlight"><pre><code class="objective-c"><span class="k">struct</span> <span class="n">__CFArrayImmutable</span> <span class="p">{</span>
     <span class="n">CFRuntimeBase</span> <span class="n">_base</span><span class="p">;</span>
@@ -197,18 +197,18 @@
     <span class="n">__CFArraySetCount</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">futureCnt</span><span class="p">);</span>
 <span class="p">}</span></code></pre></div>
 
-<p>可以看到Append是先Insert然后再replace，这就有可能导致访问的内存不存在，crash了，于是只能做并发了。</p>
+<p>可以看到append实际上是先insert然后再replace，这就有可能EBA了，于是做并发吧。</p>
 
 <p><strong>锁</strong>和<strong>非阻塞算法CAS</strong>。</p>
 
 <p><strong><em>先说锁</em></strong></p>
 
-<p>1.全局锁，给整个Array加互斥锁，可以用NSLock或@synchronized来实现，实现简单但并发效率低。</p>
+<p>1.全局锁，最傻的办法，给整个Array加互斥锁，用NSLock或@synchronized来实现，实现简单但并发效率低，任何一个读写操作都阻塞其他线程。</p>
 
 <p>2.读写锁，读线程之间不阻塞，只与写线程互斥，写线程之间相互互斥，这样来保证高效的并发读操作，而且比较简单，较符合我的需求。</p>
 
-<p>3.局部锁，写过Java就肯定知道<a href="http://kickjava.com/src/java/util/concurrent/ConcurrentHashMap.java.htm">ConcurrentHashMap</a>，DW上有几篇不错的分析<a href="http://www.ibm.com/developerworks/cn/java/j-jtp08223/">文章</a>，是JDK1.5后对原来synchronized table，Map的高并发解决方案，大致的意思把Map数据分成多个Segment，每个Segment拥有锁，形成锁池，这样利用局部的锁来实现高并发的读写操作。
-放个ConcurrentHashMap的put实现:</p>
+<p>3.局部锁，写过Java就肯定知道<a href="http://kickjava.com/src/java/util/concurrent/ConcurrentHashMap.java.htm">ConcurrentHashMap</a>，DW上有几篇不错的<a href="http://www.ibm.com/developerworks/cn/java/j-jtp08223/">分析文章</a>，是JDK1.5后对原来synchronized table，Map的高并发替代方案，大致的意思把Map数据分成多个Segment，每个Segment拥有锁，形成锁池，这样利用局部的锁来实现高并发的读写操作，MM有篇大作。
+放个ConcurrentHashMap的put来事例下:</p>
 
 <div class="highlight"><pre><code class="java"><span class="kd">public</span> <span class="n">V</span> <span class="nf">put</span><span class="o">(</span><span class="n">K</span> <span class="n">key</span><span class="o">,</span> <span class="n">V</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">value</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
@@ -217,11 +217,11 @@
     <span class="k">return</span> <span class="nf">segmentFor</span><span class="o">(</span><span class="n">hash</span><span class="o">).</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">hash</span><span class="o">,</span> <span class="n">value</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
 <span class="o">}</span></code></pre></div>
 
-<p><a href="http://kickjava.com/src/java/util/concurrent/ConcurrentHashMap.java.htm#ixzz33sZqQLUs">Read more</a></p>
+<p>看到segmentFor(hash)应该就懂了；）<a href="http://kickjava.com/src/java/util/concurrent/ConcurrentHashMap.java.htm#ixzz33sZqQLUs">Read more</a></p>
 
 <p><strong><em>非阻塞算法Compare and Swap</em></strong></p>
 
-<p>CAS比较厉害，CAS是利用硬件指令来检测内存值并进行替换来实现原子操作，从而避免了繁重的锁操作，参见<a href="http://www.ibm.com/developerworks/cn/java/j-jtp04186/">这里</a> 简单来说就是先读取某内存的值为A，然后执行CAS操作，CAS会再次读取这个内存的值并判断是否还是A，如果是A，则进行SWAP，替换成新值B，如果这之中被其他线程改变了值变成了C，则重复再来一直到SWAP成功为止。代码如下：</p>
+<p>CAS比较有意思（最傻最高效的办法），CAS是利用硬件指令轮训来检测内存值是否进行了变化，并进行赋值的原子操作，从而避免了使用锁，思想参见<a href="http://www.ibm.com/developerworks/cn/java/j-jtp04186/">这里</a> 举个例子：先读取某内存的值为A，然后执行CAS操作，CAS会再次读取这个内存的值并判断是否还是A，如果是A，则进行SWAP，替换成新值B，如果这之中被其他线程改变了值变成了C，则不赋值，重复再轮询，一直到SWAP成功为止。伪代码如下：</p>
 
 <div class="highlight"><pre><code class="java"><span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getAndSet</span><span class="o">(</span><span class="kt">int</span> <span class="n">B</span><span class="o">)</span> <span class="o">{</span>
         <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
@@ -231,11 +231,11 @@
         <span class="o">}</span>
 <span class="o">}</span></code></pre></div>
 
-<p>OC同样提供了这种原子操作，见<a href="https://developer.apple.com/library/mac/documentation/cocoa/conceptual/Multithreading/ThreadSafety/ThreadSafety.html">这里</a>。</p>
+<p>OC提供的原子操作，见<a href="https://developer.apple.com/library/mac/documentation/cocoa/conceptual/Multithreading/ThreadSafety/ThreadSafety.html">这里</a>。</p>
 
-<p>CAS有个ABA的问题，就是需要读取的内存值一开始为A，然后被其他线程更改为B，然后再被更改回A，这时候CAS操作会认为指向的内存值并没有发生更改。怎么办？</p>
+<p>细心的你会发现，CAS有个ABA的BUG，就是假如内存值一开始为A，然后被其他线程更改为B，然后再被更改回A，这时候CAS操作会认为指向的内存值并没有发生改变了- -！</p>
 
-<p>最后，用多线程要非常小心，并也希望Apple在未来对高并发提供更好的支持；）</p>
+<p>最后，用多线程要非常小心，Apple似乎也没太注重这个问题，只能别让自己掉进坑里，掉进了也只能自救；)</p>
 
 
 	  </div>
@@ -247,7 +247,7 @@
 		  
 			 
 				<li><a href="/categories.html#ios-ref">
-					ios <span>(3)</span>
+					ios <span>(4)</span>
 					
 				</a></li>
 			
@@ -303,7 +303,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">ios dev，产品工作者，投机份子</p>
+        <p class="author-bio">ios dev，产品工作者</p>
       </section>
 !-->
     </div>
@@ -315,7 +315,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		  <li class="previous"><a href="/ios/2014/06/03/ios8iscoming.html" title="ios8 is coming">&larr; Previous</a></li>
 		  
 		  
-			<li class="next disabled"><a>Next &rarr;</a>
+		  <li class="next"><a href="/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html" title="浅尝Swift（待续）">Next &rarr;</a></li>
 		  
 		</ul>
 

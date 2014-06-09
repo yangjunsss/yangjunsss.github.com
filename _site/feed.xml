@@ -7,8 +7,42 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>浅尝Swift（待续）</title>
+				<description>&lt;p&gt;在看了Swift的Guide，从自己对语言的了解来看Swift；）&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1.忘记基本类型吧&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;sf的变量定义都成了var，let，基本数据类型也成了Int，Double，String等，这些都成了对象，甚至enum这种东西都拥有了this指针和方法，所以忘记基本类型吧。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2.有点虚名的类型定义&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;在定义的时候不需要定义变量的Type了，但还是强类型的语言，只是在assign的时候sf帮你做type check来确定type。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3.Tuples，再不用传地址了！&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;这个东西不错，可以让函数返回多个结果值，之前函数返回都是单一返回值，虽然可以利用class或structs来包装多个值，但总是很懒地写，现在可以不用了，点赞。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4.Optional Value，让语义更明确&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;刚开始看OV的时候，不太明白Apple的用意，后来慢慢体会到这个东西似乎是让code看起来更明确，OV的意思是这个变量是不确定的，要么有值，要么为nil(初始化的时候为nil)，很多时候我们的变量的确是不确定的，所以需要写 if(x!=nil)，而在code看到 &lt;code&gt;var surveyAnswer: String?&lt;/code&gt;的时候，是告诉Dev：这个值要小心，很可能为nil；）&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;5.终于不要写那么长长长长的for循环了&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;另一个好东西：Range Operation，用x..y表示[x,y)，用x…y表示[x,y],这样在写for的时候就可以很简单的写为:for 0..count in{}，又少了很多无聊的code ；p&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;6.Array &amp;amp;&amp;amp; Dic&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;两者都只支持单一类型了，比较赞的是支持+=操作符，直接 array+=array1,array+=element. 都支持forin操作，iterator也省事了很多。&lt;/p&gt;
+
+</description>
+				<pubDate>Sat, 07 Jun 2014 00:00:00 +0800</pubDate>
+				<link>/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html</link>
+				<guid isPermaLink="true">/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html</guid>
+			</item>
+		
+			<item>
 				<title>老板，并发crash了！</title>
-				<description>&lt;p&gt;App在load的时候任务过重影响了性能，所以很自然的并发了，其中主线程对某个Array一直在append操作，而并发的code进行了get操作，结果就exc_bad_access了，有点不小心。Crash的测试code如下：&lt;/p&gt;
+				<description>&lt;p&gt;App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了get操作，结果就exc_bad_access了，有点不小心。写的一个Crash的测试code如下：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;objective-c&quot;&gt;&lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;testOneAddAndMultiReadBug&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -23,7 +57,7 @@
     &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;oc的Array和Map对并发的支持的确弱了点，线程安全都需要自己做- - ，但我还是怀疑了一会，因为这里只有一个线程做append，于是翻了下实现，CFArray简化的code如下：&lt;/p&gt;
+&lt;p&gt;oc的Array和Map对并发的支持的确弱了点，线程安全都需要自己保证- - ，但我还是怀疑了一会为什么会crash，因为这里只有一个线程做append，于是翻了下CFArray实现，简化code如下：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;objective-c&quot;&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__CFArrayImmutable&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;CFRuntimeBase&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_base&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
@@ -55,18 +89,18 @@
     &lt;span class=&quot;n&quot;&gt;__CFArraySetCount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;futureCnt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;可以看到Append是先Insert然后再replace，这就有可能导致访问的内存不存在，crash了，于是只能做并发了。&lt;/p&gt;
+&lt;p&gt;可以看到append实际上是先insert然后再replace，这就有可能EBA了，于是做并发吧。&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;锁&lt;/strong&gt;和&lt;strong&gt;非阻塞算法CAS&lt;/strong&gt;。&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;&lt;em&gt;先说锁&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;1.全局锁，给整个Array加互斥锁，可以用NSLock或@synchronized来实现，实现简单但并发效率低。&lt;/p&gt;
+&lt;p&gt;1.全局锁，最傻的办法，给整个Array加互斥锁，用NSLock或@synchronized来实现，实现简单但并发效率低，任何一个读写操作都阻塞其他线程。&lt;/p&gt;
 
 &lt;p&gt;2.读写锁，读线程之间不阻塞，只与写线程互斥，写线程之间相互互斥，这样来保证高效的并发读操作，而且比较简单，较符合我的需求。&lt;/p&gt;
 
-&lt;p&gt;3.局部锁，写过Java就肯定知道&lt;a href=&quot;http://kickjava.com/src/java/util/concurrent/ConcurrentHashMap.java.htm&quot;&gt;ConcurrentHashMap&lt;/a&gt;，DW上有几篇不错的分析&lt;a href=&quot;http://www.ibm.com/developerworks/cn/java/j-jtp08223/&quot;&gt;文章&lt;/a&gt;，是JDK1.5后对原来synchronized table，Map的高并发解决方案，大致的意思把Map数据分成多个Segment，每个Segment拥有锁，形成锁池，这样利用局部的锁来实现高并发的读写操作。
-放个ConcurrentHashMap的put实现:&lt;/p&gt;
+&lt;p&gt;3.局部锁，写过Java就肯定知道&lt;a href=&quot;http://kickjava.com/src/java/util/concurrent/ConcurrentHashMap.java.htm&quot;&gt;ConcurrentHashMap&lt;/a&gt;，DW上有几篇不错的&lt;a href=&quot;http://www.ibm.com/developerworks/cn/java/j-jtp08223/&quot;&gt;分析文章&lt;/a&gt;，是JDK1.5后对原来synchronized table，Map的高并发替代方案，大致的意思把Map数据分成多个Segment，每个Segment拥有锁，形成锁池，这样利用局部的锁来实现高并发的读写操作，MM有篇大作。
+放个ConcurrentHashMap的put来事例下:&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;V&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;K&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;V&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
@@ -75,11 +109,11 @@
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;segmentFor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hash&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hash&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;&lt;a href=&quot;http://kickjava.com/src/java/util/concurrent/ConcurrentHashMap.java.htm#ixzz33sZqQLUs&quot;&gt;Read more&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;看到segmentFor(hash)应该就懂了；）&lt;a href=&quot;http://kickjava.com/src/java/util/concurrent/ConcurrentHashMap.java.htm#ixzz33sZqQLUs&quot;&gt;Read more&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;&lt;em&gt;非阻塞算法Compare and Swap&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;CAS比较厉害，CAS是利用硬件指令来检测内存值并进行替换来实现原子操作，从而避免了繁重的锁操作，参见&lt;a href=&quot;http://www.ibm.com/developerworks/cn/java/j-jtp04186/&quot;&gt;这里&lt;/a&gt; 简单来说就是先读取某内存的值为A，然后执行CAS操作，CAS会再次读取这个内存的值并判断是否还是A，如果是A，则进行SWAP，替换成新值B，如果这之中被其他线程改变了值变成了C，则重复再来一直到SWAP成功为止。代码如下：&lt;/p&gt;
+&lt;p&gt;CAS比较有意思（最傻最高效的办法），CAS是利用硬件指令轮训来检测内存值是否进行了变化，并进行赋值的原子操作，从而避免了使用锁，思想参见&lt;a href=&quot;http://www.ibm.com/developerworks/cn/java/j-jtp04186/&quot;&gt;这里&lt;/a&gt; 举个例子：先读取某内存的值为A，然后执行CAS操作，CAS会再次读取这个内存的值并判断是否还是A，如果是A，则进行SWAP，替换成新值B，如果这之中被其他线程改变了值变成了C，则不赋值，重复再轮询，一直到SWAP成功为止。伪代码如下：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getAndSet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(;;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -89,11 +123,11 @@
         &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;OC同样提供了这种原子操作，见&lt;a href=&quot;https://developer.apple.com/library/mac/documentation/cocoa/conceptual/Multithreading/ThreadSafety/ThreadSafety.html&quot;&gt;这里&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;OC提供的原子操作，见&lt;a href=&quot;https://developer.apple.com/library/mac/documentation/cocoa/conceptual/Multithreading/ThreadSafety/ThreadSafety.html&quot;&gt;这里&lt;/a&gt;。&lt;/p&gt;
 
-&lt;p&gt;CAS有个ABA的问题，就是需要读取的内存值一开始为A，然后被其他线程更改为B，然后再被更改回A，这时候CAS操作会认为指向的内存值并没有发生更改。怎么办？&lt;/p&gt;
+&lt;p&gt;细心的你会发现，CAS有个ABA的BUG，就是假如内存值一开始为A，然后被其他线程更改为B，然后再被更改回A，这时候CAS操作会认为指向的内存值并没有发生改变了- -！&lt;/p&gt;
 
-&lt;p&gt;最后，用多线程要非常小心，并也希望Apple在未来对高并发提供更好的支持；）&lt;/p&gt;
+&lt;p&gt;最后，用多线程要非常小心，Apple似乎也没太注重这个问题，只能别让自己掉进坑里，掉进了也只能自救；)&lt;/p&gt;
 
 </description>
 				<pubDate>Fri, 06 Jun 2014 00:00:00 +0800</pubDate>
