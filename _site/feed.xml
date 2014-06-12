@@ -8,7 +8,7 @@
 		
 			<item>
 				<title>浅尝Swift（待续）</title>
-				<description>&lt;p&gt;在看了Swift的Guide，从自己对语言的了解来看Swift；）再看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？拭目以待～&lt;/p&gt;
+				<description>&lt;p&gt;在看了Swift的Guide，从自己对语言的理解来看Swift；）再看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？拭目以待～&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;1.忘记基本类型和冗余的code吧&lt;/strong&gt;&lt;/p&gt;
 
@@ -26,7 +26,7 @@
 
 &lt;p&gt;&lt;strong&gt;4.Optional Value，让语义更明确&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;刚开始看OV的时候，不太明白Apple的用意，后来慢慢体会到这个东西似乎是让code看起来更明确，OV的意思是这个变量是不确定的，要么有值，要么为nil(初始化的时候为nil)，很多时候我们的变量的确是不确定的，所以需要写 if(x!=nil)，而在code看到 &lt;code&gt;var surveyAnswer: String?&lt;/code&gt;的时候，是告诉Dev：这个值要小心，很可能为nil；）&lt;/p&gt;
+&lt;p&gt;刚开始看OV的时候，不太明白Apple的用意，后来慢慢体会到这个东西似乎是让code看起来更明确并且省掉了if(x!=nil)的判断，OV的意思是这个变量是不确定的，要么有值，要么为nil(初始化的时候为nil)&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;5.终于不要写那么长长长长的for循环了&lt;/strong&gt;&lt;/p&gt;
 
@@ -36,9 +36,9 @@
 
 &lt;p&gt;两者都只支持单一类型了，比较赞的是支持+=操作符，直接 array+=array1,array+=element. 都支持forin操作，iterator也省事了很多。&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;7.全局函数Function、内嵌Function&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;7.闭包的延伸品——全局函数Function、内嵌Function&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;默认参数值，多个返回值，多个参数名定义，不确定参数个数，除了方便还是方便，不过特别注意的是Function的参数默认都是值传递并且是常量，如果需要更改参数内容则加上var，如果要传递指针让更改生效，则加上inout,这点会有点绕。&lt;/p&gt;
+&lt;p&gt;默认参数值，多个返回值，多个参数名定义，不确定参数个数，除了方便还是方便，不过特别注意的是Function的参数默认都是值传递并且是常量，如果需要更改参数内容则加上var，如果要传递指针让更改生效，则加上inout，并且还支持参数默认值。&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;8.把简洁做到极致的closure写法&lt;/strong&gt;&lt;/p&gt;
 
@@ -56,6 +56,9 @@
 
 &lt;p&gt;你们感受一下&lt;/p&gt;
 
+&lt;p&gt;**9.Structs和enum都是值传递，Dic是值传递，Array选择性copy&lt;/p&gt;
+
+&lt;p&gt;意味着var structs_a = structs_b这个简单的赋值操作都需要进行copy,但Array又是share同一个instance，除非改变了length就copy成新的Array，有点奇怪，可能是个坑- -&lt;/p&gt;
 </description>
 				<pubDate>Sat, 07 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html</link>

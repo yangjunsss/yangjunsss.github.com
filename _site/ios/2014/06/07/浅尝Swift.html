@@ -150,7 +150,7 @@
 	   2014
 	 </span>
 	  <div class="article_body">
-	  <p>在看了Swift的Guide，从自己对语言的了解来看Swift；）再看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？拭目以待～</p>
+	  <p>在看了Swift的Guide，从自己对语言的理解来看Swift；）再看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？拭目以待～</p>
 
 <p><strong>1.忘记基本类型和冗余的code吧</strong></p>
 
@@ -168,7 +168,7 @@
 
 <p><strong>4.Optional Value，让语义更明确</strong></p>
 
-<p>刚开始看OV的时候，不太明白Apple的用意，后来慢慢体会到这个东西似乎是让code看起来更明确，OV的意思是这个变量是不确定的，要么有值，要么为nil(初始化的时候为nil)，很多时候我们的变量的确是不确定的，所以需要写 if(x!=nil)，而在code看到 <code>var surveyAnswer: String?</code>的时候，是告诉Dev：这个值要小心，很可能为nil；）</p>
+<p>刚开始看OV的时候，不太明白Apple的用意，后来慢慢体会到这个东西似乎是让code看起来更明确并且省掉了if(x!=nil)的判断，OV的意思是这个变量是不确定的，要么有值，要么为nil(初始化的时候为nil)</p>
 
 <p><strong>5.终于不要写那么长长长长的for循环了</strong></p>
 
@@ -178,9 +178,9 @@
 
 <p>两者都只支持单一类型了，比较赞的是支持+=操作符，直接 array+=array1,array+=element. 都支持forin操作，iterator也省事了很多。</p>
 
-<p><strong>7.全局函数Function、内嵌Function</strong></p>
+<p><strong>7.闭包的延伸品——全局函数Function、内嵌Function</strong></p>
 
-<p>默认参数值，多个返回值，多个参数名定义，不确定参数个数，除了方便还是方便，不过特别注意的是Function的参数默认都是值传递并且是常量，如果需要更改参数内容则加上var，如果要传递指针让更改生效，则加上inout,这点会有点绕。</p>
+<p>默认参数值，多个返回值，多个参数名定义，不确定参数个数，除了方便还是方便，不过特别注意的是Function的参数默认都是值传递并且是常量，如果需要更改参数内容则加上var，如果要传递指针让更改生效，则加上inout，并且还支持参数默认值。</p>
 
 <p><strong>8.把简洁做到极致的closure写法</strong></p>
 
@@ -198,6 +198,9 @@
 
 <p>你们感受一下</p>
 
+<p>**9.Structs和enum都是值传递，Dic是值传递，Array选择性copy</p>
+
+<p>意味着var structs_a = structs_b这个简单的赋值操作都需要进行copy,但Array又是share同一个instance，除非改变了length就copy成新的Array，有点奇怪，可能是个坑- -</p>
 
 	  </div>
 <!--
