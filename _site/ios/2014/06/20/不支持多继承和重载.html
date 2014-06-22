@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+	<meta charset="utf-8">
+	<title>yj的博客 不支持多继承和重载</title>
+	<meta name="keywords" content="Method, isa,MetaClass,runtime">
+	<meta name="description" content="">
+	<meta name="author" content="yj" >
+	<!-- Enable responsive viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Le styles -->
+	<link href="/assets/resources/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/resources/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="/assets/resources/syntax/syntax.css" rel="stylesheet">
+	<link href="/assets/css/style.css" rel="stylesheet">
+
+	<!-- Le fav and touch icons -->
+	<!-- Update these with your own images
+	<link rel="shortcut icon" href="images/favicon.ico">
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+	-->
+
+	<link rel="alternate" type="application/rss+xml" title="" href="/feed.xml">
+</head>
+
+<body>
+
+	<script type="text/javascript" src="http://tajs.qq.com/stats?sId=34536989" charset="UTF-8"></script>
+				
+	<nav class="navbar navbar-default visible-xs" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://github.com/yangjunsss">
+				<i class="fa fa-github"></i>
+			</a>
+			
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="mailto:cj.yangjun@gmail.com">
+				<i class="fa fa-envelope"></i>
+			</a>
+			
+			<a class="navbar-brand" href="/">
+				<img src="/assets/ico/avatar.png" class="img-circle" height="27" width="27"/>
+				yj的博客
+			</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/">Home</a></li>
+				<li><a href="/categories.html">Categories</a></li>
+				<li><a href="/tags.html">Tags</a></li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</nav>
+
+	<!-- nav-menu-dropdown -->
+	<div class="btn-group hidden-xs" id="nav-menu">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+			<i class="fa fa-bars"></i>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+			<li><a href="/categories.html"><i class="fa fa-folder"></i> Categories</a></li>
+			<li><a href="/tags.html"><i class="fa fa-tags"></i> Tags</a></li>
+			<li class="divider"></li>
+			<li><a href="#"><i class="fa fa-arrow-up"></i> Top of Page</a></li>
+		</ul>
+	</div>
+
+	<div class="col-sm-3 sidebar hidden-xs">
+		<! -- sidebar.html -->
+<header class="sidebar-header" role="banner">
+	<a href="/">
+		<img src="/assets/ico/avatar.png" class="img-circle" width="200" height="200"/>
+	</a>
+	<h3 class="title">
+        <a href="/">yj的博客</a>
+    </h3>
+</header>
+
+
+<div id="bio" class="text-center">
+	ios dev，产品工作者
+</div>
+
+
+<div id="contact-list" class="text-center">
+	<ul class="list-unstyled list-inline">
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://github.com/yangjunsss">
+				<i class="fa fa-github-alt fa-lg"></i>
+			</a>
+		</li>
+		
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="mailto:cj.yangjun@gmail.com">
+				<i class="fa fa-envelope fa-lg"></i>
+			</a>
+		</li>
+		
+	</ul>
+	<ul id="contact-list-secondary" class="list-unstyled list-inline">
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="/feed.xml">
+				<i class="fa fa-rss fa-lg"></i>
+			</a>
+		</li>
+	</ul>
+</div>
+<! -- sidebar.html end -->
+
+	</div>
+
+	<div class="col-sm-9 col-sm-offset-3">
+		<div class="page-header">
+  <h1>不支持多继承和重载 </h1>
+</div>
+	
+<article>
+
+	<div class="col-sm-10">
+	 <span class="post-date">
+	   
+	   June 
+	   20th,
+	   
+	   2014
+	 </span>
+	  <div class="article_body">
+	  <p>OC是不支持多继承和重载方法，这个问题应该被很多人问过为什么？看oc的类定义和findMethod实现就知道无法支持了，但至于为什么不支持，可能需要哲学地看待了。</p>
+
+<p>类定义：</p>
+
+<p><code>typedef struct objc_class *Class; // 指向objc_class结构体指针</code></p>
+
+<p>类结构定义：</p>
+
+<div class="highlight"><pre><code class="c--"><span class="k">struct</span> <span class="n">objc_class</span> <span class="p">{</span>
+    <span class="c1">// 类的isa指针指向metaClass</span>
+    <span class="n">Class</span> <span class="n">isa</span>  <span class="n">OBJC_ISA_AVAILABILITY</span><span class="p">;</span>
+<span class="cp">#if !__OBJC2__</span>
+    <span class="n">Class</span> <span class="n">super_class</span><span class="p">;</span> <span class="c1">// 父类</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">version</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">info</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">instance_size</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">objc_ivar_list</span> <span class="o">*</span><span class="n">ivars</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">**</span><span class="n">methodLists</span><span class="p">;</span> <span class="c1">// 方法列表</span>
+    <span class="k">struct</span> <span class="n">objc_cache</span> <span class="o">*</span><span class="n">cache</span><span class="p">;</span> <span class="c1">// 在查询类方法时用的缓存</span>
+    <span class="k">struct</span> <span class="n">objc_protocol_list</span> <span class="o">*</span><span class="n">protocols</span><span class="p">;</span> <span class="c1">// 协议列表</span>
+<span class="cp">#endif</span>
+
+<span class="p">}</span> <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span></code></pre></div>
+
+<p><em>从类定义就能看出来，class只能指向一个父类，所以没有多继承，而指向protocal是list，所以自然可以支持多协议了。</em></p>
+
+<p>类对象id定义：</p>
+
+<p><code>typedef struct objc_object *id; // 指向objc_object结构体指针</code></p>
+
+<p>objc_object定义:</p>
+
+<div class="highlight"><pre><code class="c--"><span class="k">struct</span> <span class="n">objc_object</span> <span class="p">{</span>
+    <span class="n">Class</span> <span class="n">isa</span>  <span class="n">OBJC_ISA_AVAILABILITY</span><span class="p">;</span> <span class="c1">// object也是一个指向objc_class的指针</span>
+<span class="p">};</span></code></pre></div>
+
+<p>Class中引用methodLists，定义如下：</p>
+
+<div class="highlight"><pre><code class="c--"><span class="k">struct</span> <span class="n">objc_method_list</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">*</span><span class="n">obsolete</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">method_count</span><span class="p">;</span>
+    <span class="cm">/* variable length structure */</span>
+    <span class="k">struct</span> <span class="n">objc_method</span> <span class="n">method_list</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="c1">//主要是引用objc_method：</span>
+
+<span class="k">struct</span> <span class="n">objc_method</span> <span class="p">{</span>
+    <span class="c1">// 方法名</span>
+    <span class="c1">// typedef struct objc_selector *SEL;(- -木有找到selector结构体的定义,help)</span>
+    <span class="n">SEL</span> <span class="n">method_name</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">method_types</span><span class="p">;</span> <span class="c1">// 方法类型</span>
+    <span class="c1">// 函数指针</span>
+    <span class="c1">// typedef id (*IMP)(id, SEL, ...);</span>
+    <span class="n">IMP</span> <span class="n">method_imp</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+<p>那oc是如何添加method的呢？</p>
+
+<div class="highlight"><pre><code class="c--"><span class="cm">/***********************************************************************</span>
+<span class="cm">* class_addMethods.</span>
+<span class="cm">*</span>
+<span class="cm">* Formerly class_addInstanceMethods ()</span>
+<span class="cm">**********************************************************************/</span>
+<span class="kt">void</span>	<span class="nf">class_addMethods</span>       <span class="p">(</span><span class="n">Class</span>				<span class="n">cls</span><span class="p">,</span>
+                             <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">*</span>	<span class="n">meths</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Insert atomically.</span>
+    <span class="n">_objc_insertMethods</span> <span class="p">(</span><span class="n">meths</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">((</span><span class="k">struct</span> <span class="n">objc_class</span> <span class="o">*</span><span class="p">)</span> <span class="n">cls</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">methodLists</span><span class="p">);</span>
+
+    <span class="c1">// Must flush when dynamically adding methods.  No need to flush</span>
+    <span class="c1">// all the class method caches.  If cls is a meta class, though,</span>
+    <span class="c1">// this will still flush it and any of its sub-meta classes.</span>
+    <span class="n">flush_caches</span> <span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">NO</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/***********************************************************************</span>
+<span class="cm">* class_removeMethods.</span>
+<span class="cm">**********************************************************************/</span>
+<span class="kt">void</span>	<span class="nf">class_removeMethods</span>    <span class="p">(</span><span class="n">Class</span>				<span class="n">cls</span><span class="p">,</span>
+                             <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">*</span>	<span class="n">meths</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Remove atomically.</span>
+    <span class="n">_objc_removeMethods</span> <span class="p">(</span><span class="n">meths</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">((</span><span class="k">struct</span> <span class="n">objc_class</span> <span class="o">*</span><span class="p">)</span> <span class="n">cls</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">methodLists</span><span class="p">);</span>
+
+    <span class="c1">// Must flush when dynamically removing methods.  No need to flush</span>
+    <span class="c1">// all the class method caches.  If cls is a meta class, though,</span>
+    <span class="c1">// this will still flush it and any of its sub-meta classes.</span>
+    <span class="n">flush_caches</span> <span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">NO</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// 并没有找到_objc_insertMethods 和 _objc_removeMethods的实现，只在objc-private.h找到声明 - -</span>
+
+    <span class="n">OBJC_EXPORT</span> <span class="n">BOOL</span> <span class="nf">class_respondsToMethod</span><span class="p">(</span><span class="n">Class</span><span class="p">,</span> <span class="n">SEL</span><span class="p">);</span>
+    <span class="n">OBJC_EXPORT</span> <span class="n">IMP</span> <span class="nf">class_lookupMethod</span><span class="p">(</span><span class="n">Class</span><span class="p">,</span> <span class="n">SEL</span><span class="p">);</span>
+    <span class="n">OBJC_EXPORT</span> <span class="n">IMP</span> <span class="nf">class_lookupMethodInMethodList</span><span class="p">(</span><span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">*</span><span class="n">mlist</span><span class="p">,</span> <span class="n">SEL</span> <span class="n">sel</span><span class="p">);</span>
+    <span class="n">OBJC_EXPORT</span> <span class="n">IMP</span> <span class="nf">class_lookupNamedMethodInMethodList</span><span class="p">(</span><span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">*</span><span class="n">mlist</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">meth_name</span><span class="p">);</span>
+    <span class="n">OBJC_EXPORT</span> <span class="kt">void</span> <span class="nf">_objc_insertMethods</span><span class="p">(</span> <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">*</span><span class="n">mlist</span><span class="p">,</span> <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">***</span><span class="n">list</span> <span class="p">);</span>
+    <span class="n">OBJC_EXPORT</span> <span class="kt">void</span> <span class="nf">_objc_removeMethods</span><span class="p">(</span> <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">*</span><span class="n">mlist</span><span class="p">,</span> <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">***</span><span class="n">list</span> <span class="p">);</span>
+
+<span class="cm">/***********************************************************************</span>
+<span class="cm">* class_getInstanceMethod.  Return the instance method for the</span>
+<span class="cm">* specified class and selector.</span>
+<span class="cm">**********************************************************************/</span>
+<span class="n">Method</span>		<span class="nf">class_getInstanceMethod</span>	       <span class="p">(</span><span class="n">Class</span>		<span class="n">aClass</span><span class="p">,</span>
+                                        <span class="n">SEL</span>		<span class="n">aSelector</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Need both a class and a selector</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">aClass</span> <span class="o">||</span> <span class="o">!</span><span class="n">aSelector</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+
+    <span class="c1">// Go to the class</span>
+    <span class="k">return</span> <span class="n">_getMethod</span> <span class="p">(</span><span class="n">aClass</span><span class="p">,</span> <span class="n">aSelector</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/***********************************************************************</span>
+<span class="cm">* class_getClassMethod.  Return the class method for the specified</span>
+<span class="cm">* class and selector.</span>
+<span class="cm">**********************************************************************/</span>
+<span class="n">Method</span>		<span class="nf">class_getClassMethod</span>	       <span class="p">(</span><span class="n">Class</span>		<span class="n">aClass</span><span class="p">,</span>
+                                     <span class="n">SEL</span>		<span class="n">aSelector</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Need both a class and a selector</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">aClass</span> <span class="o">||</span> <span class="o">!</span><span class="n">aSelector</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+
+    <span class="c1">// Go to the class or isa</span>
+    <span class="k">return</span> <span class="n">_getMethod</span> <span class="p">(</span><span class="n">GETMETA</span><span class="p">(</span><span class="n">aClass</span><span class="p">),</span> <span class="n">aSelector</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kr">inline</span> <span class="n">Method</span> <span class="nf">_getMethod</span><span class="p">(</span><span class="n">Class</span> <span class="n">cls</span><span class="p">,</span> <span class="n">SEL</span> <span class="n">sel</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(;</span> <span class="n">cls</span><span class="p">;</span> <span class="n">cls</span> <span class="o">=</span> <span class="n">cls</span><span class="o">-&gt;</span><span class="n">super_class</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// 遍历继承类的所有方法</span>
+        <span class="n">Method</span> <span class="n">m</span> <span class="o">=</span> <span class="n">_findMethodInClass</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">sel</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">return</span> <span class="n">m</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kr">inline</span> <span class="n">Method</span> <span class="nf">_findMethodInClass</span><span class="p">(</span><span class="n">Class</span> <span class="n">cls</span><span class="p">,</span> <span class="n">SEL</span> <span class="n">sel</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">*</span><span class="n">mlist</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">iterator</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">((</span><span class="n">mlist</span> <span class="o">=</span> <span class="n">_class_inlinedNextMethodList</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">iterator</span><span class="p">)))</span> <span class="p">{</span> <span class="c1">// 遍历methodList</span>
+        <span class="n">Method</span> <span class="n">m</span> <span class="o">=</span> <span class="n">_findMethodInList</span><span class="p">(</span><span class="n">mlist</span><span class="p">,</span> <span class="n">sel</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">return</span> <span class="n">m</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* These next three functions are the heart of ObjC method lookup. */</span>
+<span class="k">static</span> <span class="kr">inline</span> <span class="n">Method</span> <span class="nf">_findMethodInList</span><span class="p">(</span><span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">*</span> <span class="n">mlist</span><span class="p">,</span> <span class="n">SEL</span> <span class="n">sel</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">mlist</span><span class="p">)</span> <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">mlist</span><span class="o">-&gt;</span><span class="n">method_count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">Method</span> <span class="n">m</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">mlist</span><span class="o">-&gt;</span><span class="n">method_list</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">method_name</span> <span class="o">==</span> <span class="n">sel</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// 只根据方法名来寻找方法，并没有参数类型</span>
+            <span class="k">return</span> <span class="n">m</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+<p>以上实现都很简单，就是操作objc_method_list。</p>
+
+<p><em>如何处理类变量？</em></p>
+
+<p>类变量定义:</p>
+
+<div class="highlight"><pre><code class="c--"><span class="k">struct</span> <span class="n">objc_ivar</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">ivar_name</span>                                          <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">ivar_type</span>                                          <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">ivar_offset</span>                                          <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+<span class="cp">#ifdef __LP64__</span>
+    <span class="kt">int</span> <span class="n">space</span>                                                <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+<span class="cp">#endif</span>
+<span class="p">}</span>                                                            <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">objc_ivar_list</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">ivar_count</span>                                           <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+<span class="cp">#ifdef __LP64__</span>
+    <span class="kt">int</span> <span class="n">space</span>                                                <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+<span class="cp">#endif</span>
+    <span class="cm">/* variable length structure */</span>
+    <span class="k">struct</span> <span class="n">objc_ivar</span> <span class="n">ivar_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>                            <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+<span class="p">}</span>   
+
+
+<span class="kt">void</span> <span class="n">object_setIvar</span><span class="p">(</span><span class="n">id</span> <span class="n">obj</span><span class="p">,</span> <span class="n">Ivar</span> <span class="n">ivar</span><span class="p">,</span> <span class="n">id</span> <span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">obj</span>  <span class="o">&amp;&amp;</span>  <span class="n">ivar</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">objc_assign_ivar_internal</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">ivar_getOffset</span><span class="p">(</span><span class="n">ivar</span><span class="p">));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">Ivar</span> <span class="n">object_setInstanceVariable</span><span class="p">(</span><span class="n">id</span> <span class="n">obj</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Ivar</span> <span class="n">ivar</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">obj</span> <span class="o">&amp;&amp;</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">ivar</span> <span class="o">=</span> <span class="n">class_getInstanceVariable</span><span class="p">(</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">isa</span><span class="p">,</span> <span class="n">name</span><span class="p">)))</span> <span class="p">{</span>
+            <span class="n">objc_assign_ivar_internal</span><span class="p">(</span>
+                             <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">value</span><span class="p">,</span> 
+                             <span class="n">obj</span><span class="p">,</span> 
+                             <span class="n">ivar_getOffset</span><span class="p">(</span><span class="n">ivar</span><span class="p">));</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ivar</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/***********************************************************************</span>
+<span class="cm">* class_getInstanceVariable.  Return the named instance variable.</span>
+<span class="cm">*</span>
+<span class="cm">* Someday add class_getClassVariable ().</span>
+<span class="cm">**********************************************************************/</span>
+<span class="n">Ivar</span>	<span class="n">class_getInstanceVariable</span>	       <span class="p">(</span><span class="n">Class</span>		<span class="n">aClass</span><span class="p">,</span>
+                                       <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span>	<span class="n">name</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Must have a class and a name</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">aClass</span> <span class="o">||</span> <span class="o">!</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+
+    <span class="c1">// Look it up</span>
+    <span class="k">return</span> <span class="nf">class_getVariable</span> <span class="p">(</span><span class="n">aClass</span><span class="p">,</span> <span class="n">name</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="cm">/***********************************************************************</span>
+<span class="cm">* class_getVariable.  Return the named instance variable.</span>
+<span class="cm">**********************************************************************/</span>
+<span class="k">static</span> <span class="n">Ivar</span>	<span class="n">class_getVariable</span>	       <span class="p">(</span><span class="n">Class</span>		<span class="n">cls</span><span class="p">,</span>
+                                      <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span>	<span class="n">name</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">objc_class</span> <span class="o">*</span>	<span class="n">thisCls</span><span class="p">;</span>
+
+    <span class="c1">// Outer loop - search the class and its superclasses</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">thisCls</span> <span class="o">=</span> <span class="n">cls</span><span class="p">;</span> <span class="n">thisCls</span> <span class="o">!=</span> <span class="n">Nil</span><span class="p">;</span> <span class="n">thisCls</span> <span class="o">=</span> <span class="p">((</span><span class="k">struct</span> <span class="n">objc_class</span> <span class="o">*</span><span class="p">)</span> <span class="n">thisCls</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">super_class</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">int</span>	<span class="n">index</span><span class="p">;</span>
+        <span class="n">Ivar</span>	<span class="n">thisIvar</span><span class="p">;</span>
+
+        <span class="c1">// Skip class having no ivars</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">thisCls</span><span class="o">-&gt;</span><span class="n">ivars</span><span class="p">)</span>
+            <span class="k">continue</span><span class="p">;</span>
+
+        <span class="c1">// Inner loop - search the given class</span>
+        <span class="n">thisIvar</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">thisCls</span><span class="o">-&gt;</span><span class="n">ivars</span><span class="o">-&gt;</span><span class="n">ivar_list</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">thisCls</span><span class="o">-&gt;</span><span class="n">ivars</span><span class="o">-&gt;</span><span class="n">ivar_count</span><span class="p">;</span> <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// Check this ivar&#39;s name.  Be careful because the</span>
+            <span class="c1">// compiler generates ivar entries with NULL ivar_name</span>
+            <span class="c1">// (e.g. for anonymous bit fields).</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">thisIvar</span><span class="o">-&gt;</span><span class="n">ivar_name</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+                <span class="p">(</span><span class="n">strcmp</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">thisIvar</span><span class="o">-&gt;</span><span class="n">ivar_name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">thisIvar</span><span class="p">;</span>
+
+            <span class="c1">// Move to next ivar</span>
+            <span class="n">thisIvar</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Not found</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+<p>同Method一样，变量操作objc_ivar_list。</p>
+
+<p><em>oc如何处理引用计数</em></p>
+
+<p>看到retainCount的方法</p>
+
+<div class="highlight"><pre><code class="c--"><span class="kt">uintptr_t</span>
+<span class="nf">_objc_rootRetainCount</span><span class="p">(</span><span class="n">id</span> <span class="n">obj</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+    <span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">UseGC</span><span class="p">);</span>
+
+    <span class="c1">// XXX -- There is no way that anybody can use this API race free in a</span>
+    <span class="c1">// threaded environment because the result is immediately stale by the</span>
+    <span class="c1">// time the caller receives it.</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">OBJC_IS_TAGGED_PTR</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span> <span class="k">return</span> <span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="n">obj</span><span class="p">;</span>    
+
+    <span class="n">SideTable</span> <span class="o">*</span><span class="n">table</span> <span class="o">=</span> <span class="n">SideTable</span><span class="o">::</span><span class="n">tableForPointer</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+
+    <span class="kt">size_t</span> <span class="n">refcnt_result</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    
+    <span class="n">OSSpinLockLock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">slock</span><span class="p">);</span>
+    <span class="n">RefcountMap</span><span class="o">::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">refcnts</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">DISGUISE</span><span class="p">(</span><span class="n">obj</span><span class="p">));</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">!=</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">refcnts</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">refcnt_result</span> <span class="o">=</span> <span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">OSSpinLockUnlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">slock</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">refcnt_result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">_objc_rootReleaseWasZero</span><span class="p">(</span><span class="n">id</span> <span class="n">obj</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+    <span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">UseGC</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">OBJC_IS_TAGGED_PTR</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span> <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+
+    <span class="n">SideTable</span> <span class="o">*</span><span class="n">table</span> <span class="o">=</span> <span class="n">SideTable</span><span class="o">::</span><span class="n">tableForPointer</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+
+    <span class="kt">bool</span> <span class="n">do_dealloc</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">OSSpinLockTry</span><span class="p">(</span><span class="o">&amp;</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">slock</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">RefcountMap</span><span class="o">::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">refcnts</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">DISGUISE</span><span class="p">(</span><span class="n">obj</span><span class="p">));</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">==</span> <span class="n">table</span><span class="o">-&gt;</span><span class="n">refcnts</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">do_dealloc</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+            <span class="n">table</span><span class="o">-&gt;</span><span class="n">refcnts</span><span class="p">[</span><span class="n">DISGUISE</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">do_dealloc</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+            <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">-=</span> <span class="mi">2</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">OSSpinLockUnlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">slock</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">do_dealloc</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">_objc_rootReleaseWasZero_slow</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="k">typedef</span> <span class="n">objc</span><span class="o">::</span><span class="n">DenseMap</span><span class="o">&lt;</span><span class="n">id</span><span class="p">,</span><span class="kt">size_t</span><span class="p">,</span><span class="nb">true</span><span class="o">&gt;</span> <span class="n">RefcountMap</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">SideTable</span> <span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="k">static</span> <span class="kt">uint8_t</span> <span class="n">table_buf</span><span class="p">[</span><span class="n">SIDE_TABLE_STRIPE</span> <span class="o">*</span> <span class="n">SIDE_TABLE_SIZE</span><span class="p">];</span>
+
+<span class="nl">public:</span>
+    <span class="n">OSSpinLock</span> <span class="n">slock</span><span class="p">;</span>
+    <span class="n">RefcountMap</span> <span class="n">refcnts</span><span class="p">;</span>
+    <span class="kt">weak_table_t</span> <span class="n">weak_table</span><span class="p">;</span>
+
+    <span class="n">SideTable</span><span class="p">()</span> <span class="o">:</span> <span class="n">slock</span><span class="p">(</span><span class="n">OS_SPINLOCK_INIT</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">weak_table</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">weak_table</span><span class="p">));</span>
+    <span class="p">}</span>
+    
+    <span class="o">~</span><span class="n">SideTable</span><span class="p">()</span> 
+    <span class="p">{</span>
+        <span class="c1">// never delete side_table in case other threads retain during exit</span>
+        <span class="n">assert</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">static</span> <span class="n">SideTable</span> <span class="o">*</span><span class="n">tableForPointer</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span> 
+    <span class="p">{</span>
+<span class="cp">#     if SIDE_TABLE_STRIPE == 1</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">SideTable</span> <span class="o">*</span><span class="p">)</span><span class="n">table_buf</span><span class="p">;</span>
+<span class="cp">#     else</span>
+        <span class="kt">uintptr_t</span> <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="p">((</span><span class="n">a</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">a</span> <span class="o">&gt;&gt;</span> <span class="mi">9</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">SIDE_TABLE_STRIPE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">SideTable</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">table_buf</span><span class="p">[</span><span class="n">index</span> <span class="o">*</span> <span class="n">SIDE_TABLE_SIZE</span><span class="p">];</span>
+<span class="cp">#     endif</span>
+    <span class="p">}</span>
+
+    <span class="k">static</span> <span class="kt">void</span> <span class="n">init</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// use placement new instead of static ctor to avoid dtor at exit</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">SIDE_TABLE_STRIPE</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">new</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">table_buf</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">SIDE_TABLE_SIZE</span><span class="p">])</span> <span class="n">SideTable</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">};</span>
+
+<span class="n">DenseMap</span><span class="p">.</span><span class="n">h</span>
+<span class="nl">http:</span><span class="c1">//llvm.org/docs/doxygen/html/DenseMap_8h_source.html</span></code></pre></div>
+
+<p>这方面的code不多，可以猜测的是用SideTable分散存储了对象的列表，每个ST里面用DenseMap记录了对象和对象的refcount。</p>
+
+
+	  </div>
+<!--
+		
+		<ul class="tag_box list-unstyled list-inline">
+		  <li><i class="fa fa-folder-open"></i></li>
+		  
+		  
+			 
+				<li><a href="/categories.html#ios-ref">
+					ios <span>(5)</span>
+					
+				</a></li>
+			
+		  
+		</ul>
+		  
+
+		  
+
+		<hr>
+-->
+		<div>
+      <section class="share">
+        <h4 class="section-title">Share Post</h4>
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=不支持多继承和重载"
+           onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <i class="fa fa-twitter fa-lg"></i>
+          Twitter
+        </a>
+        <a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php"
+           onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <i class="fa fa-facebook fa-lg"></i>
+          Facebook
+        </a>
+        <a class="btn btn-default btn-sm gplus"
+           onclick="window.open('https://plus.google.com/share?url='+window.location.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus fa-lg"></i>
+          Google+
+        </a>
+
+      </section>
+  <!--     <section style="text-algin:right">
+<script type="text/javascript">
+document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120&choe=UTF-8&chld=L|2&chl="+encodeURI(window.location.href)+"\" width=\"120\" height=\"120\"/></img>");
+</script>
+</section>-->
+     <!-- <section class="col-sm-6 author">
+        <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
+        <h4 class="section-title author-name">yj</h4>
+        <p class="author-bio">ios dev，产品工作者</p>
+      </section>
+!-->
+    </div>
+
+    <div class="clearfix"></div>
+
+		<ul class="pager" style="font-size:12px;">
+		  
+		  <li class="previous"><a href="/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html" title="浅尝Swift，会是个坑么？">&larr; Previous</a></li>
+		  
+		  
+			<li class="next disabled"><a>Next &rarr;</a>
+		  
+		</ul>
+
+		<hr>
+	</div>
+	
+	<div class="col-sm-2 sidebar-2">
+	
+	</div>
+</article>
+<div class="clearfix"></div>
+
+   <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'yangjunsss'; // required: replace example with your forum shortname
+        //var disqus_identifier = encodeURI(window.location.href);
+        //var disqus_url = encodeURI(window.location.href);
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+        <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'yangjunsss'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+    </script>
+    
+    
+    
+
+
+		<footer>
+			<hr/>
+			<p>
+				&copy; 2014 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
+			</p>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="/assets/resources/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/resources/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/assets/js/app.js"></script>
+</body>
+</html>
+

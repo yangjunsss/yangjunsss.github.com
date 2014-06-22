@@ -2,9 +2,9 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>yj的博客 浅尝Swift（待续）</title>
+	<title>yj的博客 浅尝Swift，会是个坑么？</title>
 	<meta name="keywords" content="ios8,Swift language">
-	<meta name="description" content="">
+	<meta name="description" content="在看了Swift的Guide，从自己对语言的理解来看Swift；）在看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？在看sf之后，我怎么觉得swift越来越像个坑。">
 	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -136,7 +136,7 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1>浅尝Swift（待续） </h1>
+  <h1>浅尝Swift，会是个坑么？ </h1>
 </div>
 	
 <article>
@@ -150,57 +150,94 @@
 	   2014
 	 </span>
 	  <div class="article_body">
-	  <p>在看了Swift的Guide，从自己对语言的理解来看Swift；）再看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？拭目以待～</p>
+	  <p>在看了Swift的Guide，从自己对语言的理解来看Swift；）在看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？在看sf之后，我怎么觉得swift越来越像个坑。</p>
 
-<p><strong>1.忘记基本类型和冗余的code吧</strong></p>
+<p>1.如今当你读到一个变量的时候，是不知道变量类型的。因为sf变量定义都变成了let和var，只有在被assign的时候才知道Type，而一般在编码中我们会先定义好变量和Type，这样有个清晰的认识，而现在只有名字了，这样真的好么？另外sf依旧还是强类型语言- -</p>
 
-<p>sf的变量定义都成了var，let，基本数据类型也成了Int，Double，String等，这些都成了对象，甚至enum这种东西都拥有了this指针和方法，所以忘记基本类型吧。</p>
+<p>2.简单的基本类型变成了对象，比如int -&gt; Int，UInt8,etc. 这必定是开销，不知道sf有没有做优化。</p>
 
-<p>Apple一向的做事风格就是简化：去掉了；分隔符，if()，switch中的break等等，真给懒人造福。</p>
+<p>3.支持Tuples，打包多个值，这个用于函数返回是比较赞的feature。</p>
 
-<p><strong>2.有点虚名的类型定义</strong></p>
+<p>4.Optionals，意思是说这个对象可能有值，可能没值，没太搞懂这个feature的原因，看上去像把</p>
 
-<p>在定义的时候不需要定义变量的Type了，但还是强类型的语言，只是在assign的时候sf帮你做type check来确定type。</p>
+<div class="highlight"><pre><code class="objective-c"><span class="k">if</span><span class="p">(</span><span class="n">obj</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span>
+  <span class="p">[</span><span class="n">obj</span> <span class="n">func1</span><span class="p">];</span></code></pre></div>
 
-<p><strong>3.Tuples，再不用传地址了！</strong></p>
+<p>变成了</p>
 
-<p>这个东西不错，可以让函数返回多个结果值，之前函数返回都是单一返回值，虽然可以利用class或structs来包装多个值，但总是很懒地写，现在可以不用了，点赞。</p>
+<div class="highlight"><pre><code class="objective-c"><span class="n">obj</span><span class="o">?</span><span class="p">.</span><span class="n">func1</span><span class="p">()</span></code></pre></div>
 
-<p><strong>4.Optional Value，让语义更明确</strong></p>
+<p>有什么太大的意义么？还有点画蛇添足的提供obj!这种mark，意思是说当你确定obj有值的时候，会高效点。</p>
 
-<p>刚开始看OV的时候，不太明白Apple的用意，后来慢慢体会到这个东西似乎是让code看起来更明确并且省掉了if(x!=nil)的判断，OV的意思是这个变量是不确定的，要么有值，要么为nil(初始化的时候为nil)</p>
+<p>5.支持..和…Range操作符，用x..y表示[x,y)，用x…y表示[x,y]，是<code>for(NSInteger i =0;i&lt;count;i++)</code>的简化，不错。</p>
 
-<p><strong>5.终于不要写那么长长长长的for循环了</strong></p>
+<p>6.String的长度计算countElements和utf16count要小心。</p>
 
-<p>另一个好东西：Range Operation，用x..y表示[x,y)，用x…y表示[x,y],这样在写for的时候就可以很简单的写为:for 0..count in{}，又少了很多无聊的code ；p</p>
+<p>7.强大的操作符运算和自定义操作符，在Collection可以直接应用+=操作符（不知道能不能在Array中用-=），甚至是自定义操作符，比如++++，+-等等</p>
 
-<p><strong>6.Array &amp;&amp; Dic</strong></p>
+<p>8.统一了Collection的Iterator，不要考虑什么时候用enumerate还是forin了</p>
 
-<p>两者都只支持单一类型了，比较赞的是支持+=操作符，直接 array+=array1,array+=element. 都支持forin操作，iterator也省事了很多。</p>
+<p>9.从关心用mutable和immutable的结构到用var和let的类型的转移，实际上我觉得没省略什么。</p>
 
-<p><strong>7.闭包的延伸品——全局函数Function、内嵌Function</strong></p>
+<p>10.在写for的时候，以前默认的写法是不关心当前游标指向的值，现在sf默认是关心，所以写法变成:</p>
 
-<p>默认参数值，多个返回值，多个参数名定义，不确定参数个数，除了方便还是方便，不过特别注意的是Function的参数默认都是值传递并且是常量，如果需要更改参数内容则加上var，如果要传递指针让更改生效，则加上inout，并且还支持参数默认值。</p>
+<div class="highlight"><pre><code class="objective-c"><span class="k">for</span><span class="p">(...)</span>
+<span class="p">{</span>
 
-<p><strong>8.把简洁做到极致的closure写法</strong></p>
+<span class="p">}</span></code></pre></div>
 
-<p>往一个sort函数里传入closure来做排序是很常用的写法，比如swift的写法如下：</p>
+<p>sf的for的语法为：</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="n">reversed</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="p">{</span> <span class="p">(</span><span class="n">s1</span><span class="o">:</span> <span class="n">String</span><span class="p">,</span> <span class="n">s2</span><span class="o">:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="k">in</span>
-<span class="k">return</span> <span class="n">s1</span> <span class="o">&gt;</span> <span class="n">s2</span>
-<span class="p">})</span></code></pre></div>
+<div class="highlight"><pre><code class="objective-c"><span class="k">for</span> <span class="n">tmp</span> <span class="k">in</span> <span class="mf">1.</span><span class="p">.</span><span class="mf">.5</span><span class="p">{</span>
+    <span class="c1">// use tmp variable</span>
+<span class="p">}</span></code></pre></div>
 
-<p>摘录来自: Apple Inc. “The Swift Programming Language”。 iBooks. https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewBook?id=881256329</p>
+<p>但并非所有时候都关心当前游标指向的值，所以sf又象征性的提供</p>
 
-<p>上面这段code等同于:</p>
+<div class="highlight"><pre><code class="objective-c"><span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mf">1.</span><span class="p">.</span><span class="mf">.5</span><span class="p">{</span>
 
-<div class="highlight"><pre><code class="objective-c"><span class="n">reversed</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">names</span><span class="p">,</span><span class="o">&gt;</span><span class="p">)</span></code></pre></div>
+<span class="p">}</span></code></pre></div>
 
-<p>你们感受一下</p>
+<p>这种写法- -！</p>
 
-<p>**9.Structs和enum都是值传递，Dic是值传递，Array选择性copy</p>
+<p>11.函数参数默认是const，需要更改参数要加var，需要指针传递要加inout，越来越发现sf的思想与传统的编程进行了颠倒- -！，参数支持默认值，支持…</p>
 
-<p>意味着var structs_a = structs_b这个简单的赋值操作都需要进行copy,但Array又是share同一个instance，除非改变了length就copy成新的Array，有点奇怪，可能是个坑- -</p>
+<p>12.把原来的global block变成了function，heap &amp; stack block变成了closure</p>
+
+<p>13.鸡肋的Trailing Closure，有点勉强的写法</p>
+
+<p>14.有点混乱的参数传递，enum，structs都是值传递，Closure是引用传递，很容易傻傻分不清楚，比如传递一个Array进去，常规是引用传递，实际上是值传递，因为Array是用structs实现的，而structs和enum在sf里又不是严格意义的C类型- -，更加傻傻分不清楚了。</p>
+
+<p>15.enum不再是enum，structs不再是structs了，他们完全已经成了变相的class了，定义方法和变量，实现protocal，enum，structs，class再一次傻傻分不清楚- -，只不过class支持继承和需要引用计数，因为是引用传递。而structs，enum每次进行值copy，小心使用。</p>
+
+<p>16.Array和Dictionary是用Structs实现的，Dic是copy操作，Array是选择性copy操作，Array的copy只在发生在length发生改变时，再一次傻傻分不清楚，坑啊。</p>
+
+<p>17.@lazy property，延迟加载的思想应用到了class里。</p>
+
+<p>18.property默认加入了willSet didSet的observer，从分布的observer管理可做到集中式管理。</p>
+
+<p>19.简化的global variable定义，使用Type来标明类静态。</p>
+
+<p>20.sf提供一个mutating的method，意思是方法内会改变self的值，这种特性如何掌控不好，感觉很容易搞出bug</p>
+
+<p>21.开放subscript，这个feature允许自定义容器的access了，比如something[i]，可以实现get{} 和 set{}</p>
+
+<p>22.对于需要覆盖的方法，需要强制加override关键字，这也是从需要坑中总结的经验了</p>
+
+<p>23.分散了初始化方式，包括var中定义的get set和block。</p>
+
+<p>24.为什么要保留unowned?</p>
+
+<p>25.支持继承的protocal</p>
+
+<p>26.范型的支持</p>
+
+<p>27.略显多余的关键字，再自定义重载符的时候对于不同的重载符需要定义不同的关键字</p>
+
+<p>差不多看完了swift的guide，从语言的角度看它再试图简化，或者是某种传统行为的改变，但除了几个亮点外，革新的东西不同，甚至会带来潜在的危险，所以我觉得得报以怀疑的态度来对待这门语言了。</p>
+
+<p>PPS：stackoverflow上有哥们做了初次的性能测试，得到的效果并不佳。所以做好填坑的准备吧亲～</p>
+
 
 	  </div>
 <!--
@@ -211,7 +248,7 @@
 		  
 			 
 				<li><a href="/categories.html#ios-ref">
-					ios <span>(4)</span>
+					ios <span>(5)</span>
 					
 				</a></li>
 			
@@ -249,7 +286,7 @@
 		<div>
       <section class="share">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=浅尝Swift（待续）"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=浅尝Swift，会是个坑么？"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -286,7 +323,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		  <li class="previous"><a href="/ios/2014/06/06/%E8%80%81%E6%9D%BFcrash%E4%BA%86.html" title="老板，并发crash了！">&larr; Previous</a></li>
 		  
 		  
-			<li class="next disabled"><a>Next &rarr;</a>
+		  <li class="next"><a href="/ios/2014/06/20/%E4%B8%8D%E6%94%AF%E6%8C%81%E5%A4%9A%E7%BB%A7%E6%89%BF%E5%92%8C%E9%87%8D%E8%BD%BD.html" title="不支持多继承和重载">Next &rarr;</a></li>
 		  
 		</ul>
 

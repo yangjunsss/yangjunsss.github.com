@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<title>yj的博客 老板，并发crash了！</title>
 	<meta name="keywords" content="CAS, NSMutableArray,GCD,NSlock">
-	<meta name="description" content="">
+	<meta name="description" content="App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了read操作，结果就exc_bad_access了，于是写了一个测试code">
 	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -150,22 +150,22 @@
 	   2014
 	 </span>
 	  <div class="article_body">
-	  <p>App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了get操作，结果就exc_bad_access了，有点不小心。写的一个Crash的测试code如下：</p>
+	  <p>App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了read操作，应该不会crash，但为什么就exc_bad_access了呢？于是写了一个测试code，运行正常：</p>
 
 <div class="highlight"><pre><code class="objective-c"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">testOneAddAndMultiReadBug</span>
 <span class="p">{</span>
     <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">new</span><span class="p">];</span>
-    <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">]];</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">NSInteger</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">10000000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">NSInteger</span> <span class="n">count</span> <span class="o">=</span> <span class="p">[</span><span class="n">array</span> <span class="n">count</span><span class="p">];</span>
-        <span class="n">VideoItem</span> <span class="o">*</span><span class="n">e</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span> <span class="c1">// EXC_BAD_ACCESS!</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">NSInteger</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">100000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">]];</span>
         <span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
-            <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">]];</span>
+            <span class="n">NSInteger</span> <span class="n">count</span> <span class="o">=</span> <span class="p">[</span><span class="n">array</span> <span class="n">count</span><span class="p">];</span>
+            <span class="n">VideoItem</span> <span class="o">*</span><span class="n">e</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
         <span class="p">});</span>
+        <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">]];</span>
     <span class="p">}</span>
 <span class="p">}</span></code></pre></div>
 
-<p>oc的Array和Map对并发的支持的确弱了点，线程安全都需要自己保证- - ，但我还是怀疑了一会为什么会crash，因为这里只有一个线程做append，于是翻了下CFArray实现，简化code如下：</p>
+<p>于是看了下CFArray的Append实现，简化code如下：</p>
 
 <div class="highlight"><pre><code class="objective-c"><span class="k">struct</span> <span class="n">__CFArrayImmutable</span> <span class="p">{</span>
     <span class="n">CFRuntimeBase</span> <span class="n">_base</span><span class="p">;</span>
@@ -197,15 +197,51 @@
     <span class="n">__CFArraySetCount</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">futureCnt</span><span class="p">);</span>
 <span class="p">}</span></code></pre></div>
 
-<p>可以看到append实际上是先insert然后再replace，这就有可能EBA了，于是做并发吧。</p>
+<p>虽然append是先insert然后再replace，但setcount操作总在最后，应该没问题，但后来发现写成了下面这样:</p>
 
-<p><strong>锁</strong>和<strong>非阻塞算法CAS</strong>。</p>
+<div class="highlight"><pre><code class="objective-c"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">testOneAddAndMultiReadBug</span>
+<span class="p">{</span>
+    <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">new</span><span class="p">];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">NSInteger</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">100000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">]];</span>
+        <span class="n">array</span><span class="p">[[</span><span class="n">array</span> <span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">];</span>
+        <span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
+            <span class="n">NSInteger</span> <span class="n">count</span> <span class="o">=</span> <span class="p">[</span><span class="n">array</span> <span class="n">count</span><span class="p">];</span>
+            <span class="n">VideoItem</span> <span class="o">*</span><span class="n">e</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span> <span class="c1">//EXC_BAD_ADDRESS</span>
+        <span class="p">});</span>
+        <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">]];</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
 
-<p><strong><em>先说锁</em></strong></p>
+<p>先append，然后replace了count - 1位置的元素导致read到野指针- -！，解决的办法很简单，不要做replace就好了，如果非要replace操作，则可以用<strong>锁</strong>和<strong>非阻塞算法CAS</strong>。</p>
+
+<p><strong><em>锁</em></strong></p>
 
 <p>1.全局锁，最傻的办法，给整个Array加互斥锁，用NSLock或@synchronized来实现，实现简单但并发效率低，任何一个读写操作都阻塞其他线程。</p>
 
-<p>2.读写锁，读线程之间不阻塞，只与写线程互斥，写线程之间相互互斥，这样来保证高效的并发读操作，而且比较简单，较符合我的需求。</p>
+<p>2.读写锁，读线程之间不阻塞，只与写线程互斥，写线程之间相互互斥，这样来保证高效的并发读操作，以上的问题code可以改成：</p>
+
+<div class="highlight"><pre><code class="objective-c"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">testOneAddAndMultiReadBugFix</span>
+<span class="p">{</span>
+    <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">new</span><span class="p">];</span>
+    <span class="n">__block</span> <span class="kt">pthread_rwlock_t</span> <span class="n">rwlock</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">pthread_rwlock_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rwlock</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span> <span class="c1">// error</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">NSInteger</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">100000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">pthread_rwlock_wrlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rwlock</span><span class="p">);</span>
+        <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">]];</span>
+        <span class="n">array</span><span class="p">[[</span><span class="n">array</span> <span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">];</span>
+        <span class="n">pthread_rwlock_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rwlock</span><span class="p">);</span>
+        <span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
+            <span class="n">pthread_rwlock_rdlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rwlock</span><span class="p">);</span>
+            <span class="n">NSInteger</span> <span class="n">count</span> <span class="o">=</span> <span class="p">[</span><span class="n">array</span> <span class="n">count</span><span class="p">];</span>
+            <span class="n">VideoItem</span> <span class="o">*</span><span class="n">e</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+            <span class="n">pthread_rwlock_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rwlock</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="n">pthread_rwlock_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rwlock</span><span class="p">);</span>
+<span class="p">}</span></code></pre></div>
 
 <p>3.局部锁，写过Java就肯定知道<a href="http://kickjava.com/src/java/util/concurrent/ConcurrentHashMap.java.htm">ConcurrentHashMap</a>，DW上有几篇不错的<a href="http://www.ibm.com/developerworks/cn/java/j-jtp08223/">分析文章</a>，是JDK1.5后对原来synchronized table，Map的高并发替代方案，大致的意思把Map数据分成多个Segment，每个Segment拥有锁，形成锁池，这样利用局部的锁来实现高并发的读写操作，MM有篇大作。
 放个ConcurrentHashMap的put来事例下:</p>
@@ -247,7 +283,7 @@
 		  
 			 
 				<li><a href="/categories.html#ios-ref">
-					ios <span>(4)</span>
+					ios <span>(5)</span>
 					
 				</a></li>
 			
@@ -315,7 +351,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		  <li class="previous"><a href="/ios/2014/06/03/ios8iscoming.html" title="ios8 is coming">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html" title="浅尝Swift（待续）">Next &rarr;</a></li>
+		  <li class="next"><a href="/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html" title="浅尝Swift，会是个坑么？">Next &rarr;</a></li>
 		  
 		</ul>
 
