@@ -2,7 +2,7 @@
 layout: post
 title: Notification的坑
 categories: [ios]
-tags: [Notification,]
+tags: [Notification]
 fullview: false
 keywords:
 
