@@ -144,6 +144,38 @@
 <article class="home">
 
   <h3>
+    <a href="/ios/2014/06/23/Notification%E7%9A%84%E5%9D%91.html">Notification的坑</a>
+  </h3>
+
+  <span class="post-date">
+    
+    June
+    23rd,
+    
+    2014
+  </span>
+
+  <div>
+    
+    
+    <p>在事件驱动的消息处理中，Notification用起来很方便。
+<strong>坑一：NSNotificationQueue的addObserver方式是<code>[NSNotificationCenter defaultCenter] addObserver</code>，而不是<code>[NSNotificationQueue defaultQueue] addObserver</code></strong>
+Notification提供异步post方式NSNotificationQueue，通过enqueueNotification的接口把Notification入队列，并且提供NSPostASAP, NSPostWhenIdle, and NSPostNow这3种时刻来执行，意思分别为在runloop结束时，在线程idle时和立刻。比如：</p>
+
+
+    
+    
+  </div>
+  <h5 style="text-align:right">
+    <a href="/ios/2014/06/23/Notification%E7%9A%84%E5%9D%91.html">阅读</a>
+  </h5>
+</article>
+<hr style="border-color: #ddd;"/>
+
+
+<article class="home">
+
+  <h3>
     <a href="/ios/2014/06/20/%E4%B8%8D%E6%94%AF%E6%8C%81%E5%A4%9A%E7%BB%A7%E6%89%BF%E5%92%8C%E9%87%8D%E8%BD%BD.html">不支持多继承和重载</a>
   </h3>
 
