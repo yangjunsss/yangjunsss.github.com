@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Notification的坑
+title: NSNotification的坑
 categories: [ios]
 tags: [Notification]
 fullview: false

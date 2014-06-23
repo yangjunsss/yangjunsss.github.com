@@ -7,7 +7,7 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
-				<title>Notification的坑</title>
+				<title>NSNotification的坑</title>
 				<description>&lt;p&gt;在事件驱动的消息处理中，Notification用起来很方便。
 &lt;strong&gt;坑一：NSNotificationQueue的addObserver方式是&lt;code&gt;[NSNotificationCenter defaultCenter] addObserver&lt;/code&gt;，而不是&lt;code&gt;[NSNotificationQueue defaultQueue] addObserver&lt;/code&gt;&lt;/strong&gt;
 Notification提供异步post方式NSNotificationQueue，通过enqueueNotification的接口把Notification入队列，并且提供NSPostASAP, NSPostWhenIdle, and NSPostNow这3种时刻来执行，意思分别为在runloop结束时，在线程idle时和立刻。比如：&lt;/p&gt;
