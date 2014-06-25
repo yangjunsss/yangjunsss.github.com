@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>yj的博客 一个写线程，一个读线程，crash了</title>
-	<meta name="keywords" content="">
+	<title>yj的博客 Bonjour用于近距离传输（更新ing）</title>
+	<meta name="keywords" content="bonjour">
 	<meta name="description" content="">
 	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
@@ -136,7 +136,7 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1>一个写线程，一个读线程，crash了 </h1>
+  <h1>Bonjour用于近距离传输（更新ing） </h1>
 </div>
 	
 <article>
@@ -144,37 +144,79 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	    
-	   0th,
+	   June 
+	   25th,
 	   
-	   
+	   2014
 	 </span>
 	  <div class="article_body">
-	  <p>实际上我偷了个懒，就crash了，读写线程一般发生crash情况有：
-1.访问一个被释放的内存，比如delete或replace操作；
-2.访问越界</p>
+	  <p>一直想看看近距离传输，特别是“快牙”火了之后，本来想看看古老的蓝牙传输，但这种技术显然落后了，耗电，慢和不稳定。<a href="https://developer.apple.com/bonjour/index.html">bonjour</a>是apple提供的一种基于TCP/IP，无配置的通信服务，可用于近距离传输，遵循Apache 2.0 license，支持wi-fi和蓝牙。名字也有点意思，“你好”，很神似。Apple从7.0后提供了一个对bonjour的high level的Framework，<code>MultipeerConnectivity.framework</code>.官方有个<a href="https://developer.apple.com/library/ios/samplecode/MultipeerGroupChat/Introduction/Intro.html#//apple_ref/doc/uid/DTS40013691">sample code</a>（我在2台ios7的pad上已实验正常）就是使用MultipeerConnectivity.framework来做的，但是对于需要支持ios7以下的App来说就歇菜了，所以还是得用NSNetService或者CFNetService等来实现。</p>
 
-<p>比如：</p>
+<p><strong>bonjour需要做3件事：</strong></p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">testOneReplaceThreadAndMultiThreadReadBug2</span>
-<span class="p">{</span>
-    <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">new</span><span class="p">];</span>
-    <span class="n">VideoItem</span> <span class="o">*</span><span class="n">emptyI</span> <span class="o">=</span> <span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">];</span>
-    <span class="n">NSInteger</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="n">emptyI</span><span class="p">];</span>
-    <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">++&gt;</span><span class="mi">10000000</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="p">}</span>
-        <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="n">emptyI</span><span class="p">];</span>
-        <span class="n">array</span><span class="p">[[</span><span class="n">array</span> <span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">];</span>
-        <span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
-            <span class="n">VideoItem</span> <span class="o">*</span><span class="n">e</span> <span class="o">=</span> <span class="n">array</span><span class="p">[[</span><span class="n">array</span> <span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
-        <span class="p">});</span>
-    <span class="p">}</span>
-<span class="p">}</span></code></pre></div>
+<p>1,Publishing a Network Service</p>
 
-<p>就会发生EXC_BAD_ACCESS</p>
+<p>建立一个网络服务，并用服务的命名和类型来替换传统的IP地址和端口。而且命名更具有可读性。比如：Zealous Lizard’s Tune Studio._music._tcp.local，整个过程如图：</p>
+
+<p><img src="/assets/media/屏幕快照 2014-06-26 12.00.35 AM.png" alt="tu1" /></p>
+
+<p>2,Browsing for and connecting to a Network Service</p>
+
+<p>询问和建立连接，bonjour的询问方式更加明确，比如用“What print services are available?”替换掉“What services are you running?”，整个过程如图：</p>
+
+<p><img src="/assets/media/屏幕快照 2014-06-26 12.02.14 AM.png" alt="tu2" /></p>
+
+<p>3,Resolution</p>
+
+<p>service name 和 地址端口的相互解析，用service name重新广播得到最新的IP地址和端口。</p>
+
+<p><img src="/assets/media/屏幕快照 2014-06-26 12.05.06 AM.png" alt="tu3" /></p>
+
+<p><strong>API layers：</strong></p>
+
+<p>Top</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>NSNetService NSNetServiceBrowser</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td>CFNetServices</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td>DNS　Service Discovery API</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Low</p>
+
+<p>用NSNetService进行publish：</p>
+
+<pre><code>    NSNetService *service = [[NSNetService alloc] initWithDomain:@"" type:@"" name:@""];
+    [service scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+    [service setDelegate:self];
+    [service publish];
+</code></pre>
+
+<p>进行browsing：</p>
+
+<pre><code>    NSNetServiceBrowser *browser = [NSNetServiceBrowser new];
+    [browser setDelegate:self];
+    [browser searchForServicesOfType:@"_moodring._tcp" inDomain:@""];
+</code></pre>
+
 
 	  </div>
 <!--
@@ -193,29 +235,6 @@
 		</ul>
 		  
 
-		
-		<ul class="list-inline">
-		  <li><i class="fa fa-tags"></i></li>
-		  
-		  
-			 
-				<li>
-					<a href="/tags.html#Thread-ref">
-					Thread <span>()</span>
-					,
-					</a>
-				</li>
-			 
-				<li>
-					<a href="/tags.html#NSMutableArray-ref">
-					NSMutableArray <span>(1)</span>
-					
-					</a>
-				</li>
-			
-		  
-		  
-		</ul>
 		  
 
 		<hr>
@@ -223,7 +242,7 @@
 		<div>
       <section class="share">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=一个写线程，一个读线程，crash了"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=Bonjour用于近距离传输（更新ing）"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -257,7 +276,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 
 		<ul class="pager" style="font-size:12px;">
 		  
-		  <li class="previous disabled"><a>&larr; Previous</a></li>
+		  <li class="previous"><a href="/ios/2014/06/23/Notification%E7%9A%84%E5%9D%91.html" title="NSNotification的坑">&larr; Previous</a></li>
 		  
 		  
 			<li class="next disabled"><a>Next &rarr;</a>
