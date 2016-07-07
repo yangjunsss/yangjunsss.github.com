@@ -1,6 +1,6 @@
 # visit https://github.com/mojombo/jekyll/wiki/Configuration for more settings
 
-paginate: 10 # pagination based on number of posts
+paginate: 15 # pagination based on number of posts
 paginate_path: "page:num"
 exclude: ["README.md"] # files to exclude
 gems: [jekyll-paginate]
@@ -13,9 +13,9 @@ author:
   name: yj
   email: cj.yangjun@gmail.com
   github: yangjunsss
+  linkedin: https://cn.linkedin.com/in/yj-chen-0525b8104
   twitter:
   pinterest:
-  linkedin:
   bio: 玩linux的mobile dev
   anu: 本博仅代表个人观点，某些地方纯属意淫
   email_md5: 
