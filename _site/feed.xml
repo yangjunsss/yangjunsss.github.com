@@ -695,10 +695,10 @@ Notification提供异步post方式NSNotificationQueue，通过enqueueNotificatio
 			</item>
 		
 			<item>
-				<title>老板，并发crash了！</title>
+				<title>并发和锁</title>
 				<description>&lt;p&gt;App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了read操作，应该不会crash，但为什么就exc_bad_access了呢？于是写了一个测试code，运行正常：&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;- (void) testOneAddAndMultiReadBug
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;- (void) testOneAddAndMultiReadBug
 {
     NSMutableArray *array = [NSMutableArray new];
     for (NSInteger i=0; i&amp;lt;100000; i++) {
@@ -709,7 +709,9 @@ Notification提供异步post方式NSNotificationQueue，通过enqueueNotificatio
         });
         [array addObject:[VideoItem new]];
     }
-}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;于是看了下CFArray的Append实现，简化code如下：&lt;/p&gt;
 
@@ -759,7 +761,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
     }
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;先append，然后replace了count - 1位置的元素导致read到野指针- -！，解决的办法很简单，不要做replace就好了，如果非要replace操作，则可以用&lt;strong&gt;锁&lt;/strong&gt;和&lt;strong&gt;非阻塞算法CAS&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;先append，然后replace了count - 1位置的元素导致read到野指针就crash了，解决的办法很简单，不要做replace就好了，如果非要replace操作，则可以用&lt;strong&gt;锁&lt;/strong&gt;和&lt;strong&gt;非阻塞算法CAS&lt;/strong&gt;。&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;&lt;em&gt;锁&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
 

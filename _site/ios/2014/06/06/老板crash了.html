@@ -2,9 +2,9 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>yj的博客 老板，并发crash了！</title>
+	<title>yj的博客 并发和锁</title>
 	<meta name="keywords" content="CAS, NSMutableArray,GCD,NSlock">
-	<meta name="description" content="App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了read操作，结果就exc_bad_access了，于是写了一个测试code">
+	<meta name="description" content="App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了read操作，crash了">
 	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -89,7 +89,7 @@
 		<! -- sidebar.html -->
 <header class="sidebar-header" role="banner">
 	<a href="/">
-		<img src="/assets/ico/avatar.png" class="img-circle" width="200" height="200"/>
+		<img src="/assets/ico/avatar.jpg" class="img-circle" width="200" height="200"/>
 	</a>
 	<h3 class="title">
         <a href="/">yj的博客</a>
@@ -136,7 +136,7 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1>老板，并发crash了！ </h1>
+  <h1>并发和锁 </h1>
 </div>
 	
 <article>
@@ -152,7 +152,7 @@
 	  <div class="article_body">
 	  <p>App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了read操作，应该不会crash，但为什么就exc_bad_access了呢？于是写了一个测试code，运行正常：</p>
 
-<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">- (void) testOneAddAndMultiReadBug
+<div class="highlighter-rouge"><pre class="highlight"><code>- (void) testOneAddAndMultiReadBug
 {
     NSMutableArray *array = [NSMutableArray new];
     for (NSInteger i=0; i&lt;100000; i++) {
@@ -163,7 +163,9 @@
         });
         [array addObject:[VideoItem new]];
     }
-}</code></pre></figure>
+}
+</code></pre>
+</div>
 
 <p>于是看了下CFArray的Append实现，简化code如下：</p>
 
@@ -213,7 +215,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
     }
 }</code></pre></figure>
 
-<p>先append，然后replace了count - 1位置的元素导致read到野指针- -！，解决的办法很简单，不要做replace就好了，如果非要replace操作，则可以用<strong>锁</strong>和<strong>非阻塞算法CAS</strong>。</p>
+<p>先append，然后replace了count - 1位置的元素导致read到野指针就crash了，解决的办法很简单，不要做replace就好了，如果非要replace操作，则可以用<strong>锁</strong>和<strong>非阻塞算法CAS</strong>。</p>
 
 <p><strong><em>锁</em></strong></p>
 
@@ -314,7 +316,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 		<div>
       <section class="share">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=老板，并发crash了！"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=并发和锁"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
