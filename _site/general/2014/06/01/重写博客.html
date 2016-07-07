@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	ios dev，产品工作者
+	玩linux的mobile dev
 </div>
 
 
@@ -150,13 +150,13 @@
 	   2014
 	 </span>
 	  <div class="article_body">
-	  <p>之前在<code>javaeye</code>上写博客，还搭建过<code>Wordpress</code>（php+mysql的博客系统），但没申请主机，今天发现
-<code>GitHub+jekyll</code>搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）</p>
+	  <p>之前在<code class="highlighter-rouge">javaeye</code>上写博客，还搭建过<code class="highlighter-rouge">Wordpress</code>（php+mysql的博客系统），但没申请主机，今天发现
+<code class="highlighter-rouge">GitHub+jekyll</code>搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）</p>
 
 <h4 id="mac">创建步骤（Mac）:</h4>
 <p>1.<strong>创建github账号和创建repository</strong></p>
 
-<p>比如我创建<code>yangjunsss</code>账号和<code>yangjunsss.github.com</code>的repository（注意带github.com后缀），并使用了GitHub Pages，比如这里工程publish到了<a href="http://yangjunsss.github.io">http://yangjunsss.github.io</a>；</p>
+<p>比如我创建<code class="highlighter-rouge">yangjunsss</code>账号和<code class="highlighter-rouge">yangjunsss.github.com</code>的repository（注意带github.com后缀），并使用了GitHub Pages，比如这里工程publish到了<a href="http://yangjunsss.github.io">http://yangjunsss.github.io</a>；</p>
 
 <p>2.<strong>check out yangjunsss.github.com</strong></p>
 
@@ -164,11 +164,11 @@
 
 <p>3.<strong>下载jekyll</strong></p>
 
-<div class="highlight"><pre><code class="bash">sudo gem install jekyll // 会下载所有依赖的包</code></pre></div>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo gem install jekyll // 会下载所有依赖的包</code></pre></figure>
 
 <p>4.<strong>下载jekyll themes</strong></p>
 
-<p><a href="http://jekyllthemes.org">jekyllthemes</a>提供很多Themes，比如Dbyll，下载后，cd到这个目录（包含_layouts,_posts,_site,assets主要目录），输入<code>jekyll server --watch</code> 生成html页面，本地run起来，通过<a href="http://0.0.0.0:4000">http://0.0.0.0:4000</a>就能看到效果了。</p>
+<p><a href="http://jekyllthemes.org">jekyllthemes</a>提供很多Themes，比如Dbyll，下载后，cd到这个目录（包含_layouts,_posts,_site,assets主要目录），输入<code class="highlighter-rouge">jekyll server --watch</code> 生成html页面，本地run起来，通过<a href="http://0.0.0.0:4000">http://0.0.0.0:4000</a>就能看到效果了。</p>
 
 <p>5.<strong>写博客</strong></p>
 
@@ -184,9 +184,9 @@
 
 <p>7.<strong>二维码</strong></p>
 
-<div class="highlight"><pre><code class="javascript"><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text/javascript&quot;</span><span class="o">&gt;</span>
-<span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&lt;img src=\&quot;https://chart.googleapis.com/chart?cht=qr&amp;chs=120x120&amp;choe=UTF-8&amp;chld=L|2&amp;chl=&quot;</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;\&quot; width=\&quot;120\&quot; height=\&quot;120\&quot;/&gt;&lt;/img&gt;&quot;</span><span class="p">);</span>
-<span class="o">&lt;</span><span class="err">/script&gt;</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">type</span><span class="o">=</span><span class="s2">"text/javascript"</span><span class="o">&gt;</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">"&lt;img src=\"https://chart.googleapis.com/chart?cht=qr&amp;chs=120x120&amp;choe=UTF-8&amp;chld=L|2&amp;chl="</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">)</span><span class="o">+</span><span class="s2">"\" width=\"120\" height=\"120\"/&gt;&lt;/img&gt;"</span><span class="p">);</span>
+<span class="o">&lt;</span><span class="sr">/script&gt;</span></code></pre></figure>
 
 <p>8.<strong>网站统计</strong></p>
 
@@ -265,7 +265,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">ios dev，产品工作者</p>
+        <p class="author-bio">玩linux的mobile dev</p>
       </section>
 !-->
     </div>
@@ -326,7 +326,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		<footer>
 			<hr/>
 			<p>
-				&copy; 2014 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
+				&copy; 2016 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
 			</p>
 		</footer>
 	</div>

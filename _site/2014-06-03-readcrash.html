@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	ios dev，产品工作者
+	玩linux的mobile dev
 </div>
 
 
@@ -156,23 +156,23 @@
 
 <p>比如：</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">testOneReplaceThreadAndMultiThreadReadBug2</span>
-<span class="p">{</span>
-    <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">new</span><span class="p">];</span>
-    <span class="n">VideoItem</span> <span class="o">*</span><span class="n">emptyI</span> <span class="o">=</span> <span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">];</span>
-    <span class="n">NSInteger</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="n">emptyI</span><span class="p">];</span>
-    <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">++&gt;</span><span class="mi">10000000</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="p">}</span>
-        <span class="p">[</span><span class="n">array</span> <span class="n">addObject</span><span class="o">:</span><span class="n">emptyI</span><span class="p">];</span>
-        <span class="n">array</span><span class="p">[[</span><span class="n">array</span> <span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">VideoItem</span> <span class="n">new</span><span class="p">];</span>
-        <span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
-            <span class="n">VideoItem</span> <span class="o">*</span><span class="n">e</span> <span class="o">=</span> <span class="n">array</span><span class="p">[[</span><span class="n">array</span> <span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
-        <span class="p">});</span>
-    <span class="p">}</span>
-<span class="p">}</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">- (void) testOneReplaceThreadAndMultiThreadReadBug2
+{
+    NSMutableArray *array = [NSMutableArray new];
+    VideoItem *emptyI = [VideoItem new];
+    NSInteger i = 0;
+    [array addObject:emptyI];
+    while (true) {
+        if (i++&gt;10000000) {
+            break;
+        }
+        [array addObject:emptyI];
+        array[[array count] - 1] = [VideoItem new];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            VideoItem *e = array[[array count] - 1];
+        });
+    }
+}</code></pre></figure>
 
 <p>就会发生EXC_BAD_ACCESS</p>
 
@@ -248,7 +248,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">ios dev，产品工作者</p>
+        <p class="author-bio">玩linux的mobile dev</p>
       </section>
 !-->
     </div>
@@ -309,7 +309,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		<footer>
 			<hr/>
 			<p>
-				&copy; 2014 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
+				&copy; 2016 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
 			</p>
 		</footer>
 	</div>

@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	ios dev，产品工作者
+	玩linux的mobile dev
 </div>
 
 
@@ -151,112 +151,112 @@
 	 </span>
 	  <div class="article_body">
 	  <p>在事件驱动的消息处理中，Notification用起来很方便。
-<strong>坑一：NSNotificationQueue的addObserver方式是<code>[NSNotificationCenter defaultCenter] addObserver</code>，而不是<code>[NSNotificationQueue defaultQueue] addObserver</code></strong>
+<strong>坑一：NSNotificationQueue的addObserver方式是<code class="highlighter-rouge">[NSNotificationCenter defaultCenter] addObserver</code>，而不是<code class="highlighter-rouge">[NSNotificationQueue defaultQueue] addObserver</code></strong>
 Notification提供异步post方式NSNotificationQueue，通过enqueueNotification的接口把Notification入队列，并且提供NSPostASAP, NSPostWhenIdle, and NSPostNow这3种时刻来执行，意思分别为在runloop结束时，在线程idle时和立刻。比如：</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="p">...</span>
-<span class="p">[[</span><span class="n">NSNotificationQueue</span> <span class="n">defaultQueue</span><span class="p">]</span> <span class="n">addObserver</span><span class="o">:</span><span class="n">self</span> <span class="n">selector</span><span class="o">:</span><span class="k">@selector</span><span class="p">(</span><span class="n">doIdleTask</span><span class="p">)</span> <span class="n">name</span><span class="o">:</span><span class="s">@&quot;idleTask&quot;</span> <span class="n">object</span><span class="o">:</span><span class="nb">nil</span><span class="p">];</span> <span class="c1">// 错误，但编译正确不报错- -</span>
-<span class="p">[[</span><span class="n">NSNotificationQueue</span> <span class="n">defaultQueue</span><span class="p">]</span> <span class="n">enqueueNotification</span><span class="o">:</span><span class="p">[</span><span class="n">NSNotification</span> <span class="n">notificationWithName</span><span class="o">:</span><span class="s">@&quot;idleTask&quot;</span> <span class="n">object</span><span class="o">:</span><span class="n">self</span><span class="p">]</span> <span class="n">postingStyle</span><span class="o">:</span><span class="n">NSPostWhenIdle</span><span class="p">];</span>
-<span class="p">...</span>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">...
+[[NSNotificationQueue defaultQueue] addObserver:self selector:@selector(doIdleTask) name:@"idleTask" object:nil]; // 错误，但编译正确不报错- -
+[[NSNotificationQueue defaultQueue] enqueueNotification:[NSNotification notificationWithName:@"idleTask" object:self] postingStyle:NSPostWhenIdle];
+...
 
-<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">doIdleTask</span>
-<span class="p">{</span>
-    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;do task in idle&quot;</span><span class="p">);</span>
-    <span class="p">[[</span><span class="n">NSNotificationQueue</span> <span class="n">defaultQueue</span><span class="p">]</span> <span class="n">enqueueNotification</span><span class="o">:</span><span class="p">[</span><span class="n">NSNotification</span> <span class="n">notificationWithName</span><span class="o">:</span><span class="s">@&quot;idleTask&quot;</span> <span class="n">object</span><span class="o">:</span><span class="n">self</span><span class="p">]</span> <span class="n">postingStyle</span><span class="o">:</span><span class="n">NSPostWhenIdle</span><span class="p">];</span>
-<span class="p">}</span></code></pre></div>
+- (void)doIdleTask
+{
+    NSLog(@"do task in idle");
+    [[NSNotificationQueue defaultQueue] enqueueNotification:[NSNotification notificationWithName:@"idleTask" object:self] postingStyle:NSPostWhenIdle];
+}</code></pre></figure>
 
 <p>可以重复利用当前线程Idle来碎片化执行任务。</p>
 
-<p>在addObserver的时候很容易写成：<code>[[NSNotificationQueue defaultQueue] addObserver:self selector:@selector(doIdleTask) name:@"idleTask" object:nil];</code>，而且这样写并不报错，因为[NSNotificationQueue defaultQueue]返回的是id,在编译期它能是任意的对象，所以能关联上任意子类的方法，从而都没有编译错误，但事实上NSNotificationQueue并没有addObserver方法，所有Notification的addObserver都使用[NSNotificationCenter defaultCenter]。正确的写法是：</p>
+<p>在addObserver的时候很容易写成：<code class="highlighter-rouge">[[NSNotificationQueue defaultQueue] addObserver:self selector:@selector(doIdleTask) name:@"idleTask" object:nil];</code>，而且这样写并不报错，因为[NSNotificationQueue defaultQueue]返回的是id,在编译期它能是任意的对象，所以能关联上任意子类的方法，从而都没有编译错误，但事实上NSNotificationQueue并没有addObserver方法，所有Notification的addObserver都使用[NSNotificationCenter defaultCenter]。正确的写法是：</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="p">[[</span><span class="n">NSNotificationCenter</span> <span class="n">defaultCenter</span><span class="p">]</span> <span class="n">addObserver</span><span class="o">:</span><span class="n">self</span> <span class="n">selector</span><span class="o">:</span><span class="k">@selector</span><span class="p">(</span><span class="n">doIdleTask</span><span class="p">)</span> <span class="n">name</span><span class="o">:</span><span class="s">@&quot;idleTask&quot;</span> <span class="n">object</span><span class="o">:</span><span class="nb">nil</span><span class="p">];</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(doIdleTask) name:@"idleTask" object:nil];</code></pre></figure>
 
 <p><strong>坑二：Notification原则上是不支持多线程的，post在哪个线程，observer就在哪个线程接收，所以别以为网络线程要刷新UI的时候去post，然后执行UI操作，这个坑会导致crash。</strong></p>
 
 <p>Apple提供了一种比较粗糙的实现方式来支持多线程，实质上是进行了传递，“传递者”实现如下：</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="cp">#import &lt;Foundation/Foundation.h&gt;</span>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">#import &lt;Foundation/Foundation.h&gt;
 
-<span class="k">@interface</span> <span class="nc">NotificationTransfer</span> : <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n">NSMachPortDelegate</span><span class="o">&gt;</span>
-<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">notifications</span><span class="p">;</span>
-<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSThread</span> <span class="o">*</span><span class="kr">thread</span><span class="p">;</span>
-<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSLock</span> <span class="o">*</span><span class="n">lock</span><span class="p">;</span>
-<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSMachPort</span> <span class="o">*</span><span class="n">port</span><span class="p">;</span>
+@interface NotificationTransfer : NSObject &lt;NSMachPortDelegate&gt;
+@property (nonatomic) NSMutableArray *notifications;
+@property (nonatomic) NSThread *thread;
+@property (nonatomic) NSLock *lock;
+@property (nonatomic) NSMachPort *port;
 
-<span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span> <span class="nf">init</span><span class="p">;</span>
-<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">setUpThreadingSupport</span><span class="p">;</span>
-<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">handleMachMessage:</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="nv">msg</span><span class="p">;</span>
-<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">processNotification:</span><span class="p">(</span><span class="n">NSNotification</span> <span class="o">*</span><span class="p">)</span><span class="nv">notification</span><span class="p">;</span>
-<span class="k">@end</span>
+- (id) init;
+- (void) setUpThreadingSupport;
+- (void) handleMachMessage:(void *)msg;
+- (void) processNotification:(NSNotification *)notification;
+@end
 
 
-<span class="cp">#import &quot;NotificationTransfer.h&quot;</span>
+#import "NotificationTransfer.h"
 
-<span class="k">@implementation</span> <span class="nc">NotificationTransfer</span>
+@implementation NotificationTransfer
 
-<span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span> <span class="nf">init</span>
-<span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="n">init</span><span class="p">])</span> <span class="p">{</span>
+- (id) init
+{
+    if (self = [super init]) {
         
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">setUpThreadingSupport</span>
-<span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">notifications</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="n">self</span><span class="p">.</span><span class="n">notifications</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">new</span><span class="p">];</span>
-    <span class="n">self</span><span class="p">.</span><span class="n">lock</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSLock</span> <span class="n">new</span><span class="p">];</span>
-    <span class="n">self</span><span class="p">.</span><span class="kr">thread</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSThread</span> <span class="n">currentThread</span><span class="p">];</span>
-    <span class="n">self</span><span class="p">.</span><span class="n">port</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMachPort</span> <span class="n">new</span><span class="p">];</span>
-    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">port</span> <span class="n">setDelegate</span><span class="o">:</span><span class="n">self</span><span class="p">];</span>
-    <span class="p">[[</span><span class="n">NSRunLoop</span> <span class="n">currentRunLoop</span><span class="p">]</span> <span class="n">addPort</span><span class="o">:</span><span class="n">self</span><span class="p">.</span><span class="n">port</span> <span class="n">forMode</span><span class="o">:</span><span class="p">(</span><span class="n">__bridge</span> <span class="n">NSString</span> <span class="o">*</span><span class="p">)</span> <span class="n">kCFRunLoopCommonModes</span><span class="p">];</span>
-<span class="p">}</span>
+    }
+    return self;
+}
+- (void) setUpThreadingSupport
+{
+    if (self.notifications) {
+        return;
+    }
+    self.notifications = [NSMutableArray new];
+    self.lock = [NSLock new];
+    self.thread = [NSThread currentThread];
+    self.port = [NSMachPort new];
+    [self.port setDelegate:self];
+    [[NSRunLoop currentRunLoop] addPort:self.port forMode:(__bridge NSString *) kCFRunLoopCommonModes];
+}
 
-<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">handleMachMessage:</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="nv">msg</span>
-<span class="p">{</span>
-    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">lock</span> <span class="n">lock</span><span class="p">];</span>
+- (void) handleMachMessage:(void *)msg
+{
+    [self.lock lock];
     
-    <span class="k">while</span> <span class="p">([</span><span class="n">self</span><span class="p">.</span><span class="n">notifications</span> <span class="n">count</span><span class="p">])</span> <span class="p">{</span>
-        <span class="n">NSNotification</span> <span class="o">*</span><span class="n">notification</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">notifications</span> <span class="n">objectAtIndex</span><span class="o">:</span><span class="mi">0</span><span class="p">];</span>
-        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">notifications</span> <span class="n">removeObjectAtIndex</span><span class="o">:</span><span class="mi">0</span><span class="p">];</span>
-        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">lock</span> <span class="n">unlock</span><span class="p">];</span>
-        <span class="p">[</span><span class="n">self</span> <span class="n">processNotification</span><span class="o">:</span><span class="n">notification</span><span class="p">];</span>
-        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">lock</span> <span class="n">lock</span><span class="p">];</span>
-    <span class="p">}</span>
-    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">lock</span> <span class="n">unlock</span><span class="p">];</span>
-<span class="p">}</span>
+    while ([self.notifications count]) {
+        NSNotification *notification = [self.notifications objectAtIndex:0];
+        [self.notifications removeObjectAtIndex:0];
+        [self.lock unlock];
+        [self processNotification:notification];
+        [self.lock lock];
+    }
+    [self.lock unlock];
+}
 
-<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">processNotification:</span><span class="p">(</span><span class="n">NSNotification</span> <span class="o">*</span><span class="p">)</span><span class="nv">notification</span>
-<span class="p">{</span>
-    <span class="n">NSThread</span> <span class="o">*</span><span class="n">ct</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSThread</span> <span class="n">currentThread</span><span class="p">];</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">ct</span> <span class="o">!=</span> <span class="n">_thread</span><span class="p">)</span> <span class="p">{</span>
-        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">lock</span> <span class="n">lock</span><span class="p">];</span>
-        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">notifications</span> <span class="n">addObject</span><span class="o">:</span><span class="n">notification</span><span class="p">];</span>
-        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">lock</span> <span class="n">unlock</span><span class="p">];</span>
-        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">port</span> <span class="n">sendBeforeDate</span><span class="o">:</span><span class="p">[</span><span class="n">NSDate</span> <span class="n">date</span><span class="p">]</span> <span class="n">components</span><span class="o">:</span><span class="nb">nil</span> <span class="n">from</span><span class="o">:</span><span class="nb">nil</span> <span class="n">reserved</span><span class="o">:</span><span class="mi">0</span><span class="p">];</span>
-    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
-        <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;process notification %@,is main %zd&quot;</span><span class="p">,[</span><span class="n">NSThread</span> <span class="n">currentThread</span><span class="p">],[</span><span class="n">NSThread</span> <span class="n">isMainThread</span><span class="p">]);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="k">@end</span></code></pre></div>
+- (void) processNotification:(NSNotification *)notification
+{
+    NSThread *ct = [NSThread currentThread];
+    if (ct != _thread) {
+        [self.lock lock];
+        [self.notifications addObject:notification];
+        [self.lock unlock];
+        [self.port sendBeforeDate:[NSDate date] components:nil from:nil reserved:0];
+    }else{
+        NSLog(@"process notification %@,is main %zd",[NSThread currentThread],[NSThread isMainThread]);
+    }
+}
+@end</code></pre></figure>
 
 <p>processNotification会接收post子线程的notification，然后发现不是当前注册的thread就通过schedule一个port并缓存Notification，最后会执行handleMachMessage从而调用逻辑函数，所以这样做需要注册一个NSThread对象，需要统一定义好事件的接收selector。</p>
 
 <p>调用的code：</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span>
-<span class="p">{</span>
-    <span class="p">[</span><span class="n">super</span> <span class="n">viewDidLoad</span><span class="p">];</span>
-    <span class="n">_transfer</span> <span class="o">=</span> <span class="p">[</span><span class="n">NotificationTransfer</span> <span class="n">new</span><span class="p">];</span>
-    <span class="p">[</span><span class="n">_transfer</span> <span class="n">setUpThreadingSupport</span><span class="p">];</span> <span class="c1">// 在主线程定义了_transfer</span>
-    <span class="p">[[</span><span class="n">NSNotificationCenter</span> <span class="n">defaultCenter</span><span class="p">]</span> <span class="n">addObserver</span><span class="o">:</span><span class="n">_transfer</span> <span class="n">selector</span><span class="o">:</span><span class="k">@selector</span><span class="p">(</span><span class="n">processNotification</span><span class="o">:</span><span class="p">)</span> <span class="n">name</span><span class="o">:</span><span class="s">@&quot;notifi&quot;</span> <span class="n">object</span><span class="o">:</span><span class="nb">nil</span><span class="p">];</span> <span class="c1">// 添加了selector</span>
-    <span class="kt">dispatch_queue_t</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&quot;queue1&quot;</span><span class="p">,</span> <span class="n">DISPATCH_QUEUE_CONCURRENT</span><span class="p">);</span>
-    <span class="n">dispatch_async</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
-        <span class="p">[[</span><span class="n">NSNotificationCenter</span> <span class="n">defaultCenter</span><span class="p">]</span> <span class="n">postNotificationName</span><span class="o">:</span><span class="s">@&quot;notifi&quot;</span> <span class="n">object</span><span class="o">:</span><span class="nb">nil</span><span class="p">];</span> <span class="c1">// 子线程post，最终Notification会转发到主线程执行processNotification</span>
-    <span class="p">});</span>
-<span class="p">}</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    _transfer = [NotificationTransfer new];
+    [_transfer setUpThreadingSupport]; // 在主线程定义了_transfer
+    [[NSNotificationCenter defaultCenter] addObserver:_transfer selector:@selector(processNotification:) name:@"notifi" object:nil]; // 添加了selector
+    dispatch_queue_t queue = dispatch_queue_create("queue1", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(queue, ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"notifi" object:nil]; // 子线程post，最终Notification会转发到主线程执行processNotification
+    });
+}</code></pre></figure>
 
 
 	  </div>
@@ -324,7 +324,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">ios dev，产品工作者</p>
+        <p class="author-bio">玩linux的mobile dev</p>
       </section>
 !-->
     </div>
@@ -336,7 +336,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		  <li class="previous"><a href="/ios/2014/06/20/%E4%B8%8D%E6%94%AF%E6%8C%81%E5%A4%9A%E7%BB%A7%E6%89%BF%E5%92%8C%E9%87%8D%E8%BD%BD.html" title="不支持多继承和重载">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/ios/2014/06/25/%E8%BF%91%E8%B7%9D%E7%A6%BB%E4%BC%A0%E8%BE%93Bonjour.html" title="Bonjour用于近距离传输（更新ing）">Next &rarr;</a></li>
+		  <li class="next"><a href="/ios/2014/06/25/%E8%BF%91%E8%B7%9D%E7%A6%BB%E4%BC%A0%E8%BE%93Bonjour.html" title="Bonjour用于近距离传输">Next &rarr;</a></li>
 		  
 		</ul>
 
@@ -385,7 +385,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		<footer>
 			<hr/>
 			<p>
-				&copy; 2014 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
+				&copy; 2016 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
 			</p>
 		</footer>
 	</div>

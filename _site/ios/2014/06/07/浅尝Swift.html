@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	ios dev，产品工作者
+	玩linux的mobile dev
 </div>
 
 
@@ -160,16 +160,16 @@
 
 <p>4.Optionals，意思是说这个对象可能有值，可能没值，没太搞懂这个feature的原因，看上去像把</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="k">if</span><span class="p">(</span><span class="n">obj</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span>
-  <span class="p">[</span><span class="n">obj</span> <span class="n">func1</span><span class="p">];</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">if(obj != nil)
+  [obj func1];</code></pre></figure>
 
 <p>变成了</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="n">obj</span><span class="o">?</span><span class="p">.</span><span class="n">func1</span><span class="p">()</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">obj?.func1()</code></pre></figure>
 
 <p>有什么太大的意义么？还有点画蛇添足的提供obj!这种mark，意思是说当你确定obj有值的时候，会高效点。</p>
 
-<p>5.支持..和…Range操作符，用x..y表示[x,y)，用x…y表示[x,y]，是<code>for(NSInteger i =0;i&lt;count;i++)</code>的简化，不错。</p>
+<p>5.支持..和…Range操作符，用x..y表示[x,y)，用x…y表示[x,y]，是<code class="highlighter-rouge">for(NSInteger i =0;i&lt;count;i++)</code>的简化，不错。</p>
 
 <p>6.String的长度计算countElements和utf16count要小心。</p>
 
@@ -181,22 +181,22 @@
 
 <p>10.在写for的时候，以前默认的写法是不关心当前游标指向的值，现在sf默认是关心，所以写法变成:</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="k">for</span><span class="p">(...)</span>
-<span class="p">{</span>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">for(...)
+{
 
-<span class="p">}</span></code></pre></div>
+}</code></pre></figure>
 
 <p>sf的for的语法为：</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="k">for</span> <span class="n">tmp</span> <span class="k">in</span> <span class="mf">1.</span><span class="p">.</span><span class="mf">.5</span><span class="p">{</span>
-    <span class="c1">// use tmp variable</span>
-<span class="p">}</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">for tmp in 1...5{
+    // use tmp variable
+}</code></pre></figure>
 
 <p>但并非所有时候都关心当前游标指向的值，所以sf又象征性的提供</p>
 
-<div class="highlight"><pre><code class="objective-c"><span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mf">1.</span><span class="p">.</span><span class="mf">.5</span><span class="p">{</span>
+<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">for _ in 1...5{
 
-<span class="p">}</span></code></pre></div>
+}</code></pre></figure>
 
 <p>这种写法- -！</p>
 
@@ -311,7 +311,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">ios dev，产品工作者</p>
+        <p class="author-bio">玩linux的mobile dev</p>
       </section>
 !-->
     </div>
@@ -372,7 +372,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		<footer>
 			<hr/>
 			<p>
-				&copy; 2014 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
+				&copy; 2016 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
 			</p>
 		</footer>
 	</div>

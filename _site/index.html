@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	ios dev，产品工作者
+	玩linux的mobile dev
 </div>
 
 
@@ -144,7 +144,7 @@
 <article class="home">
 
   <h3>
-    <a href="/ios/2014/06/25/%E8%BF%91%E8%B7%9D%E7%A6%BB%E4%BC%A0%E8%BE%93Bonjour.html">Bonjour用于近距离传输（更新ing）</a>
+    <a href="/ios/2014/06/25/%E8%BF%91%E8%B7%9D%E7%A6%BB%E4%BC%A0%E8%BE%93Bonjour.html">Bonjour用于近距离传输</a>
   </h3>
 
   <span class="post-date">
@@ -158,7 +158,7 @@
   <div>
     
     
-    <p>一直想看看近距离传输，特别是“快牙”火了之后，本来想看看古老的蓝牙传输，但这种技术显然落后了，耗电，慢和不稳定。<a href="https://developer.apple.com/bonjour/index.html">bonjour</a>是apple提供的一种基于TCP/IP，无配置的通信服务，可用于近距离传输，遵循Apache 2.0 license，支持wi-fi和蓝牙。名字也有点意思，“你好”，很神似。Apple从7.0后提供了一个对bonjour的high level的Framework，<code>MultipeerConnectivity.framework</code>.官方有个<a href="https://developer.apple.com/library/ios/samplecode/MultipeerGroupChat/Introduction/Intro.html#//apple_ref/doc/uid/DTS40013691">sample code</a>（我在2台ios7的pad上已实验正常）就是使用MultipeerConnectivity.framework来做的，但是对于需要支持ios7以下的App来说就歇菜了，所以还是得用NSNetService或者CFNetService等来实现。</p>
+    <p>一直想看看近距离传输，特别是“快牙”火了之后，本来想看看古老的蓝牙传输，但这种技术显然落后了，耗电，慢和不稳定。<a href="https://developer.apple.com/bonjour/index.html">bonjour</a>是apple提供的一种基于TCP/IP，无配置的通信服务，可用于近距离传输，遵循Apache 2.0 license，支持wi-fi和蓝牙。名字也有点意思，“你好”，很神似。Apple从7.0后提供了一个对bonjour的high level的Framework，<code class="highlighter-rouge">MultipeerConnectivity.framework</code>.官方有个<a href="https://developer.apple.com/library/ios/samplecode/MultipeerGroupChat/Introduction/Intro.html#//apple_ref/doc/uid/DTS40013691">sample code</a>（我在2台ios7的pad上已实验正常）就是使用MultipeerConnectivity.framework来做的，但是对于需要支持ios7以下的App来说就歇菜了，不然自己用NSNetService或者CFNetService，或者考虑给这个framework做兼容。</p>
 
 
     
@@ -189,7 +189,7 @@
     
     
     <p>在事件驱动的消息处理中，Notification用起来很方便。
-<strong>坑一：NSNotificationQueue的addObserver方式是<code>[NSNotificationCenter defaultCenter] addObserver</code>，而不是<code>[NSNotificationQueue defaultQueue] addObserver</code></strong>
+<strong>坑一：NSNotificationQueue的addObserver方式是<code class="highlighter-rouge">[NSNotificationCenter defaultCenter] addObserver</code>，而不是<code class="highlighter-rouge">[NSNotificationQueue defaultQueue] addObserver</code></strong>
 Notification提供异步post方式NSNotificationQueue，通过enqueueNotification的接口把Notification入队列，并且提供NSPostASAP, NSPostWhenIdle, and NSPostNow这3种时刻来执行，意思分别为在runloop结束时，在线程idle时和立刻。比如：</p>
 
 
@@ -310,8 +310,8 @@ Notification提供异步post方式NSNotificationQueue，通过enqueueNotificatio
   <div>
     
     
-    <p><a href="http://v.youku.com/v_show/id_XNzIwODkzMTM2.html">WWDC2014视频在这里</a>，当看到开放<code>Touch ID API</code>时激动了，这意味着指纹识别技术正式进入大规模应用阶段，<code>Passcode</code>要退休了；）
-当看到Apple放开了沙盒的限制，很多人该忙起来了，苹果称之为<code>extension</code>，这意味这App可以以widget的形式嵌入到其他应用中，会上演示了在iPhoto中应用第三方的美化工具进行编辑照片，safari中应用了翻译工具，值得一提的是在Notification Center中，App可以获得更多的交互，Taobao，JD等O2O应用该忙起来了。实际上也带来了另一个潜在的商业契机；）</p>
+    <p><a href="http://v.youku.com/v_show/id_XNzIwODkzMTM2.html">WWDC2014视频在这里</a>，当看到开放<code class="highlighter-rouge">Touch ID API</code>时激动了，这意味着指纹识别技术正式进入大规模应用阶段，<code class="highlighter-rouge">Passcode</code>要退休了；）
+当看到Apple放开了沙盒的限制，很多人该忙起来了，苹果称之为<code class="highlighter-rouge">extension</code>，这意味这App可以以widget的形式嵌入到其他应用中，会上演示了在iPhoto中应用第三方的美化工具进行编辑照片，safari中应用了翻译工具，值得一提的是在Notification Center中，App可以获得更多的交互，Taobao，JD等O2O应用该忙起来了。实际上也带来了另一个潜在的商业契机；）</p>
 
 
     
@@ -342,8 +342,8 @@ Notification提供异步post方式NSNotificationQueue，通过enqueueNotificatio
     
     
     <p><strong>We are guessing Apple,but we don’t know the Apple is guessing us!</strong>
-喔～我们又造了一个轮子，我们用<code>NSMutableArray</code>造了一个类似的<code>CFStorage</code>的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是<code>O（1）</code>，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。
-于是在oc上用<code>NSMutableArray</code>写了一个能满足增删要求又不至于使查询性能down下来的结构，后来测试<code>NSMutableArray</code>的增删查性能后发现，我们的确造了一个轮子。</p>
+喔～我们又造了一个轮子，我们用<code class="highlighter-rouge">NSMutableArray</code>造了一个类似的<code class="highlighter-rouge">CFStorage</code>的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是<code class="highlighter-rouge">O（1）</code>，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。
+于是在oc上用<code class="highlighter-rouge">NSMutableArray</code>写了一个能满足增删要求又不至于使查询性能down下来的结构，后来测试<code class="highlighter-rouge">NSMutableArray</code>的增删查性能后发现，我们的确造了一个轮子。</p>
 
 
     
@@ -373,8 +373,8 @@ Notification提供异步post方式NSNotificationQueue，通过enqueueNotificatio
   <div>
     
     
-    <p>之前在<code>javaeye</code>上写博客，还搭建过<code>Wordpress</code>（php+mysql的博客系统），但没申请主机，今天发现
-<code>GitHub+jekyll</code>搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）</p>
+    <p>之前在<code class="highlighter-rouge">javaeye</code>上写博客，还搭建过<code class="highlighter-rouge">Wordpress</code>（php+mysql的博客系统），但没申请主机，今天发现
+<code class="highlighter-rouge">GitHub+jekyll</code>搭建静态bolg还蛮简单，就心血来潮了，重新开始写博客；）</p>
 
 
     
@@ -414,7 +414,7 @@ Notification提供异步post方式NSNotificationQueue，通过enqueueNotificatio
 		<footer>
 			<hr/>
 			<p>
-				&copy; 2014 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
+				&copy; 2016 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
 			</p>
 		</footer>
 	</div>

@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	ios dev，产品工作者
+	玩linux的mobile dev
 </div>
 
 
@@ -151,8 +151,8 @@
 	 </span>
 	  <div class="article_body">
 	  <p><strong>We are guessing Apple,but we don’t know the Apple is guessing us!</strong>
-喔～我们又造了一个轮子，我们用<code>NSMutableArray</code>造了一个类似的<code>CFStorage</code>的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是<code>O（1）</code>，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。
-于是在oc上用<code>NSMutableArray</code>写了一个能满足增删要求又不至于使查询性能down下来的结构，后来测试<code>NSMutableArray</code>的增删查性能后发现，我们的确造了一个轮子。</p>
+喔～我们又造了一个轮子，我们用<code class="highlighter-rouge">NSMutableArray</code>造了一个类似的<code class="highlighter-rouge">CFStorage</code>的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是<code class="highlighter-rouge">O（1）</code>，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。
+于是在oc上用<code class="highlighter-rouge">NSMutableArray</code>写了一个能满足增删要求又不至于使查询性能down下来的结构，后来测试<code class="highlighter-rouge">NSMutableArray</code>的增删查性能后发现，我们的确造了一个轮子。</p>
 
 <p>自己的测试数据与以下类似：
 <img src="/assets/media/QQ20140602-6.png" alt="pimg" /></p>
@@ -161,39 +161,39 @@
 
 <p>进一步查了下<a href="http://www.opensource.apple.com/source/CF/CF-476.14/CFArray.c">CFArray.c</a>会发现</p>
 
-<div class="highlight"><pre><code class="c--"><span class="cm">/* This shouldn&#39;t be called if the array count is 0. */</span>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="cm">/* This shouldn't be called if the array count is 0. */</span>
 <span class="n">CF_INLINE</span> <span class="k">struct</span> <span class="n">__CFArrayBucket</span> <span class="o">*</span><span class="nf">__CFArrayGetBucketAtIndex</span><span class="p">(</span><span class="n">CFArrayRef</span> <span class="n">array</span><span class="p">,</span> <span class="n">CFIndex</span> <span class="n">idx</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">switch</span> <span class="p">(</span><span class="n">__CFArrayGetType</span><span class="p">(</span><span class="n">array</span><span class="p">))</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="n">__kCFArrayImmutable</span>:
-    <span class="k">case</span> <span class="n">__kCFArrayDeque</span>:
+    <span class="k">case</span> <span class="n">__kCFArrayImmutable</span><span class="p">:</span>
+    <span class="k">case</span> <span class="n">__kCFArrayDeque</span><span class="p">:</span>
 	<span class="k">return</span> <span class="n">__CFArrayGetBucketsPtr</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">+</span> <span class="n">idx</span><span class="p">;</span>
-    <span class="k">case</span> <span class="n">__kCFArrayStorage</span>: <span class="p">{</span>
+    <span class="k">case</span> <span class="n">__kCFArrayStorage</span><span class="p">:</span> <span class="p">{</span>
 	<span class="n">CFStorageRef</span> <span class="n">store</span> <span class="o">=</span> <span class="p">(</span><span class="n">CFStorageRef</span><span class="p">)</span><span class="n">array</span><span class="o">-&gt;</span><span class="n">_store</span><span class="p">;</span>
 	<span class="k">return</span> <span class="p">(</span><span class="k">struct</span> <span class="n">__CFArrayBucket</span> <span class="o">*</span><span class="p">)</span><span class="n">CFStorageGetValueAtIndex</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
+<span class="p">}</span></code></pre></figure>
 
-<p>可见对于Immutable的读取的方法是<code>__CFArrayGetBucketsPtr</code>：</p>
+<p>可见对于Immutable的读取的方法是<code class="highlighter-rouge">__CFArrayGetBucketsPtr</code>：</p>
 
-<div class="highlight"><pre><code class="c--"><span class="cm">/* Only applies to immutable and mutable-deque-using arrays;</span>
-<span class="cm"> * Returns the bucket holding the left-most real value in the latter case. */</span>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="cm">/* Only applies to immutable and mutable-deque-using arrays;
+ * Returns the bucket holding the left-most real value in the latter case. */</span>
 <span class="n">CF_INLINE</span> <span class="k">struct</span> <span class="n">__CFArrayBucket</span> <span class="o">*</span><span class="nf">__CFArrayGetBucketsPtr</span><span class="p">(</span><span class="n">CFArrayRef</span> <span class="n">array</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">switch</span> <span class="p">(</span><span class="n">__CFArrayGetType</span><span class="p">(</span><span class="n">array</span><span class="p">))</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="n">__kCFArrayImmutable</span>:
+    <span class="k">case</span> <span class="n">__kCFArrayImmutable</span><span class="p">:</span>
 	<span class="k">return</span> <span class="p">(</span><span class="k">struct</span> <span class="n">__CFArrayBucket</span> <span class="o">*</span><span class="p">)((</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="p">)</span><span class="n">array</span> <span class="o">+</span> <span class="n">__CFArrayGetSizeOfType</span><span class="p">(((</span><span class="n">CFRuntimeBase</span> <span class="o">*</span><span class="p">)</span><span class="n">array</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">_cfinfo</span><span class="p">[</span><span class="n">CF_INFO_BITS</span><span class="p">]));</span>
-    <span class="k">case</span> <span class="n">__kCFArrayDeque</span>: <span class="p">{</span>
+    <span class="k">case</span> <span class="n">__kCFArrayDeque</span><span class="p">:</span> <span class="p">{</span>
 	<span class="k">struct</span> <span class="n">__CFArrayDeque</span> <span class="o">*</span><span class="n">deque</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">__CFArrayDeque</span> <span class="o">*</span><span class="p">)</span><span class="n">array</span><span class="o">-&gt;</span><span class="n">_store</span><span class="p">;</span>
         <span class="k">return</span> <span class="p">(</span><span class="k">struct</span> <span class="n">__CFArrayBucket</span> <span class="o">*</span><span class="p">)((</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="p">)</span><span class="n">deque</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">__CFArrayDeque</span><span class="p">)</span> <span class="o">+</span> <span class="n">deque</span><span class="o">-&gt;</span><span class="n">_leftIdx</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">__CFArrayBucket</span><span class="p">));</span>
     <span class="p">}</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
+<span class="p">}</span></code></pre></figure>
 
 <p>可见是直接寻址，引申出另一个疑问：<strong>为什么forin(fast enumerate)的查询速度最快？</strong></p>
 
-<p>而mutable则用<code>CFStorageRef</code>来实现，在<a href="http://www.opensource.apple.com/source/CF/CF-550/CFArray.h">CFArray.h</a>有一段作者的这样的说明：</p>
+<p>而mutable则用<code class="highlighter-rouge">CFStorageRef</code>来实现，在<a href="http://www.opensource.apple.com/source/CF/CF-550/CFArray.h">CFArray.h</a>有一段作者的这样的说明：</p>
 
 <p><em>The access time for a value in the array is guaranteed to be at
 	worst O(lg N) for any implementation, current and future, but will
@@ -291,7 +291,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">ios dev，产品工作者</p>
+        <p class="author-bio">玩linux的mobile dev</p>
       </section>
 !-->
     </div>
@@ -352,7 +352,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		<footer>
 			<hr/>
 			<p>
-				&copy; 2014 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
+				&copy; 2016 yj with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek. <br/>本博仅代表个人观点，与公司无关，某些地方纯属意淫。
 			</p>
 		</footer>
 	</div>
