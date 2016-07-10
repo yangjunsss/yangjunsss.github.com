@@ -18,6 +18,8 @@ Code和Readme看这里[XXAlignOnSave](https://github.com/yangjunsss/XXAlignOnSav
 * Swizzle XCode的ide_saveDocument方法，用于执行align操作
 * 在align之前保存当前光标的位置，replace后要恢复
 * 监听IDEEditorDocumentDidChangeNotification事件，判断当前文件是否有更改，没有则无需align
-* 获取当前文件的type，目前只格式化:```@[@"public.c-header",@"public.c-plus-plus-header",@"public.c-source",@"public.objective-c-source",@"public.c-plus-plus-source",@"public.objective-c-plus-plus-source"]```
+* 获取当前文件的type，目前只格式化:
 
-
+```
+@[@"public.c-header",@"public.c-plus-plus-header",@"public.c-source",@"public.objective-c-source",@"public.c-plus-plus-source",@"public.objective-c-plus-plus-source"
+```
