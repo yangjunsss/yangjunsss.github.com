@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 写了一个XCode插件XXAlignOnSave
+title: 写了一个Xcode插件XXAlignOnSave
 categories: [工具]
 tags: [工具]
 fullview: false
@@ -23,3 +23,8 @@ Code和Readme看这里[XXAlignOnSave](https://github.com/yangjunsss/XXAlignOnSav
 ```
 @[@"public.c-header",@"public.c-plus-plus-header",@"public.c-source",@"public.objective-c-source",@"public.c-plus-plus-source",@"public.objective-c-plus-plus-source"
 ```
+
+
+References:
+
+ * [Xcode Headers](https://github.com/luisobo/Xcode-RuntimeHeaders)
