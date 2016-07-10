@@ -23,7 +23,7 @@ Code和Readme看这里[XXAlignOnSave](https://github.com/yangjunsss/XXAlignOnSav
 ```
 @[@"public.c-header",@"public.c-plus-plus-header",@"public.c-source",@"public.objective-c-source",@"public.c-plus-plus-source",@"public.objective-c-plus-plus-source"
 ```
-
+ * 限制字符数，目前上限100w
 
 References:
 
