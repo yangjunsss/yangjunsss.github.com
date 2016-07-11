@@ -27,7 +27,7 @@ Code和Readme看这里[XXAlignOnSave](https://github.com/yangjunsss/XXAlignOnSav
 
 ####Demo
 
-![pimg](http://yangjunsss.github.io/assets/media/assets/media/d17c7a5bb3aaa707c347fc08f90de58e.gif)
+![pimg](http://yangjunsss.github.io/assets/media/d17c7a5bb3aaa707c347fc08f90de58e.gif)
 
 ####References:
 
