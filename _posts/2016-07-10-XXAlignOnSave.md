@@ -25,9 +25,10 @@ Code和Readme看这里[XXAlignOnSave](https://github.com/yangjunsss/XXAlignOnSav
 ```
  * 限制字符数，目前上限100w
 
-Demo
-![pimg](/assets/media/XXAlignOnSaveDemo.gif)
+####Demo
 
-References:
+![pimg](http://yangjunsss.github.io/assets/media/assets/media/d17c7a5bb3aaa707c347fc08f90de58e.gif)
+
+####References:
 
  * [Xcode Headers](https://github.com/luisobo/Xcode-RuntimeHeaders)
