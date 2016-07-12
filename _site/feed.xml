@@ -810,7 +810,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 
 &lt;p&gt;最后，用多线程要非常小心，Apple似乎也没太注重这个问题，只能别让自己掉进坑里，掉进了也只能自救；)&lt;/p&gt;
 
-&lt;p&gt;######&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;h6 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/h6&gt;
 </description>
 				<pubDate>Fri, 06 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/06/%E4%BB%8E%E6%95%B0%E7%BB%84Crash%E8%81%8A%E5%B9%B6%E5%8F%91%E5%92%8C%E9%94%81.html</link>
@@ -880,7 +880,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 
 &lt;p&gt;同样的结构，我们在js上也实现了，是有了js的模型才开始做了iOS的，这个模型在js上性能提高了许多，所以值得庆幸地是这个轮子并非全无价值；p&lt;/p&gt;
 
-&lt;h6 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/h6&gt;
+&lt;h6 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/h6&gt;
 </description>
 				<pubDate>Mon, 02 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/02/%E5%8F%88%E9%80%A0%E8%BD%AE%E5%AD%90.html</link>
