@@ -2,9 +2,9 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>yj的博客 又造轮子</title>
+	<title>yj的博客 又造轮子，分块化数组</title>
 	<meta name="keywords" content="NSArray性能,CFArray">
-	<meta name="description" content="We are guessing Apple,but we don't know the Apple is guessing us!喔～我们又造了一个轮子，我们用`NSMutableArray`造了一个类似的`CFStorage`的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是`O（1）`，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。">
+	<meta name="description" content="We are guessing Apple,but we don't know the Apple is guessing us!喔～我们又造了一个轮子，我们用分块的`NSMutableArray`造了一个类似的`CFStorage`的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是`O（1）`，基于这样一个印象，在支持海量数据用Array的时候就会犹豫，比如100W条。">
 	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	玩linux的mobile dev
+	I'm a Dev and Trader
 </div>
 
 
@@ -124,6 +124,12 @@
 		
 		
 		<li>
+			<a class="btn btn-default btn-sm" href="https://linkedin.com/in/yj-chen-0525b8104">
+				<i class="fa fa-linkedin fa-lg"></i>
+			</a>
+		</li>
+		
+		<li>
 			<a class="btn btn-default btn-sm" href="/feed.xml">
 				<i class="fa fa-rss fa-lg"></i>
 			</a>
@@ -136,7 +142,7 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1>又造轮子 </h1>
+  <h1>又造轮子，分块化数组 </h1>
 </div>
 	
 <article>
@@ -151,8 +157,8 @@
 	 </span>
 	  <div class="article_body">
 	  <p><strong>We are guessing Apple,but we don’t know the Apple is guessing us!</strong>
-喔～我们又造了一个轮子，我们用<code class="highlighter-rouge">NSMutableArray</code>造了一个类似的<code class="highlighter-rouge">CFStorage</code>的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是<code class="highlighter-rouge">O（1）</code>，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。
-于是在oc上用<code class="highlighter-rouge">NSMutableArray</code>写了一个能满足增删要求又不至于使查询性能down下来的结构，后来测试<code class="highlighter-rouge">NSMutableArray</code>的增删查性能后发现，我们的确造了一个轮子。</p>
+喔～我们又造了一个轮子，我们用分块的<code class="highlighter-rouge">NSMutableArray</code>造了一个类似的<code class="highlighter-rouge">CFStorage</code>的东东，目的是保证增删的性能基础上保证读的性能。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是<code class="highlighter-rouge">O（1）</code>，基于这样一个印象，在海量数据用Array的时候就会犹豫，比如100W条数据。
+于是在oc上用<code class="highlighter-rouge">NSMutableArray</code>写了一个能满足增删要求又不至于使查询性能down下来的分块结构，后来测试<code class="highlighter-rouge">NSMutableArray</code>的增删查性能时我们发现MutableArray的底层实现已经分块了。</p>
 
 <p>自己的测试数据与以下类似：
 <img src="/assets/media/QQ20140602-6.png" alt="pimg" /></p>
@@ -207,10 +213,11 @@
 	indices, or to insert or delete values with high indices, or
 	whatever.</em></p>
 
-<h3 id="javascrpit">Javascrpit会怎样？</h3>
+<h3 id="javascrpit">JavaScrpit会怎样？</h3>
 
-<p>js在数据量达到一定级别的时候增删操作就会严重卡断，不同js引擎会不同，所以值得庆幸地是这个轮子并非全无价值；p</p>
+<p>同样的结构，我们在js上也实现了，是有了js的模型才开始做了iOS的，这个模型在js上性能提高了许多，所以值得庆幸地是这个轮子并非全无价值；p</p>
 
+<p>######<strong><em>Copyright © 2016 yangjunsss. All rights reserved.</em></strong></p>
 
 	  </div>
 <!--
@@ -221,7 +228,7 @@
 		  
 			 
 				<li><a href="/categories.html#ios-ref">
-					ios <span>(7)</span>
+					ios <span>(4)</span>
 					
 				</a></li>
 			
@@ -266,7 +273,7 @@
 		<div>
       <section class="share">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=又造轮子"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=又造轮子，分块化数组"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -291,7 +298,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">玩linux的mobile dev</p>
+        <p class="author-bio">I'm a Dev and Trader</p>
       </section>
 !-->
     </div>
@@ -303,7 +310,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 		  <li class="previous"><a href="/general/2014/06/01/%E9%87%8D%E5%86%99%E5%8D%9A%E5%AE%A2.html" title="重写博客">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/ios/2014/06/03/ios8iscoming.html" title="ios8 is coming">Next &rarr;</a></li>
+		  <li class="next"><a href="/ios/2014/06/06/%E4%BB%8E%E6%95%B0%E7%BB%84Crash%E8%81%8A%E5%B9%B6%E5%8F%91%E5%92%8C%E9%94%81.html" title="从数组Crash聊并发和锁">Next &rarr;</a></li>
 		  
 		</ul>
 

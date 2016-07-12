@@ -2,9 +2,9 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>yj的博客 浅尝Swift，会是个坑么？</title>
-	<meta name="keywords" content="ios8,Swift language">
-	<meta name="description" content="在看了Swift的Guide，从自己对语言的理解来看Swift；）在看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？在看sf之后，我怎么觉得swift越来越像个坑。">
+	<title>yj的博客 写了一个Xcode插件XXAlignOnSave</title>
+	<meta name="keywords" content="XXAlignOnSave">
+	<meta name="description" content="">
 	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	玩linux的mobile dev
+	I'm a Dev and Trader
 </div>
 
 
@@ -124,6 +124,12 @@
 		
 		
 		<li>
+			<a class="btn btn-default btn-sm" href="https://linkedin.com/in/yj-chen-0525b8104">
+				<i class="fa fa-linkedin fa-lg"></i>
+			</a>
+		</li>
+		
+		<li>
 			<a class="btn btn-default btn-sm" href="/feed.xml">
 				<i class="fa fa-rss fa-lg"></i>
 			</a>
@@ -136,7 +142,7 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1>浅尝Swift，会是个坑么？ </h1>
+  <h1>写了一个Xcode插件XXAlignOnSave </h1>
 </div>
 	
 <article>
@@ -144,100 +150,44 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	   June 
-	   7th,
+	   July 
+	   10th,
 	   
-	   2014
+	   2016
 	 </span>
 	  <div class="article_body">
-	  <p>在看了Swift的Guide，从自己对语言的理解来看Swift；）在看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？在看sf之后，我怎么觉得swift越来越像个坑。</p>
+	  <p>博客好像2年没更新了，也忙会了2年，似乎也没停过，折腾来折腾去，要说得太多，不说了，写点code吧，这两天用了下XAlign的插件，这个插件用作对选中的code进行简单的align，但人都懒，如果能在保存的时候就自动align就好了，于是就自己动手改造了这个，算是写得第一个插件，这2年一直也忙于项目，只是偶尔会在github上面提几个bug，希望以后多写点open source的东西在自己github上面。</p>
 
-<p>1.如今当你读到一个变量的时候，是不知道变量类型的。因为sf变量定义都变成了let和var，只有在被assign的时候才知道Type，而一般在编码中我们会先定义好变量和Type，这样有个清晰的认识，而现在只有名字了，这样真的好么？另外sf依旧还是强类型语言- -</p>
+<p>Code和Readme看这里<a href="https://github.com/yangjunsss/XXAlignOnSave">XXAlignOnSave</a>，对原来XAlign的code没有侵入性，不用改XAlign的code，只通过Catogery和Swizzle来做的AOP，这也是做plugin的核心思想，因为Apple并没有直接提供plugin文档和接口，必须拦截IDE的方法调用。</p>
 
-<p>2.简单的基本类型变成了对象，比如int -&gt; Int，UInt8,etc. 这必定是开销，不知道sf有没有做优化。</p>
+<p>主要做的几个事：</p>
 
-<p>3.支持Tuples，打包多个值，这个用于函数返回是比较赞的feature。</p>
+<ul>
+  <li>植入NSMenuItem到XAlign菜单</li>
+  <li>Swizzle XCode的ide_saveDocument方法，用于执行align操作</li>
+  <li>在align之前保存当前光标的位置，replace后要恢复</li>
+  <li>监听IDEEditorDocumentDidChangeNotification事件，判断当前文件是否有更改，没有则无需align</li>
+  <li>获取当前文件的type，目前只格式化:</li>
+</ul>
 
-<p>4.Optionals，意思是说这个对象可能有值，可能没值，没太搞懂这个feature的原因，看上去像把</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>@[@"public.c-header",@"public.c-plus-plus-header",@"public.c-source",@"public.objective-c-source",@"public.c-plus-plus-source",@"public.objective-c-plus-plus-source"
+</code></pre>
+</div>
+<ul>
+  <li>限制字符数，目前上限100w</li>
+</ul>
 
-<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">if(obj != nil)
-  [obj func1];</code></pre></figure>
+<h4 id="demo">Demo</h4>
 
-<p>变成了</p>
+<p><img src="http://yangjunsss.github.io/assets/media/d17c7a5bb3aaa707c347fc08f90de58e.gif" alt="pimg" /></p>
 
-<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">obj?.func1()</code></pre></figure>
+<h4 id="references">References:</h4>
 
-<p>有什么太大的意义么？还有点画蛇添足的提供obj!这种mark，意思是说当你确定obj有值的时候，会高效点。</p>
+<ul>
+  <li><a href="https://github.com/luisobo/Xcode-RuntimeHeaders">Xcode Headers</a></li>
+</ul>
 
-<p>5.支持..和…Range操作符，用x..y表示[x,y)，用x…y表示[x,y]，是<code class="highlighter-rouge">for(NSInteger i =0;i&lt;count;i++)</code>的简化，不错。</p>
-
-<p>6.String的长度计算countElements和utf16count要小心。</p>
-
-<p>7.强大的操作符运算和自定义操作符，在Collection可以直接应用+=操作符（不知道能不能在Array中用-=），甚至是自定义操作符，比如++++，+-等等</p>
-
-<p>8.统一了Collection的Iterator，不要考虑什么时候用enumerate还是forin了</p>
-
-<p>9.从关心用mutable和immutable的结构到用var和let的类型的转移，实际上我觉得没省略什么。</p>
-
-<p>10.在写for的时候，以前默认的写法是不关心当前游标指向的值，现在sf默认是关心，所以写法变成:</p>
-
-<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">for(...)
-{
-
-}</code></pre></figure>
-
-<p>sf的for的语法为：</p>
-
-<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">for tmp in 1...5{
-    // use tmp variable
-}</code></pre></figure>
-
-<p>但并非所有时候都关心当前游标指向的值，所以sf又象征性的提供</p>
-
-<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">for _ in 1...5{
-
-}</code></pre></figure>
-
-<p>这种写法- -！</p>
-
-<p>11.函数参数默认是const，需要更改参数要加var，需要指针传递要加inout，越来越发现sf的思想与传统的编程进行了颠倒- -！，参数支持默认值，支持…</p>
-
-<p>12.把原来的global block变成了function，heap &amp; stack block变成了closure</p>
-
-<p>13.鸡肋的Trailing Closure，有点勉强的写法</p>
-
-<p>14.有点混乱的参数传递，enum，structs都是值传递，Closure是引用传递，很容易傻傻分不清楚，比如传递一个Array进去，常规是引用传递，实际上是值传递，因为Array是用structs实现的，而structs和enum在sf里又不是严格意义的C类型- -，更加傻傻分不清楚了。</p>
-
-<p>15.enum不再是enum，structs不再是structs了，他们完全已经成了变相的class了，定义方法和变量，实现protocal，enum，structs，class再一次傻傻分不清楚- -，只不过class支持继承和需要引用计数，因为是引用传递。而structs，enum每次进行值copy，小心使用。</p>
-
-<p>16.Array和Dictionary是用Structs实现的，Dic是copy操作，Array是选择性copy操作，Array的copy只在发生在length发生改变时，再一次傻傻分不清楚，坑啊。</p>
-
-<p>17.@lazy property，延迟加载的思想应用到了class里。</p>
-
-<p>18.property默认加入了willSet didSet的observer，从分布的observer管理可做到集中式管理。</p>
-
-<p>19.简化的global variable定义，使用Type来标明类静态。</p>
-
-<p>20.sf提供一个mutating的method，意思是方法内会改变self的值，这种特性如何掌控不好，感觉很容易搞出bug</p>
-
-<p>21.开放subscript，这个feature允许自定义容器的access了，比如something[i]，可以实现get{} 和 set{}</p>
-
-<p>22.对于需要覆盖的方法，需要强制加override关键字，这也是从需要坑中总结的经验了</p>
-
-<p>23.分散了初始化方式，包括var中定义的get set和block。</p>
-
-<p>24.为什么要保留unowned?</p>
-
-<p>25.支持继承的protocal</p>
-
-<p>26.范型的支持</p>
-
-<p>27.略显多余的关键字，再自定义重载符的时候对于不同的重载符需要定义不同的关键字</p>
-
-<p>差不多看完了swift的guide，从语言的角度看它再试图简化，或者是某种传统行为的改变，但除了几个亮点外，革新的东西不同，甚至会带来潜在的危险，所以我觉得得报以怀疑的态度来对待这门语言了。</p>
-
-<p>PPS：stackoverflow上有哥们做了初次的性能测试，得到的效果并不佳。所以做好填坑的准备吧亲～</p>
-
+<p><strong><em>Copyright © 2016 yangjunsss. All rights reserved.</em></strong></p>
 
 	  </div>
 <!--
@@ -247,8 +197,8 @@
 		  
 		  
 			 
-				<li><a href="/categories.html#ios-ref">
-					ios <span>(7)</span>
+				<li><a href="/categories.html#工具-ref">
+					工具 <span>(1)</span>
 					
 				</a></li>
 			
@@ -263,15 +213,8 @@
 		  
 			 
 				<li>
-					<a href="/tags.html#ios8-ref">
-					ios8 <span>(1)</span>
-					,
-					</a>
-				</li>
-			 
-				<li>
-					<a href="/tags.html#swift-ref">
-					swift <span>(1)</span>
+					<a href="/tags.html#工具-ref">
+					工具 <span>(1)</span>
 					
 					</a>
 				</li>
@@ -286,7 +229,7 @@
 		<div>
       <section class="share">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=浅尝Swift，会是个坑么？"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=写了一个Xcode插件XXAlignOnSave"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -311,7 +254,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">玩linux的mobile dev</p>
+        <p class="author-bio">I'm a Dev and Trader</p>
       </section>
 !-->
     </div>
@@ -320,10 +263,10 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 
 		<ul class="pager" style="font-size:12px;">
 		  
-		  <li class="previous"><a href="/ios/2014/06/06/%E8%80%81%E6%9D%BFcrash%E4%BA%86.html" title="并发和锁">&larr; Previous</a></li>
+		  <li class="previous"><a href="/ios/2014/06/25/%E8%BF%91%E8%B7%9D%E7%A6%BB%E4%BC%A0%E8%BE%93Bonjour.html" title="Bonjour用于近距离传输">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/ios/2014/06/20/%E4%B8%8D%E6%94%AF%E6%8C%81%E5%A4%9A%E7%BB%A7%E6%89%BF%E5%92%8C%E9%87%8D%E8%BD%BD.html" title="不支持多继承和重载">Next &rarr;</a></li>
+		  <li class="next"><a href="/%E7%BD%91%E7%BB%9C/2016/07/12/%E8%81%8A%E8%81%8Avxlan.html" title="聊聊vxlan">Next &rarr;</a></li>
 		  
 		</ul>
 

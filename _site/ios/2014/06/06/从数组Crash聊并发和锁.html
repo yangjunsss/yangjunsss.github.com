@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>yj的博客 并发和锁</title>
+	<title>yj的博客 从数组Crash聊并发和锁</title>
 	<meta name="keywords" content="CAS, NSMutableArray,GCD,NSlock">
 	<meta name="description" content="App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了read操作，crash了">
 	<meta name="author" content="yj" >
@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	玩linux的mobile dev
+	I'm a Dev and Trader
 </div>
 
 
@@ -124,6 +124,12 @@
 		
 		
 		<li>
+			<a class="btn btn-default btn-sm" href="https://linkedin.com/in/yj-chen-0525b8104">
+				<i class="fa fa-linkedin fa-lg"></i>
+			</a>
+		</li>
+		
+		<li>
 			<a class="btn btn-default btn-sm" href="/feed.xml">
 				<i class="fa fa-rss fa-lg"></i>
 			</a>
@@ -136,7 +142,7 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1>并发和锁 </h1>
+  <h1>从数组Crash聊并发和锁 </h1>
 </div>
 	
 <article>
@@ -275,6 +281,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 
 <p>最后，用多线程要非常小心，Apple似乎也没太注重这个问题，只能别让自己掉进坑里，掉进了也只能自救；)</p>
 
+<p>######<strong><em>Copyright © 2016 yangjunsss. All rights reserved.</em></strong></p>
 
 	  </div>
 <!--
@@ -284,8 +291,8 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 		  
 		  
 			 
-				<li><a href="/categories.html#ios-ref">
-					ios <span>(7)</span>
+				<li><a href="/categories.html#iOS-ref">
+					iOS <span>(1)</span>
 					
 				</a></li>
 			
@@ -300,8 +307,8 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 		  
 			 
 				<li>
-					<a href="/tags.html#ios-ref">
-					ios <span>(2)</span>
+					<a href="/tags.html#iOS-ref">
+					iOS <span>(1)</span>
 					
 					</a>
 				</li>
@@ -316,7 +323,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 		<div>
       <section class="share">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=并发和锁"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=从数组Crash聊并发和锁"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -341,7 +348,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">玩linux的mobile dev</p>
+        <p class="author-bio">I'm a Dev and Trader</p>
       </section>
 !-->
     </div>
@@ -350,10 +357,10 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 
 		<ul class="pager" style="font-size:12px;">
 		  
-		  <li class="previous"><a href="/ios/2014/06/03/ios8iscoming.html" title="ios8 is coming">&larr; Previous</a></li>
+		  <li class="previous"><a href="/ios/2014/06/02/%E5%8F%88%E9%80%A0%E8%BD%AE%E5%AD%90.html" title="又造轮子，分块化数组">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html" title="浅尝Swift，会是个坑么？">Next &rarr;</a></li>
+		  <li class="next"><a href="/ios/2014/06/20/%E4%B8%8D%E6%94%AF%E6%8C%81%E5%A4%9A%E7%BB%A7%E6%89%BF%E5%92%8C%E9%87%8D%E8%BD%BD.html" title="不支持多继承和重载">Next &rarr;</a></li>
 		  
 		</ul>
 

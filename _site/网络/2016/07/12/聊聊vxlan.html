@@ -2,9 +2,9 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>yj的博客 ios8 is coming</title>
-	<meta name="keywords" content="WWDC2014,ios8,touchID api,Swift language">
-	<meta name="description" content="WWDC2014视频在这里，当看到开放`Touch ID API`时激动了，这意味着指纹识别技术正式进入大规模应用阶段，但如何监管却是个大问题。">
+	<title>yj的博客 聊聊vxlan</title>
+	<meta name="keywords" content="vxlan,sdn">
+	<meta name="description" content="">
 	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,7 +98,7 @@
 
 
 <div id="bio" class="text-center">
-	玩linux的mobile dev
+	I'm a Dev and Trader
 </div>
 
 
@@ -124,6 +124,12 @@
 		
 		
 		<li>
+			<a class="btn btn-default btn-sm" href="https://linkedin.com/in/yj-chen-0525b8104">
+				<i class="fa fa-linkedin fa-lg"></i>
+			</a>
+		</li>
+		
+		<li>
 			<a class="btn btn-default btn-sm" href="/feed.xml">
 				<i class="fa fa-rss fa-lg"></i>
 			</a>
@@ -136,7 +142,7 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1>ios8 is coming </h1>
+  <h1>聊聊vxlan </h1>
 </div>
 	
 <article>
@@ -144,39 +150,41 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	   June 
-	   3rd,
-	     
-	   2014
+	   July 
+	   12th,
+	   
+	   2016
 	 </span>
 	  <div class="article_body">
-	  <p><a href="http://v.youku.com/v_show/id_XNzIwODkzMTM2.html">WWDC2014视频在这里</a>，当看到开放<code class="highlighter-rouge">Touch ID API</code>时激动了，这意味着指纹识别技术正式进入大规模应用阶段，<code class="highlighter-rouge">Passcode</code>要退休了；）
-当看到Apple放开了沙盒的限制，很多人该忙起来了，苹果称之为<code class="highlighter-rouge">extension</code>，这意味这App可以以widget的形式嵌入到其他应用中，会上演示了在iPhoto中应用第三方的美化工具进行编辑照片，safari中应用了翻译工具，值得一提的是在Notification Center中，App可以获得更多的交互，Taobao，JD等O2O应用该忙起来了。实际上也带来了另一个潜在的商业契机；）</p>
+	  <p>VXLAN是我们SDN2.0网络架构的基础，值得学习和思考，写下我的认知。</p>
 
-<p>当看到开放iCloud Kit，就笑了，为创业公司加油！这次ios更新开放了4000+个API，涉及到Extenstion,TouchID,iCloudKit,PhotoKit,
-Camera APIs,HealthKit,HomeKit,Metal.</p>
+<h3 id="section">问题</h3>
 
-<p>在游戏方面，引入了Metal，不是很懂- -</p>
+<p>在云计算的服务里，我们需要在物理的二层网络或者三层网络里虚拟化出二层网络供租户使用，而划分出这个虚拟网络其中一种方案是VLAN，VLAN通过一个12-bit的VLAN ID来对应一个虚拟网络，配置在数据链路层，它相当于把一个大的二层网络切分成许多小的逻辑网络，每个VLAN ID配置和管理着N个VM的MAC地址，在数据链路层实现不同的广播域，从而到达隔离和划分的目的。正因为这只有12-bit，就只能虚拟出4094个VLAN，显然是不够的，这是问题1。</p>
 
-<p>纵观整个keynote，Apple在交互性上做了很多的推进，不仅仅是应用之间，同时也在设备之间。</p>
+<p>问题2，用户需要在不同的二层网路里相互通讯，而不同的VLAN之间通讯要通过第三层完成。问题3，二层网络之间的通讯都是通过MAC地址寻址，每一个vm都有个独立的MAC地址，有MAC地址泛滥的问题。</p>
 
-<p>最后引入New Programming Language：<code class="highlighter-rouge">Swift</code>，Dev举起屌，叫了！演示了Sort和加密的performance，动态类型，小哥当场制作的个小游戏，亮点是同样的code可以直接从2D转为3D。Swift被设计成<strong><em>Modern、Interactive、Safe、Fast and Powerful</em></strong>，oc本身是很动态的语言，因为基于message forwarding的机制，底层msg_send接管了所有函数调用的this，函数名，参数和返回值，可以想象Swift会是很动态的语言。比如函数调用不会异常，数组越界不会异常，包装函数返回值，动态加载函数和变量等等都不难实现。</p>
+<h3 id="vxlan">VXLAN</h3>
 
-<p>Swift兼容oc的code，并被编译成优化的Native code用来保证Performance，这点可以保持怀疑；），仍然是ARC来做内存管理。</p>
+<p>VXLAN全称是Virtual eXtensible Local Area Network，设计的目的就是要满足构建在二层或者三层物理网络下的虚拟网络，主要给Cloud使用，设计思路跟VLAN类似。不过他是构建在第三层协议UDP之上，对UDP进行封装，增加了个8byte的VXLAN Header，其中24bit用作VNI，VNI跟VLAN ID作用一样，用于分组，24bit解决了<strong>问题1</strong>，而基于UDP协议的封装数据包可穿梭于二层和三层，解决了<strong>问题2</strong>。vxlan用于对数据包进行封包和拆包的模块称作VTEP，它是个管理模块，可以部署在物理机或物理交换机上，可以用硬件实现也可以用软件实现，同VLAN一样，要管理逻辑网络和物理网络的一些映射关系表，比如VNI和MAC地址的映射表、VNI和多播组的映射表，应该还有一张VNI和VTEP地址的映射表。可以看出来，跟VLAN有点像，从VXLAN名字也能看出来。</p>
 
-<p>最有趣的应该是Interactive Playgrounds了，看上去这个东西可以让你边写代码边看到运行结果，甚至出performance的数据，这应该是最新鲜和有趣的feature了</p>
+<h4 id="vm1--vm2-mac">vm1 如何同 vm2 进行mac地址通讯</h4>
 
-<p>Swift官方介绍<a href="https://developer.apple.com/swift/">详见</a></p>
+<p>当一个vm1加入到一个VXLAN的network后，并不知道是否在VXLAN里，对于客户机来讲是透明的，vm1跟vm2通讯，vm1发送包含目的地址为vm2的mac地址数据包，vm1所在的物理机VTEP1收到这个包时，会根据目的MAC地址查询VNI&lt;-&gt;MAC表，如果找到对应的VNI，就进行UDP打包，包上目标VTEP2的MAC地址、IP地址、目的VNI、目的vm2的MAC地址、源vm1的MAC地址，发送给VTEP2，VTEP2收到后进行确认和拆包，最终发送到vm2，并在收到这个UDP包之后进行学习，这个学习意思是说VTEP2收到这个UDP的包拆包后，可以知道vm1的MAC地址在VTEP1上了，当vm2进行回包的时候，就可以正确返回了，这样整个vm到vm的通讯就完成了。</p>
 
-<p>第一个Hello World的program是这样：</p>
+<h4 id="vm1-to-vm2-ip">vm1 to vm2 进行IP地址通讯</h4>
 
-<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">println</span><span class="p">(</span><span class="s">"Hello,World"</span><span class="p">)</span></code></pre></figure>
+<p>当vm1不知道vm2的MAC地址进行IP通讯的时候，同传统网络一样，会先进行ARP广播来获取目的IP的MAC地址，这个ARP广播包会广播给所有二层的机器，在虚拟化vm的世界里，每个vm过段时间都进行ARP广播来保持对方的感知，这样的ARP就会非常多，造成了所谓的广播风暴，解决广播的方法之一就是用多播，在处理网络数据包的时候，网卡会对数据帧进行过滤，通常网卡会处理所有广播的数据帧，然后往上传递到驱动层，最后到应用层，而大多数时候，上层对广播的数据帧并不感兴趣，从而这样的传递就造成了处理负荷，而多播则在底层就过滤掉了。</p>
 
-<p>它被编译在全局区域，不需要main函数，甚至连结束符；都不需要。翻了下Swift的官方文档，600+页，除了语言的基本内容：变量定义，类和结构定义，属性和方法定义，还有闭包、Function、subscript、ARC、Optional Chaining、Extensions等特性。</p>
+<p>VXLAN则用了多播的形式替代广播来防止泛滥的ARP请求，并且在VTEP上能直接通过学习到的记录进行回应返回包，在VTEP内部就消化掉ARP包，极大减轻物理网络的负担，VXLAN维护着一个VNI到多播组地址的映射，它判断VNI，获取到多播组，从而到达只给所在同一个VNI下的vm发送多播，避免ARP泛滥的问题。</p>
 
-<p><img src="/assets/media/屏幕快照 2014-06-05 12.46.59 AM.png" alt="p1" /></p>
+<p>VXLAN典型的架构如下：</p>
 
-<p>编程语言变得越来越高级，越来越傻瓜化，我一直在意淫以后的编程技术应该只要程序员用声音和手势就能制作出一个程式了- -</p>
+<p><img src="http://yangjunsss.github.io/assets/media/QQ20160712-1@2x.png" alt="img" /></p>
+
+<p>可以看到，VXLAN的分组的思想同VLAN很相似，但VLAN在SDN里并不适合，因为不够灵活，而Cloud里的hyper管理着所有vm，拥有着更强的控制力，而能够灵活控制vm的数据转发，并根据物理网络进行优化，这才是云计算未来的网络架构。</p>
+
+<p><strong><em>Copyright © 2016 yangjunsss. All rights reserved.</em></strong></p>
 
 
 	  </div>
@@ -187,8 +195,8 @@ Camera APIs,HealthKit,HomeKit,Metal.</p>
 		  
 		  
 			 
-				<li><a href="/categories.html#ios-ref">
-					ios <span>(7)</span>
+				<li><a href="/categories.html#网络-ref">
+					网络 <span>(1)</span>
 					
 				</a></li>
 			
@@ -203,15 +211,8 @@ Camera APIs,HealthKit,HomeKit,Metal.</p>
 		  
 			 
 				<li>
-					<a href="/tags.html#WWDC2014-ref">
-					WWDC2014 <span>(1)</span>
-					,
-					</a>
-				</li>
-			 
-				<li>
-					<a href="/tags.html#ios-ref">
-					ios <span>(2)</span>
+					<a href="/tags.html#vxlan-ref">
+					vxlan <span>(1)</span>
 					
 					</a>
 				</li>
@@ -226,7 +227,7 @@ Camera APIs,HealthKit,HomeKit,Metal.</p>
 		<div>
       <section class="share">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=ios8 is coming"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=聊聊vxlan"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -251,7 +252,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
      <!-- <section class="col-sm-6 author">
         <img src="http://www.gravatar.com/avatar/" class="img-rounded author-image" />
         <h4 class="section-title author-name">yj</h4>
-        <p class="author-bio">玩linux的mobile dev</p>
+        <p class="author-bio">I'm a Dev and Trader</p>
       </section>
 !-->
     </div>
@@ -260,10 +261,10 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 
 		<ul class="pager" style="font-size:12px;">
 		  
-		  <li class="previous"><a href="/ios/2014/06/02/%E5%8F%88%E9%80%A0%E8%BD%AE%E5%AD%90.html" title="又造轮子">&larr; Previous</a></li>
+		  <li class="previous"><a href="/%E5%B7%A5%E5%85%B7/2016/07/10/XXAlignOnSave.html" title="写了一个Xcode插件XXAlignOnSave">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/ios/2014/06/06/%E8%80%81%E6%9D%BFcrash%E4%BA%86.html" title="并发和锁">Next &rarr;</a></li>
+			<li class="next disabled"><a>Next &rarr;</a>
 		  
 		</ul>
 

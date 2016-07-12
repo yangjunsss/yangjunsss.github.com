@@ -2,9 +2,87 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>yj的博客</title>
-		<description>yj的博客,ios,android,linux,cloud</description>
+		<description>yj的博客,mobile,cloud</description>
 		<link>/</link>
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
+		
+			<item>
+				<title>聊聊vxlan</title>
+				<description>&lt;p&gt;VXLAN是我们SDN2.0网络架构的基础，值得学习和思考，写下我的认知。&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;问题&lt;/h3&gt;
+
+&lt;p&gt;在云计算的服务里，我们需要在物理的二层网络或者三层网络里虚拟化出二层网络供租户使用，而划分出这个虚拟网络其中一种方案是VLAN，VLAN通过一个12-bit的VLAN ID来对应一个虚拟网络，配置在数据链路层，它相当于把一个大的二层网络切分成许多小的逻辑网络，每个VLAN ID配置和管理着N个VM的MAC地址，在数据链路层实现不同的广播域，从而到达隔离和划分的目的。正因为这只有12-bit，就只能虚拟出4094个VLAN，显然是不够的，这是问题1。&lt;/p&gt;
+
+&lt;p&gt;问题2，用户需要在不同的二层网路里相互通讯，而不同的VLAN之间通讯要通过第三层完成。问题3，二层网络之间的通讯都是通过MAC地址寻址，每一个vm都有个独立的MAC地址，有MAC地址泛滥的问题。&lt;/p&gt;
+
+&lt;h3 id=&quot;vxlan&quot;&gt;VXLAN&lt;/h3&gt;
+
+&lt;p&gt;VXLAN全称是Virtual eXtensible Local Area Network，设计的目的就是要满足构建在二层或者三层物理网络下的虚拟网络，主要给Cloud使用，设计思路跟VLAN类似。不过他是构建在第三层协议UDP之上，对UDP进行封装，增加了个8byte的VXLAN Header，其中24bit用作VNI，VNI跟VLAN ID作用一样，用于分组，24bit解决了&lt;strong&gt;问题1&lt;/strong&gt;，而基于UDP协议的封装数据包可穿梭于二层和三层，解决了&lt;strong&gt;问题2&lt;/strong&gt;。vxlan用于对数据包进行封包和拆包的模块称作VTEP，它是个管理模块，可以部署在物理机或物理交换机上，可以用硬件实现也可以用软件实现，同VLAN一样，要管理逻辑网络和物理网络的一些映射关系表，比如VNI和MAC地址的映射表、VNI和多播组的映射表，应该还有一张VNI和VTEP地址的映射表。可以看出来，跟VLAN有点像，从VXLAN名字也能看出来。&lt;/p&gt;
+
+&lt;h4 id=&quot;vm1--vm2-mac&quot;&gt;vm1 如何同 vm2 进行mac地址通讯&lt;/h4&gt;
+
+&lt;p&gt;当一个vm1加入到一个VXLAN的network后，并不知道是否在VXLAN里，对于客户机来讲是透明的，vm1跟vm2通讯，vm1发送包含目的地址为vm2的mac地址数据包，vm1所在的物理机VTEP1收到这个包时，会根据目的MAC地址查询VNI&amp;lt;-&amp;gt;MAC表，如果找到对应的VNI，就进行UDP打包，包上目标VTEP2的MAC地址、IP地址、目的VNI、目的vm2的MAC地址、源vm1的MAC地址，发送给VTEP2，VTEP2收到后进行确认和拆包，最终发送到vm2，并在收到这个UDP包之后进行学习，这个学习意思是说VTEP2收到这个UDP的包拆包后，可以知道vm1的MAC地址在VTEP1上了，当vm2进行回包的时候，就可以正确返回了，这样整个vm到vm的通讯就完成了。&lt;/p&gt;
+
+&lt;h4 id=&quot;vm1-to-vm2-ip&quot;&gt;vm1 to vm2 进行IP地址通讯&lt;/h4&gt;
+
+&lt;p&gt;当vm1不知道vm2的MAC地址进行IP通讯的时候，同传统网络一样，会先进行ARP广播来获取目的IP的MAC地址，这个ARP广播包会广播给所有二层的机器，在虚拟化vm的世界里，每个vm过段时间都进行ARP广播来保持对方的感知，这样的ARP就会非常多，造成了所谓的广播风暴，解决广播的方法之一就是用多播，在处理网络数据包的时候，网卡会对数据帧进行过滤，通常网卡会处理所有广播的数据帧，然后往上传递到驱动层，最后到应用层，而大多数时候，上层对广播的数据帧并不感兴趣，从而这样的传递就造成了处理负荷，而多播则在底层就过滤掉了。&lt;/p&gt;
+
+&lt;p&gt;VXLAN则用了多播的形式替代广播来防止泛滥的ARP请求，并且在VTEP上能直接通过学习到的记录进行回应返回包，在VTEP内部就消化掉ARP包，极大减轻物理网络的负担，VXLAN维护着一个VNI到多播组地址的映射，它判断VNI，获取到多播组，从而到达只给所在同一个VNI下的vm发送多播，避免ARP泛滥的问题。&lt;/p&gt;
+
+&lt;p&gt;VXLAN典型的架构如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://yangjunsss.github.io/assets/media/QQ20160712-1@2x.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;可以看到，VXLAN的分组的思想同VLAN很相似，但VLAN在SDN里并不适合，因为不够灵活，而Cloud里的hyper管理着所有vm，拥有着更强的控制力，而能够灵活控制vm的数据转发，并根据物理网络进行优化，这才是云计算未来的网络架构。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+</description>
+				<pubDate>Tue, 12 Jul 2016 00:00:00 +0800</pubDate>
+				<link>/%E7%BD%91%E7%BB%9C/2016/07/12/%E8%81%8A%E8%81%8Avxlan.html</link>
+				<guid isPermaLink="true">/%E7%BD%91%E7%BB%9C/2016/07/12/%E8%81%8A%E8%81%8Avxlan.html</guid>
+			</item>
+		
+			<item>
+				<title>写了一个Xcode插件XXAlignOnSave</title>
+				<description>&lt;p&gt;博客好像2年没更新了，也忙会了2年，似乎也没停过，折腾来折腾去，要说得太多，不说了，写点code吧，这两天用了下XAlign的插件，这个插件用作对选中的code进行简单的align，但人都懒，如果能在保存的时候就自动align就好了，于是就自己动手改造了这个，算是写得第一个插件，这2年一直也忙于项目，只是偶尔会在github上面提几个bug，希望以后多写点open source的东西在自己github上面。&lt;/p&gt;
+
+&lt;p&gt;Code和Readme看这里&lt;a href=&quot;https://github.com/yangjunsss/XXAlignOnSave&quot;&gt;XXAlignOnSave&lt;/a&gt;，对原来XAlign的code没有侵入性，不用改XAlign的code，只通过Catogery和Swizzle来做的AOP，这也是做plugin的核心思想，因为Apple并没有直接提供plugin文档和接口，必须拦截IDE的方法调用。&lt;/p&gt;
+
+&lt;p&gt;主要做的几个事：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;植入NSMenuItem到XAlign菜单&lt;/li&gt;
+  &lt;li&gt;Swizzle XCode的ide_saveDocument方法，用于执行align操作&lt;/li&gt;
+  &lt;li&gt;在align之前保存当前光标的位置，replace后要恢复&lt;/li&gt;
+  &lt;li&gt;监听IDEEditorDocumentDidChangeNotification事件，判断当前文件是否有更改，没有则无需align&lt;/li&gt;
+  &lt;li&gt;获取当前文件的type，目前只格式化:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@[@&quot;public.c-header&quot;,@&quot;public.c-plus-plus-header&quot;,@&quot;public.c-source&quot;,@&quot;public.objective-c-source&quot;,@&quot;public.c-plus-plus-source&quot;,@&quot;public.objective-c-plus-plus-source&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+  &lt;li&gt;限制字符数，目前上限100w&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;demo&quot;&gt;Demo&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://yangjunsss.github.io/assets/media/d17c7a5bb3aaa707c347fc08f90de58e.gif&quot; alt=&quot;pimg&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;references&quot;&gt;References:&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/luisobo/Xcode-RuntimeHeaders&quot;&gt;Xcode Headers&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+</description>
+				<pubDate>Sun, 10 Jul 2016 00:00:00 +0800</pubDate>
+				<link>/%E5%B7%A5%E5%85%B7/2016/07/10/XXAlignOnSave.html</link>
+				<guid isPermaLink="true">/%E5%B7%A5%E5%85%B7/2016/07/10/XXAlignOnSave.html</guid>
+			</item>
 		
 			<item>
 				<title>Bonjour用于近距离传输</title>
@@ -97,6 +175,7 @@ Three ways:
 2,Connecting by hostname
 3,Connecting by IP&lt;/p&gt;
 
+&lt;p&gt;######&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
 </description>
 				<pubDate>Wed, 25 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/25/%E8%BF%91%E8%B7%9D%E7%A6%BB%E4%BC%A0%E8%BE%93Bonjour.html</link>
@@ -213,6 +292,7 @@ Notification提供异步post方式NSNotificationQueue，通过enqueueNotificatio
     });
 }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;p&gt;######&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
 </description>
 				<pubDate>Mon, 23 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/23/Notification%E7%9A%84%E5%9D%91.html</link>
@@ -592,6 +672,7 @@ Notification提供异步post方式NSNotificationQueue，通过enqueueNotificatio
 
 &lt;p&gt;这方面的code不多，可以猜测的是用SideTable分散存储了对象的列表，每个ST里面用DenseMap记录了对象和对象的refcount。&lt;/p&gt;
 
+&lt;p&gt;######&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
 </description>
 				<pubDate>Fri, 20 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/20/%E4%B8%8D%E6%94%AF%E6%8C%81%E5%A4%9A%E7%BB%A7%E6%89%BF%E5%92%8C%E9%87%8D%E8%BD%BD.html</link>
@@ -599,103 +680,7 @@ Notification提供异步post方式NSNotificationQueue，通过enqueueNotificatio
 			</item>
 		
 			<item>
-				<title>浅尝Swift，会是个坑么？</title>
-				<description>&lt;p&gt;在看了Swift的Guide，从自己对语言的理解来看Swift；）在看sf之前，我开始怀疑语言变得越来越聪明，Dev会不会变得越来越“蠢”？在看sf之后，我怎么觉得swift越来越像个坑。&lt;/p&gt;
-
-&lt;p&gt;1.如今当你读到一个变量的时候，是不知道变量类型的。因为sf变量定义都变成了let和var，只有在被assign的时候才知道Type，而一般在编码中我们会先定义好变量和Type，这样有个清晰的认识，而现在只有名字了，这样真的好么？另外sf依旧还是强类型语言- -&lt;/p&gt;
-
-&lt;p&gt;2.简单的基本类型变成了对象，比如int -&amp;gt; Int，UInt8,etc. 这必定是开销，不知道sf有没有做优化。&lt;/p&gt;
-
-&lt;p&gt;3.支持Tuples，打包多个值，这个用于函数返回是比较赞的feature。&lt;/p&gt;
-
-&lt;p&gt;4.Optionals，意思是说这个对象可能有值，可能没值，没太搞懂这个feature的原因，看上去像把&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;if(obj != nil)
-  [obj func1];&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;变成了&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;obj?.func1()&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;有什么太大的意义么？还有点画蛇添足的提供obj!这种mark，意思是说当你确定obj有值的时候，会高效点。&lt;/p&gt;
-
-&lt;p&gt;5.支持..和…Range操作符，用x..y表示[x,y)，用x…y表示[x,y]，是&lt;code class=&quot;highlighter-rouge&quot;&gt;for(NSInteger i =0;i&amp;lt;count;i++)&lt;/code&gt;的简化，不错。&lt;/p&gt;
-
-&lt;p&gt;6.String的长度计算countElements和utf16count要小心。&lt;/p&gt;
-
-&lt;p&gt;7.强大的操作符运算和自定义操作符，在Collection可以直接应用+=操作符（不知道能不能在Array中用-=），甚至是自定义操作符，比如++++，+-等等&lt;/p&gt;
-
-&lt;p&gt;8.统一了Collection的Iterator，不要考虑什么时候用enumerate还是forin了&lt;/p&gt;
-
-&lt;p&gt;9.从关心用mutable和immutable的结构到用var和let的类型的转移，实际上我觉得没省略什么。&lt;/p&gt;
-
-&lt;p&gt;10.在写for的时候，以前默认的写法是不关心当前游标指向的值，现在sf默认是关心，所以写法变成:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;for(...)
-{
-
-}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;sf的for的语法为：&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;for tmp in 1...5{
-    // use tmp variable
-}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;但并非所有时候都关心当前游标指向的值，所以sf又象征性的提供&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot; data-lang=&quot;objective-c&quot;&gt;for _ in 1...5{
-
-}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;这种写法- -！&lt;/p&gt;
-
-&lt;p&gt;11.函数参数默认是const，需要更改参数要加var，需要指针传递要加inout，越来越发现sf的思想与传统的编程进行了颠倒- -！，参数支持默认值，支持…&lt;/p&gt;
-
-&lt;p&gt;12.把原来的global block变成了function，heap &amp;amp; stack block变成了closure&lt;/p&gt;
-
-&lt;p&gt;13.鸡肋的Trailing Closure，有点勉强的写法&lt;/p&gt;
-
-&lt;p&gt;14.有点混乱的参数传递，enum，structs都是值传递，Closure是引用传递，很容易傻傻分不清楚，比如传递一个Array进去，常规是引用传递，实际上是值传递，因为Array是用structs实现的，而structs和enum在sf里又不是严格意义的C类型- -，更加傻傻分不清楚了。&lt;/p&gt;
-
-&lt;p&gt;15.enum不再是enum，structs不再是structs了，他们完全已经成了变相的class了，定义方法和变量，实现protocal，enum，structs，class再一次傻傻分不清楚- -，只不过class支持继承和需要引用计数，因为是引用传递。而structs，enum每次进行值copy，小心使用。&lt;/p&gt;
-
-&lt;p&gt;16.Array和Dictionary是用Structs实现的，Dic是copy操作，Array是选择性copy操作，Array的copy只在发生在length发生改变时，再一次傻傻分不清楚，坑啊。&lt;/p&gt;
-
-&lt;p&gt;17.@lazy property，延迟加载的思想应用到了class里。&lt;/p&gt;
-
-&lt;p&gt;18.property默认加入了willSet didSet的observer，从分布的observer管理可做到集中式管理。&lt;/p&gt;
-
-&lt;p&gt;19.简化的global variable定义，使用Type来标明类静态。&lt;/p&gt;
-
-&lt;p&gt;20.sf提供一个mutating的method，意思是方法内会改变self的值，这种特性如何掌控不好，感觉很容易搞出bug&lt;/p&gt;
-
-&lt;p&gt;21.开放subscript，这个feature允许自定义容器的access了，比如something[i]，可以实现get{} 和 set{}&lt;/p&gt;
-
-&lt;p&gt;22.对于需要覆盖的方法，需要强制加override关键字，这也是从需要坑中总结的经验了&lt;/p&gt;
-
-&lt;p&gt;23.分散了初始化方式，包括var中定义的get set和block。&lt;/p&gt;
-
-&lt;p&gt;24.为什么要保留unowned?&lt;/p&gt;
-
-&lt;p&gt;25.支持继承的protocal&lt;/p&gt;
-
-&lt;p&gt;26.范型的支持&lt;/p&gt;
-
-&lt;p&gt;27.略显多余的关键字，再自定义重载符的时候对于不同的重载符需要定义不同的关键字&lt;/p&gt;
-
-&lt;p&gt;差不多看完了swift的guide，从语言的角度看它再试图简化，或者是某种传统行为的改变，但除了几个亮点外，革新的东西不同，甚至会带来潜在的危险，所以我觉得得报以怀疑的态度来对待这门语言了。&lt;/p&gt;
-
-&lt;p&gt;PPS：stackoverflow上有哥们做了初次的性能测试，得到的效果并不佳。所以做好填坑的准备吧亲～&lt;/p&gt;
-
-</description>
-				<pubDate>Sat, 07 Jun 2014 00:00:00 +0800</pubDate>
-				<link>/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html</link>
-				<guid isPermaLink="true">/ios/2014/06/07/%E6%B5%85%E5%B0%9DSwift.html</guid>
-			</item>
-		
-			<item>
-				<title>并发和锁</title>
+				<title>从数组Crash聊并发和锁</title>
 				<description>&lt;p&gt;App在load的时候任务过重影响了性能，所以很自然想做并发，我的case是主线程对Array一直append操作，而并发的code进行了read操作，应该不会crash，但为什么就exc_bad_access了呢？于是写了一个测试code，运行正常：&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;- (void) testOneAddAndMultiReadBug
@@ -821,53 +806,18 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 
 &lt;p&gt;最后，用多线程要非常小心，Apple似乎也没太注重这个问题，只能别让自己掉进坑里，掉进了也只能自救；)&lt;/p&gt;
 
+&lt;p&gt;######&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
 </description>
 				<pubDate>Fri, 06 Jun 2014 00:00:00 +0800</pubDate>
-				<link>/ios/2014/06/06/%E8%80%81%E6%9D%BFcrash%E4%BA%86.html</link>
-				<guid isPermaLink="true">/ios/2014/06/06/%E8%80%81%E6%9D%BFcrash%E4%BA%86.html</guid>
+				<link>/ios/2014/06/06/%E4%BB%8E%E6%95%B0%E7%BB%84Crash%E8%81%8A%E5%B9%B6%E5%8F%91%E5%92%8C%E9%94%81.html</link>
+				<guid isPermaLink="true">/ios/2014/06/06/%E4%BB%8E%E6%95%B0%E7%BB%84Crash%E8%81%8A%E5%B9%B6%E5%8F%91%E5%92%8C%E9%94%81.html</guid>
 			</item>
 		
 			<item>
-				<title>ios8 is coming</title>
-				<description>&lt;p&gt;&lt;a href=&quot;http://v.youku.com/v_show/id_XNzIwODkzMTM2.html&quot;&gt;WWDC2014视频在这里&lt;/a&gt;，当看到开放&lt;code class=&quot;highlighter-rouge&quot;&gt;Touch ID API&lt;/code&gt;时激动了，这意味着指纹识别技术正式进入大规模应用阶段，&lt;code class=&quot;highlighter-rouge&quot;&gt;Passcode&lt;/code&gt;要退休了；）
-当看到Apple放开了沙盒的限制，很多人该忙起来了，苹果称之为&lt;code class=&quot;highlighter-rouge&quot;&gt;extension&lt;/code&gt;，这意味这App可以以widget的形式嵌入到其他应用中，会上演示了在iPhoto中应用第三方的美化工具进行编辑照片，safari中应用了翻译工具，值得一提的是在Notification Center中，App可以获得更多的交互，Taobao，JD等O2O应用该忙起来了。实际上也带来了另一个潜在的商业契机；）&lt;/p&gt;
-
-&lt;p&gt;当看到开放iCloud Kit，就笑了，为创业公司加油！这次ios更新开放了4000+个API，涉及到Extenstion,TouchID,iCloudKit,PhotoKit,
-Camera APIs,HealthKit,HomeKit,Metal.&lt;/p&gt;
-
-&lt;p&gt;在游戏方面，引入了Metal，不是很懂- -&lt;/p&gt;
-
-&lt;p&gt;纵观整个keynote，Apple在交互性上做了很多的推进，不仅仅是应用之间，同时也在设备之间。&lt;/p&gt;
-
-&lt;p&gt;最后引入New Programming Language：&lt;code class=&quot;highlighter-rouge&quot;&gt;Swift&lt;/code&gt;，Dev举起屌，叫了！演示了Sort和加密的performance，动态类型，小哥当场制作的个小游戏，亮点是同样的code可以直接从2D转为3D。Swift被设计成&lt;strong&gt;&lt;em&gt;Modern、Interactive、Safe、Fast and Powerful&lt;/em&gt;&lt;/strong&gt;，oc本身是很动态的语言，因为基于message forwarding的机制，底层msg_send接管了所有函数调用的this，函数名，参数和返回值，可以想象Swift会是很动态的语言。比如函数调用不会异常，数组越界不会异常，包装函数返回值，动态加载函数和变量等等都不难实现。&lt;/p&gt;
-
-&lt;p&gt;Swift兼容oc的code，并被编译成优化的Native code用来保证Performance，这点可以保持怀疑；），仍然是ARC来做内存管理。&lt;/p&gt;
-
-&lt;p&gt;最有趣的应该是Interactive Playgrounds了，看上去这个东西可以让你边写代码边看到运行结果，甚至出performance的数据，这应该是最新鲜和有趣的feature了&lt;/p&gt;
-
-&lt;p&gt;Swift官方介绍&lt;a href=&quot;https://developer.apple.com/swift/&quot;&gt;详见&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;第一个Hello World的program是这样：&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Hello,World&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;它被编译在全局区域，不需要main函数，甚至连结束符；都不需要。翻了下Swift的官方文档，600+页，除了语言的基本内容：变量定义，类和结构定义，属性和方法定义，还有闭包、Function、subscript、ARC、Optional Chaining、Extensions等特性。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/media/屏幕快照 2014-06-05 12.46.59 AM.png&quot; alt=&quot;p1&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;编程语言变得越来越高级，越来越傻瓜化，我一直在意淫以后的编程技术应该只要程序员用声音和手势就能制作出一个程式了- -&lt;/p&gt;
-
-</description>
-				<pubDate>Tue, 03 Jun 2014 00:00:00 +0800</pubDate>
-				<link>/ios/2014/06/03/ios8iscoming.html</link>
-				<guid isPermaLink="true">/ios/2014/06/03/ios8iscoming.html</guid>
-			</item>
-		
-			<item>
-				<title>又造轮子</title>
+				<title>又造轮子，分块化数组</title>
 				<description>&lt;p&gt;&lt;strong&gt;We are guessing Apple,but we don’t know the Apple is guessing us!&lt;/strong&gt;
-喔～我们又造了一个轮子，我们用&lt;code class=&quot;highlighter-rouge&quot;&gt;NSMutableArray&lt;/code&gt;造了一个类似的&lt;code class=&quot;highlighter-rouge&quot;&gt;CFStorage&lt;/code&gt;的东东。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是&lt;code class=&quot;highlighter-rouge&quot;&gt;O（1）&lt;/code&gt;，基于这样一个印象，在大数据用Array的时候就会犹豫，比如100W条数据。
-于是在oc上用&lt;code class=&quot;highlighter-rouge&quot;&gt;NSMutableArray&lt;/code&gt;写了一个能满足增删要求又不至于使查询性能down下来的结构，后来测试&lt;code class=&quot;highlighter-rouge&quot;&gt;NSMutableArray&lt;/code&gt;的增删查性能后发现，我们的确造了一个轮子。&lt;/p&gt;
+喔～我们又造了一个轮子，我们用分块的&lt;code class=&quot;highlighter-rouge&quot;&gt;NSMutableArray&lt;/code&gt;造了一个类似的&lt;code class=&quot;highlighter-rouge&quot;&gt;CFStorage&lt;/code&gt;的东东，目的是保证增删的性能基础上保证读的性能。上学的时候，老师会告诉学生Array的增删是耗时的，因为要数组复制，而访问是很快的，因为是直接寻址，时间复杂度是&lt;code class=&quot;highlighter-rouge&quot;&gt;O（1）&lt;/code&gt;，基于这样一个印象，在海量数据用Array的时候就会犹豫，比如100W条数据。
+于是在oc上用&lt;code class=&quot;highlighter-rouge&quot;&gt;NSMutableArray&lt;/code&gt;写了一个能满足增删要求又不至于使查询性能down下来的分块结构，后来测试&lt;code class=&quot;highlighter-rouge&quot;&gt;NSMutableArray&lt;/code&gt;的增删查性能时我们发现MutableArray的底层实现已经分块了。&lt;/p&gt;
 
 &lt;p&gt;自己的测试数据与以下类似：
 &lt;img src=&quot;/assets/media/QQ20140602-6.png&quot; alt=&quot;pimg&quot; /&gt;&lt;/p&gt;
@@ -922,10 +872,11 @@ Camera APIs,HealthKit,HomeKit,Metal.&lt;/p&gt;
 	indices, or to insert or delete values with high indices, or
 	whatever.&lt;/em&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;javascrpit&quot;&gt;Javascrpit会怎样？&lt;/h3&gt;
+&lt;h3 id=&quot;javascrpit&quot;&gt;JavaScrpit会怎样？&lt;/h3&gt;
 
-&lt;p&gt;js在数据量达到一定级别的时候增删操作就会严重卡断，不同js引擎会不同，所以值得庆幸地是这个轮子并非全无价值；p&lt;/p&gt;
+&lt;p&gt;同样的结构，我们在js上也实现了，是有了js的模型才开始做了iOS的，这个模型在js上性能提高了许多，所以值得庆幸地是这个轮子并非全无价值；p&lt;/p&gt;
 
+&lt;p&gt;######&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
 </description>
 				<pubDate>Mon, 02 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/02/%E5%8F%88%E9%80%A0%E8%BD%AE%E5%AD%90.html</link>
