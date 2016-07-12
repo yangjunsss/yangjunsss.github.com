@@ -34,7 +34,7 @@
 
 &lt;p&gt;VXLAN则用了多播的形式替代广播来防止泛滥的ARP请求，并且在VTEP上能直接通过学习到的记录进行回应返回包，在VTEP内部就消化掉ARP包，极大减轻物理网络的负担，VXLAN维护着一个VNI到多播组地址的映射，它判断VNI，获取到多播组，从而到达只给所在同一个VNI下的vm发送多播，避免ARP flood的问题，解决了&lt;strong&gt;问题3&lt;/strong&gt;。&lt;/p&gt;
 
-&lt;p&gt;VXLAN典型的架构如下：&lt;/p&gt;
+&lt;p&gt;VXLAN典型的部署如下：&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;http://yangjunsss.github.io/assets/media/QQ20160712-1@2x.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
 
@@ -81,7 +81,7 @@
   &lt;li&gt;&lt;a href=&quot;https://github.com/luisobo/Xcode-RuntimeHeaders&quot;&gt;Xcode Headers&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;h6 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/h6&gt;
 </description>
 				<pubDate>Sun, 10 Jul 2016 00:00:00 +0800</pubDate>
 				<link>/%E5%B7%A5%E5%85%B7/2016/07/10/XXAlignOnSave.html</link>
@@ -880,7 +880,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 
 &lt;p&gt;同样的结构，我们在js上也实现了，是有了js的模型才开始做了iOS的，这个模型在js上性能提高了许多，所以值得庆幸地是这个轮子并非全无价值；p&lt;/p&gt;
 
-&lt;p&gt;######&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;h6 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/h6&gt;
 </description>
 				<pubDate>Mon, 02 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/02/%E5%8F%88%E9%80%A0%E8%BD%AE%E5%AD%90.html</link>

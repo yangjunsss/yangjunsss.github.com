@@ -182,7 +182,7 @@
 
 <p>VXLAN则用了多播的形式替代广播来防止泛滥的ARP请求，并且在VTEP上能直接通过学习到的记录进行回应返回包，在VTEP内部就消化掉ARP包，极大减轻物理网络的负担，VXLAN维护着一个VNI到多播组地址的映射，它判断VNI，获取到多播组，从而到达只给所在同一个VNI下的vm发送多播，避免ARP flood的问题，解决了<strong>问题3</strong>。</p>
 
-<p>VXLAN典型的架构如下：</p>
+<p>VXLAN典型的部署如下：</p>
 
 <p><img src="http://yangjunsss.github.io/assets/media/QQ20160712-1@2x.png" alt="img" /></p>
 
