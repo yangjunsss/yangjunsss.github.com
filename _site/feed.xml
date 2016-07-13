@@ -8,37 +8,35 @@
 		
 			<item>
 				<title>聊聊vxlan</title>
-				<description>&lt;p&gt;VXLAN是我们SDN2.0网络架构的基础，值得学习和思考，写下我的认知。&lt;/p&gt;
-
-&lt;h3 id=&quot;section&quot;&gt;问题&lt;/h3&gt;
+				<description>&lt;h3 id=&quot;section&quot;&gt;问题&lt;/h3&gt;
 
 &lt;p&gt;在云计算的服务里，我们需要在物理的二层网络或者三层网络里虚拟化出二层网络供租户使用，而划分出这个虚拟网络其中一种方案是VLAN，VLAN通过一个12-bit的VLAN ID来对应一个虚拟网络，配置在数据链路层，它相当于把一个大的二层网络切分成许多小的逻辑网络，每个VLAN ID配置和管理着N个VM的MAC地址，在数据链路层实现不同的广播域，从而到达隔离和划分的目的。正因为这只有12-bit，就只能虚拟出4094个VLAN，显然是不够的，这是&lt;strong&gt;问题1&lt;/strong&gt;。&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;问题2&lt;/strong&gt;，用户需要在不同的二层网路里相互通讯，而不同的VLAN之间通讯要通过第三层完成。&lt;strong&gt;问题3&lt;/strong&gt;，二层网络之间的通讯都是通过MAC地址寻址，每一个vm都有个独立的MAC地址，有ARP flood的问题。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;问题2&lt;/strong&gt;，用户需要在不同的二层网路里相互通讯，而不同的VLAN之间通讯要通过第三层完成。&lt;strong&gt;问题3&lt;/strong&gt;，我们知道二层网络之间的通讯都是通过MAC地址寻址，而在虚拟化的世界里，vm会被虚拟化非常多，这么多vm在同一个物理网络下，带来了ARP flood的问题。&lt;/p&gt;
 
 &lt;h3 id=&quot;vxlan&quot;&gt;VXLAN&lt;/h3&gt;
 
-&lt;p&gt;VXLAN全称是&lt;strong&gt;&lt;em&gt;Virtual eXtensible Local Area Network&lt;/em&gt;&lt;/strong&gt;，设计的目的就是要满足构建在二层或者三层物理网络下的虚拟网络，主要给Cloud使用，设计思路跟VLAN类似。不过他是构建在第三层协议UDP之上，对UDP进行封装，增加了个8byte的VXLAN Header，其中24bit用作VNI，VNI跟VLAN ID作用一样，用于分组，24bit解决了&lt;strong&gt;问题1&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;VXLAN全称是&lt;strong&gt;&lt;em&gt;Virtual eXtensible Local Area Network&lt;/em&gt;&lt;/strong&gt;，设计的目的就是要满足构建在二层或者三层物理网络下的虚拟网络，主要给Cloud使用，设计思路由VLAN所启发，不过他比VLAN协议要高一层，在第三层协议UDP之上，对UDP进行封装，增加了8byte的VXLAN Header，其中24bit用作VNI，VNI跟VLAN ID作用一样，用于分组，这里的24bit解决了&lt;strong&gt;问题1&lt;/strong&gt;。&lt;/p&gt;
 
-&lt;p&gt;而基于UDP协议的封装数据包可穿梭于二层和三层，解决了&lt;strong&gt;问题2&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;而基于UDP协议的封装数据包可自由穿梭于二层和三层，解决了&lt;strong&gt;问题2&lt;/strong&gt;。&lt;/p&gt;
 
-&lt;p&gt;vxlan用于对数据包进行封包和拆包的模块称作VTEP，它是个管理模块，可以部署在物理机或物理交换机上，可以用硬件实现也可以用软件实现，同VLAN一样，要管理逻辑网络和物理网络的一些映射关系表，比如VNI和MAC地址的映射表、VNI和多播组的映射表，应该还有一张VNI和VTEP地址的映射表。可以看出来，跟VLAN有点像，从VXLAN名字也能看出来。&lt;/p&gt;
+&lt;p&gt;vxlan用于对数据包进行封包和拆包的模块被称作VTEP，它是个管理模块，可以部署在物理机或物理交换机上，用硬件或软件都可以实现，同VLAN一样，要管理虚拟网络和物理网络的一些映射关系表，比如VNI和MAC地址的映射表、VNI和多播组的映射表，VNI和VTEP地址的映射表等。可以看出来，跟VLAN有点像，从VXLAN名字也能看出来，只不过是云计算版。下面看看如何通信的。&lt;/p&gt;
 
-&lt;h4 id=&quot;vm1--vm2-mac&quot;&gt;1,vm1 如何同 vm2 进行mac地址通讯&lt;/h4&gt;
+&lt;h4 id=&quot;vm1-to-vm2mac&quot;&gt;1,vm1 to vm2，MAC地址通信&lt;/h4&gt;
 
-&lt;p&gt;当一个vm1加入到一个VXLAN的network后，并不知道是否在VXLAN里，对于客户机来讲是透明的，vm1跟vm2通讯，vm1发送包含目的地址为vm2的mac地址数据包，vm1所在的物理机VTEP1收到这个包时，会根据目的MAC地址查询VNI&amp;lt;-&amp;gt;MAC表，如果找到对应的VNI，就进行UDP打包，包上目标VTEP2的MAC地址、IP地址、目的VNI、目的vm2的MAC地址、源vm1的MAC地址，发送给VTEP2，VTEP2收到后进行确认和拆包，最终发送到vm2，并在收到这个UDP包之后学习知道vm1的MAC地址在VTEP1上，当vm2进行回包的时候，就可以正确返回了，这样整个vm到vm的通讯就完成了。&lt;/p&gt;
+&lt;p&gt;当一个vm1加入到一个VXLAN的network后，并不需要知道是否在VXLAN里，对于客户机来讲是透明的，vm1只要发送包含目的地址为vm2的MAC地址IP数据包，vm1所在的物理机VTEP1收到这个包，就会根据目的MAC地址查询VNI&amp;lt;-&amp;gt;MAC表，如果找到对应的VNI，进行UDP打包，包上目标VTEP2的MAC地址、IP地址、目的VNI、目的vm2的MAC地址、源vm1的MAC地址等发给VTEP2，VTEP2收到后进行确认和拆包，发送到vm2，并在这个过程中学习到vm1的MAC地址、VTEP1的地址，当vm2进行回包的时候，同样的过程返回给vm1，这样整个vm到vm的通信就完成了。&lt;/p&gt;
 
-&lt;h4 id=&quot;vm1-to-vm2-ip&quot;&gt;2,vm1 to vm2 进行IP地址通讯&lt;/h4&gt;
+&lt;h4 id=&quot;vm1-to-vm2-mac&quot;&gt;2,vm1 to vm2 不知道MAC地址&lt;/h4&gt;
 
-&lt;p&gt;当vm1不知道vm2的MAC地址进行IP通讯的时候，同传统网络一样，会先进行ARP广播来获取目的IP的MAC地址，这个ARP广播包会广播给所有二层的机器，在虚拟化vm的世界里，每个vm过段时间都进行ARP广播来保持对方的感知，这样的ARP就会非常多，造成了所谓的广播风暴，解决广播的方法之一就是用多播，在处理网络数据包的时候，网卡会对数据帧进行过滤，通常网卡会处理所有广播的数据帧，然后往上传递到驱动层，最后到应用层，而大多数时候，上层对广播的数据帧并不感兴趣，从而这样的传递就造成了处理负荷，而多播则在底层就过滤掉了。&lt;/p&gt;
+&lt;p&gt;当vm1不知道vm2的MAC地址进行IP地址通信的时候，同传统网络一样，会先判断是否为子网地址，然后进行ARP广播来获取目的MAC地址，这个ARP广播包会广播给所有二层的机器，在虚拟化vm的世界里，每个vm过段时间都进行ARP广播来保持对方的感知，ARP广播就会非常多，造成广播风暴，广播的问题是说网卡在处理网络数据包的时候会进行过滤，通常网卡会处理所有广播的数据帧，然后一层一层往上传递，并进行过滤，一直到应用层，而大多数时候，上层对广播的数据帧并不感兴趣，这种传递和过滤就造成了负荷，而另一种数据传输方式多播就会好很多，网卡遇到多播地址的数据帧时就可以进行过滤。&lt;/p&gt;
 
-&lt;p&gt;VXLAN则用了多播的形式替代广播来防止泛滥的ARP请求，并且在VTEP上能直接通过学习到的记录进行回应返回包，在VTEP内部就消化掉ARP包，极大减轻物理网络的负担，VXLAN维护着一个VNI到多播组地址的映射，它判断VNI，获取到多播组，从而到达只给所在同一个VNI下的vm发送多播，避免ARP flood的问题，解决了&lt;strong&gt;问题3&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;VXLAN则用了多播的形式来“广播”ARP请求，并维护着一个VNI到多播组地址的映射，来减少广播带来的问题，并在这个过程中进行学习，建立转发规则，这种学习非常重要，它主要解决ARP Flood的问题，在vm下次进行ARP广播的时候有能力消化ARP请求，解决ARP Flood，解决&lt;strong&gt;问题3&lt;/strong&gt;。&lt;/p&gt;
 
-&lt;p&gt;VXLAN典型的部署如下：&lt;/p&gt;
+&lt;p&gt;一个VXLAN典型的部署如下：&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;http://yangjunsss.github.io/assets/media/QQ20160712-1@2x.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;可以看到，VXLAN的分组的思想同VLAN很相似，但VLAN在SDN里并不适合，因为不够灵活，而Cloud里的hyper管理着所有vm，拥有着更强的控制力，而能够灵活控制vm的数据转发，并根据物理网络进行优化，这才是云计算未来的网络架构。&lt;/p&gt;
+&lt;p&gt;可以看到，VXLAN的分组的思想同VLAN很相似，但VLAN在SDN里并不适合，因为不够灵活，VXLAN之所以强大，因为Cloud里的hyper管理着所有vm，拥有着控制力，这种控制力能对网络进行灵活的控制，这才是云计算未来的网络架构。&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;&lt;em&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
 
@@ -880,7 +878,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 
 &lt;p&gt;同样的结构，我们在js上也实现了，是有了js的模型才开始做了iOS的，这个模型在js上性能提高了许多，所以值得庆幸地是这个轮子并非全无价值；p&lt;/p&gt;
 
-&lt;h6 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/h6&gt;
+&lt;h5 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/h5&gt;
 </description>
 				<pubDate>Mon, 02 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/02/%E5%8F%88%E9%80%A0%E8%BD%AE%E5%AD%90.html</link>
