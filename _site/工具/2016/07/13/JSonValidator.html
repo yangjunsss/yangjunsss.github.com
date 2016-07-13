@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
 	<meta charset="utf-8">
-	<title>yj的博客 一个写线程，一个读线程，crash了</title>
-	<meta name="keywords" content="">
+	<title>yj的博客 写的另一个Xcode插件YJsonValidator</title>
+	<meta name="keywords" content="YJsonValidator">
 	<meta name="description" content="">
 	<meta name="author" content="yj" >
 	<!-- Enable responsive viewport -->
@@ -142,7 +142,7 @@
 
 	<div class="col-sm-9 col-sm-offset-3">
 		<div class="page-header">
-  <h1>一个写线程，一个读线程，crash了 </h1>
+  <h1>写的另一个Xcode插件YJsonValidator </h1>
 </div>
 	
 <article>
@@ -150,37 +150,29 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	    
-	   0th,
+	   July 
+	   13th,
 	   
-	   
+	   2016
 	 </span>
 	  <div class="article_body">
-	  <p>实际上我偷了个懒，就crash了，读写线程一般发生crash情况有：
-1.访问一个被释放的内存，比如delete或replace操作；
-2.访问越界</p>
+	  <p>新的App架构可以不用升级App就能通过配置化的文件对在线PaaS资源进行安装升级了，我们这一套配置化文件都是用的json格式，这两天正在写插件，就写了一个校验json的插件，而之前的做法是去<a href="https://jsonformatter.curiousconcept.com/">JSon Formatter</a>去复制粘贴，而且网站有时又比较慢，用起来不方便。</p>
 
-<p>比如：</p>
+<p>Code和Readme看这里<a href="https://github.com/yangjunsss/YJsonValidator">YJsonValidator</a></p>
 
-<figure class="highlight"><pre><code class="language-objective-c" data-lang="objective-c">- (void) testOneReplaceThreadAndMultiThreadReadBug2
-{
-    NSMutableArray *array = [NSMutableArray new];
-    VideoItem *emptyI = [VideoItem new];
-    NSInteger i = 0;
-    [array addObject:emptyI];
-    while (true) {
-        if (i++&gt;10000000) {
-            break;
-        }
-        [array addObject:emptyI];
-        array[[array count] - 1] = [VideoItem new];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            VideoItem *e = array[[array count] - 1];
-        });
-    }
-}</code></pre></figure>
+<p>没找到合适的插件，就自己写了，写起来很简单，利用NSJSONSerialization的error message，它的错误信息了包含了出错json的位置信息，只需要做个正规匹配把位置找出来，然后设置下当前Editor光标位置就可以了，有了这个对我写配置文件就很方便了。</p>
 
-<p>就会发生EXC_BAD_ACCESS</p>
+<h4 id="demo">Demo</h4>
+
+<p><img src="http://yangjunsss.github.io/assets/media/3dec26cdfb1f83eecf44e21a7b70b70e.gif" alt="pimg" /></p>
+
+<h4 id="references">References:</h4>
+
+<ul>
+  <li><a href="https://github.com/luisobo/Xcode-RuntimeHeaders">Xcode Headers</a></li>
+</ul>
+
+<h6 id="copyright--2016-yangjunsss-all-rights-reserved">Copyright © 2016 yangjunsss. All rights reserved.</h6>
 
 	  </div>
 <!--
@@ -190,8 +182,8 @@
 		  
 		  
 			 
-				<li><a href="/categories.html#ios-ref">
-					ios <span>(4)</span>
+				<li><a href="/categories.html#工具-ref">
+					工具 <span>(2)</span>
 					
 				</a></li>
 			
@@ -206,15 +198,8 @@
 		  
 			 
 				<li>
-					<a href="/tags.html#Thread-ref">
-					Thread <span>()</span>
-					,
-					</a>
-				</li>
-			 
-				<li>
-					<a href="/tags.html#NSMutableArray-ref">
-					NSMutableArray <span>(1)</span>
+					<a href="/tags.html#工具-ref">
+					工具 <span>(2)</span>
 					
 					</a>
 				</li>
@@ -229,7 +214,7 @@
 		<div>
       <section class="share">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=一个写线程，一个读线程，crash了"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=写的另一个Xcode插件YJsonValidator"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -263,7 +248,7 @@ document.write("<img src=\"https://chart.googleapis.com/chart?cht=qr&chs=120x120
 
 		<ul class="pager" style="font-size:12px;">
 		  
-		  <li class="previous disabled"><a>&larr; Previous</a></li>
+		  <li class="previous"><a href="/%E7%BD%91%E7%BB%9C/2016/07/12/%E8%81%8A%E8%81%8Avxlan.html" title="聊聊vxlan">&larr; Previous</a></li>
 		  
 		  
 			<li class="next disabled"><a>Next &rarr;</a>

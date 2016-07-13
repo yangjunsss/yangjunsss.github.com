@@ -7,6 +7,31 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>写的另一个Xcode插件YJsonValidator</title>
+				<description>&lt;p&gt;新的App架构可以不用升级App就能通过配置化的文件对在线PaaS资源进行安装升级了，我们这一套配置化文件都是用的json格式，这两天正在写插件，就写了一个校验json的插件，而之前的做法是去&lt;a href=&quot;https://jsonformatter.curiousconcept.com/&quot;&gt;JSon Formatter&lt;/a&gt;去复制粘贴，而且网站有时又比较慢，用起来不方便。&lt;/p&gt;
+
+&lt;p&gt;Code和Readme看这里&lt;a href=&quot;https://github.com/yangjunsss/YJsonValidator&quot;&gt;YJsonValidator&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;没找到合适的插件，就自己写了，写起来很简单，利用NSJSONSerialization的error message，它的错误信息了包含了出错json的位置信息，只需要做个正规匹配把位置找出来，然后设置下当前Editor光标位置就可以了，有了这个对我写配置文件就很方便了。&lt;/p&gt;
+
+&lt;h4 id=&quot;demo&quot;&gt;Demo&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://yangjunsss.github.io/assets/media/3dec26cdfb1f83eecf44e21a7b70b70e.gif&quot; alt=&quot;pimg&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;references&quot;&gt;References:&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/luisobo/Xcode-RuntimeHeaders&quot;&gt;Xcode Headers&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h6 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/h6&gt;
+</description>
+				<pubDate>Wed, 13 Jul 2016 00:00:00 +0800</pubDate>
+				<link>/%E5%B7%A5%E5%85%B7/2016/07/13/JSonValidator.html</link>
+				<guid isPermaLink="true">/%E5%B7%A5%E5%85%B7/2016/07/13/JSonValidator.html</guid>
+			</item>
+		
+			<item>
 				<title>聊聊vxlan</title>
 				<description>&lt;p&gt;在云计算的服务里，我们需要在物理的二层网络或者三层网络里虚拟化出二层网络供租户使用，这个虚拟的二层网络叫做VPC&lt;/p&gt;
 
@@ -810,7 +835,7 @@ void _CFArrayReplaceValues(CFMutableArrayRef array, CFRange range, const void **
 
 &lt;p&gt;最后，用多线程要非常小心，Apple似乎也没太注重这个问题，只能别让自己掉进坑里，掉进了也只能自救；)&lt;/p&gt;
 
-&lt;h6 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/h6&gt;
+&lt;h5 id=&quot;copyright--2016-yangjunsss-all-rights-reserved&quot;&gt;Copyright © 2016 yangjunsss. All rights reserved.&lt;/h5&gt;
 </description>
 				<pubDate>Fri, 06 Jun 2014 00:00:00 +0800</pubDate>
 				<link>/ios/2014/06/06/%E4%BB%8E%E6%95%B0%E7%BB%84Crash%E8%81%8A%E5%B9%B6%E5%8F%91%E5%92%8C%E9%94%81.html</link>
