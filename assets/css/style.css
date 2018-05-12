@@ -90,7 +90,8 @@ article .share .gplus:hover {
 article{
 	margin-bottom: 40px;
 	font-size: 16px;
-	letter-spacing: 2px;
+	letter-spacing: 1px;
+	line-height: 1.5;
 }
 
 .article_body{
@@ -107,6 +108,7 @@ article{
 
 article {
 	padding: 0 5% 0;
+	line-height: 1.5;
 }
 
 article.home div a, article.home pre a { color: #2c3e50; }
