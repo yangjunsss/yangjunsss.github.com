@@ -7,18 +7,18 @@ gems: [jekyll-paginate]
 #markdown: Redcarpet
 markdown: kramdown
 
-title: yj的博客
-description: yj的博客,mobile,cloud
+title: YJ的博客
+description:
 author:
-  name: yj
+  name: YJ
   email: cj.yangjun@gmail.com
   github: yangjunsss
   linkedin: yj-chen-0525b8104
   twitter:
   pinterest:
-  bio: I'm a Dev and Trader @QingCloud
-  anu: 本博仅代表个人观点，均为原创，某些地方纯属意淫，转载请注明出处
-  email_md5: 
+  bio: 一晃做了十年的技术人
+  anu: 保持着知识的饥渴，记录点个人的薄见
+  email_md5:
 
 rss_path: feed.xml
 categories_path: categories.html
