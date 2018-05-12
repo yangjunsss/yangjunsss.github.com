@@ -3,6 +3,8 @@
 body{
 	color: #2c3e50;
 	background-color: #eee;
+	font-size: 16px;
+	letter-spacing: 2px;
 }
 
 .sidebar {
