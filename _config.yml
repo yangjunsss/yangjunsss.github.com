@@ -1,27 +1,59 @@
-# visit https://github.com/mojombo/jekyll/wiki/Configuration for more settings
+# Site settings
+title: YJChen - Coder
+description: "A blog about YJChen ..."
+baseurl: "" # for test: remove string '/space-jekyll-template' to ''
+url: "" # for test: remove string 'http://victorvoid.github.io' to '' but in production: 'https://yourusername.githu.io'
 
-paginate: 15 # pagination based on number of posts
-paginate_path: "page:num"
-exclude: ["README.md"] # files to exclude
-gems: [jekyll-paginate]
-#markdown: Redcarpet
+# User settings
+username: YJChen
+user_title: 一晃做了十年的技术人，保持着知识的饥渴，记录点个人的薄见，请保持客观和怀疑看文章，您来了就是客人，我以礼相待
+email: cj.yangjun@gmail.com
+twitter_username:
+github_username:  yangjunsss
+gplus_username:
+linkedin_public_url: yj-chen-0525b8104
+disqus_username:
+profile_picture:
+
+# Build settings
 markdown: kramdown
+highlighter: rouge
+permalink: /:title/
 
-title: YJ的博客
-description:
-author:
-  name: YJ
-  email: cj.yangjun@gmail.com
-  github: yangjunsss
-  linkedin: yj-chen-0525b8104
-  twitter:
-  pinterest:
-  bio: 一晃做了十年的技术人，保持着知识的饥渴，记录点个人的薄见，请保持客观和怀疑看文章，您来了就是客人，我以礼相待
-  anu:
-  email_md5:
+# html minify
+compress_html:
+  clippings: all
+  comments: all
+  endings: []
+  profile: false
 
-rss_path: feed.xml
-categories_path: categories.html
-tags_path: tags.html
+# Links to include in menu navigation
+links:
+  section_1:
+    - title: home
+      url: /
+      key_trigger: 1
+    - title: my posts
+      url: /posts
+      key_trigger: 2
+    - title: series
+      url: /series
+      key_trigger: 3
+    - title: tags
+      url: /tags
+      key_trigger: 4
+    - title: about me
+      url: /about
+      key_trigger: 5
+  section_2:
+    - title: github
+      url: http://www.github.com/yangjunsss
+      new_tab: true
+      key_trigger: g
 
-BASE_PATH:
+# projects in header index
+projects:
+
+
+# exclude my node related stuff
+exclude: ['package.json', 'src', 'node_modules']
