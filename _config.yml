@@ -45,7 +45,7 @@ timezone:           Asia/Beijing
 permalink:          /:year-:month-:day/:title/
 
 # Pagination
-paginate:           10
+paginate:           20
 paginate_path:      /page:num/
 
 # Markdown
@@ -57,12 +57,12 @@ kramdown:
 nav:
   - name:           "About"
     url:            "/about"
-  # - name:           "Archive"
-  #   url:            "/archive"
+  - name:           "Archive"
+    url:            "/archive"
   # - name:           "Tags"
   #   url:            "/tags"
-  # - name:           "Github"
-  #   url:            "https://github.com/AWEEKJ/Kiko-plus"
+  - name:           "Github"
+    url:            "https://github.com/yangjunsss"
 
 # Sass
 sass:
