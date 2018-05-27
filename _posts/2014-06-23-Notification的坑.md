@@ -1,13 +1,3 @@
----
-layout: post
-title: NSNotification 的 2 个坑
-categories: [ios]
-tags: [Notification]
-fullview: false
-keywords:
-
----
-
 在事件驱动的消息处理中，Notification 用起来很方便，它是 OC 的消息事件中心框架。
 
 ##### 坑一：NSNotificationQueue的addObserver方式是`[NSNotificationCenter defaultCenter] addObserver`，而不是`[NSNotificationQueue defaultQueue] addObserver`
