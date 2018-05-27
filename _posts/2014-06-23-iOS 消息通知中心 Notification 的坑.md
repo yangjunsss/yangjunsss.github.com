@@ -1,6 +1,5 @@
 ---
-description:
-"
+description: "
 在事件驱动的消息处理中，Notification 用起来很方便，它是 OC 的消息事件中心框架。在使用过程中遇到的2个要注意的坑。
 "
 ---

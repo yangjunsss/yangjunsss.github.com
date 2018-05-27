@@ -1,6 +1,5 @@
 ---
-description:
-"
+description: "
 一直想看看近距离传输，特别是“快牙”火了之后，本来想看看古老的蓝牙传输，但这种技术显然落后了，耗电，慢和不稳定。[bonjour](https://developer.apple.com/bonjour/index.html)是apple提供的一种基于TCP/IP，无配置的通信服务，可用于近距离传输，遵循Apache 2.0 license，支持wi-fi和蓝牙。名字也有点意思，“你好”，很神似。
 "
 ---
