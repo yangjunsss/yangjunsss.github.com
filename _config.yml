@@ -19,8 +19,8 @@ google-analytics:
   id:               ""
 
 # Disqus
-disqus:
-  id:               "yangjunsss"
+# disqus:
+#   id:               "yangjunsss"
 
 # URL
 url:                "" # the base hostname & protocol for your site
