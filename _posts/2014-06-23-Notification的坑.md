@@ -3,7 +3,7 @@ layout: post
 title: NSNotification 的 2 个坑
 categories: [ios]
 tags: [Notification]
-fullview: true
+fullview: false
 keywords:
 
 ---
