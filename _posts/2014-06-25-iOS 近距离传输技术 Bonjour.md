@@ -1,3 +1,10 @@
+---
+description:
+"
+一直想看看近距离传输，特别是“快牙”火了之后，本来想看看古老的蓝牙传输，但这种技术显然落后了，耗电，慢和不稳定。[bonjour](https://developer.apple.com/bonjour/index.html)是apple提供的一种基于TCP/IP，无配置的通信服务，可用于近距离传输，遵循Apache 2.0 license，支持wi-fi和蓝牙。名字也有点意思，“你好”，很神似。
+"
+---
+
 一直想看看近距离传输，特别是“快牙”火了之后，本来想看看古老的蓝牙传输，但这种技术显然落后了，耗电，慢和不稳定。[bonjour](https://developer.apple.com/bonjour/index.html)是apple提供的一种基于TCP/IP，无配置的通信服务，可用于近距离传输，遵循Apache 2.0 license，支持wi-fi和蓝牙。名字也有点意思，“你好”，很神似。Apple从7.0后提供了一个对bonjour的high level的Framework，`MultipeerConnectivity.framework`.官方有个[sample code](https://developer.apple.com/library/ios/samplecode/MultipeerGroupChat/Introduction/Intro.html#//apple_ref/doc/uid/DTS40013691)（我在2台ios7的pad上已实验正常）就是使用MultipeerConnectivity.framework来做的，但是对于需要支持ios7以下的App来说就歇菜了，不然自己用NSNetService或者CFNetService，或者考虑给这个framework做兼容。
 
 ##### 流程步骤
