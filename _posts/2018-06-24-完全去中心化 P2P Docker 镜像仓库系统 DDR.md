@@ -114,7 +114,6 @@ $ ls -l /tmp/aufs/
 
   在 DDR 镜像服务中，需要在 Kademlia 网络中需要找到指定的镜像文件，而 Kademlia 查询只是节点 NodeID 查询，为了查找指定的 sha256 镜像文件，常用的做法是建立节点 NodeID 和文件 LayerID 的映射关系，但这需要依赖全局 Tracker 节点存储这种映射关系，而并不适合纯 P2P 模式。因此，为了找到对应的镜像文件，使用 NodeID 存储 LayerID 路由信息的方法，即同样或者相近 LayerID 的 NodeID 保存真正提供 LayerID 下载的 NodeID 路由，并把路由信息返回给查询节点，查询节点则重定向到真正的 Peer 进行镜像文件下载。在这个方法中，节点 Peer 可分为消费节点、代理节点、生产节点、副本节点4种角色，生产节点为镜像文件真正制作和存储的节点，当新镜像制作出来后，把镜像 Image Layer 的 sha256 LayerID 作为参数进行 FIND_NODE 查询与 LayerID 相近或相等的 NodeID 节点，并推送生产节点的 IP、Port、NodeID 路由信息。这些被推送的节点称为 Proxy 代理节点，同时代理节点也作为对生产节点的缓存节点存储镜像文件。当消费节点下载镜像文件 Image Layer 时，通过 LayerID 的 sha256 值作为参数 FIND_NODE 查找代理节点，并向代理节点发送 FIND_VALE 请求返回真正镜像的生产节点路由信息，消费节点对生产节点进行 docker pull 镜像拉取工作。
 
-  #### 镜像元信息代理和镜像 Layer 代理
   在开始 docker pull 下载镜像时，需要先找到对应的 manifest 信息，如 docker pull os/centos:7.2，因此，在生成者制作新镜像时，需要以<namespace>/<image>:<tag>作为输入同样生成对应的 sha256 值，并类似 Layer 一样推送给代理节点，当消费节点需要下载镜像时，先下载镜像 manifest 元信息，再进行 Layer 下载，这个和 Docker Client 从 Docker Registry 服务下载的流程一致。
 
   ![img](/images/ddr_process.png)
@@ -122,7 +121,7 @@ $ ls -l /tmp/aufs/
 
 #### DDR 架构
 
-  ![img](/images/ddr_arch.png)
+  ![img](/images/ddr_arch1.png)
 
   DDR 分为 DDR Driver 插件和 DDR Daemon 常驻进程，DDR Driver 作为 Docker Registry 的存储插件承接 Registry 的 blob 和 manifest 数据的查询、下载、上传的工作，并与 DDR Daemon 交互，主要对需要查询的 blob 和 manifest 数据做 P2P 网络寻址和在写入新的 blob 和 manifest 时推送路由信息给 P2P 网络中代理节点。DDR Daemon 作为 P2P 网路中一个 Peer 节点接入，负责 Peer 查询、Blob、Manifest 的路由查询，并返回路由信息给 DDR Driver，DDR Driver 再作为 Client 根据路由去 P2P 网络目的 Docker Registry 节点进行 Push/Pull 镜像。
 
@@ -153,7 +152,7 @@ $ ls -l /tmp/aufs/
   ```
 
 
-##### DDR push 上传镜像
+##### DDR Push 上传镜像
 
   Docker Client 向本地 Docker Registry 上传一个镜像时会触发一系列的 HTTP 请求，这些请求会调用 `DDR Driver` 对应的接口实现，DDR 上传流程如下：
   1. Client 通过 HEAD /v2/hello-world/blobs/sha256:9bb5a5d4561a5511fa7f80718617e67cf2ed2e6cdcd02e31be111a8d0ac4d6b7 判断上传的 blob 数据是否存在，如果本地磁盘不存在，Registry 返回 404 错误；
@@ -163,7 +162,7 @@ $ ls -l /tmp/aufs/
   5. HEAD /v2/hello-world/blobs/sha256:9bb5a5d4561a5511fa7f80718617e67cf2ed2e6cdcd02e31be111a8d0ac4d6b7 确认上传的数据是否上传成功，Registry 返回 200 成功；
   6. PUT /v2/hello-world/manifests/latest 完成 manifest 元数据上传，DDR Driver 按照 <namespace>/manifest/<tag> 做 sha256 计算值后，寻找 P2P 网络中与目标 sha256 值相近的 k 个代理节点，发送包含 manifest sha256 的 STORE 消息，对端 Peer 收到 sha256 信息后，存储源 Peer 节点 IP、Port、blob sha256等信息同时也向代理节点 PUT 元信息内容；
 
-##### pull 下载镜像
+##### DDR Pull 下载镜像
 
   Docker Client 向本地 Docker Registry 下载镜像时会触发一系列的 HTTP 请求，这些请求会调用`DDR Driver`对应的接口实现，DDR 下载交互流程如下：
   1. GET /v2/hello-world/manifests/latest 返回<namespace>下某个<tag> 的 manifest 源信息，DDR Driver 对 hello-world/manifest/latest 进行 sha256 计算，并向 P2P 网路中发送 FIND_NODE 和 FIND_VALUE 找到代理节点，通过代理节点找到生产节点，并向生产节点发送 GET 请求获取 manifest 元信息。
@@ -178,15 +177,9 @@ $ ls -l /tmp/aufs/
   Docker Registry 在 push/pull 下载的时候需要对 Client 进行认证工作，类似 Docker Client 需要在 DDR Driver 同样采用标准的 RFC 7519 JWT 方式进行认证鉴权。
 
 [Docker](https://www.docker.com/)
-
 [Dokcer Registry](https://docs.docker.com/registry/)
-
 [Dragonfly](https://github.com/alibaba/Dragonfly)
-
 [FID](https://ieeexplore.ieee.org/document/8064123/)
-
 [Btrfs Driver](https://docs.docker.com/storage/storagedriver/btrfs-driver/)
-
 [ZFS Driver](https://docs.docker.com/storage/storagedriver/zfs-driver/)
-
 [JWT](https://jwt.io/)
