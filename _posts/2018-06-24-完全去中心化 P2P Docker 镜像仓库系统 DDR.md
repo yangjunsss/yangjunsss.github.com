@@ -86,7 +86,7 @@ $ ls -l /tmp/aufs/
   ![img](/images/unstruct-peer.png)
   非结构 P2P，之间无序不规则连接
 
-  ![img](/imgas/struct-peer.png)
+  ![img](/images/struct-peer.png)
   结构 P2P，按照一定的规则相互互联
 
   DDR 镜像仓库服务系统采用纯网络和 DHT（Distribution Hash Table) 的 Kademlia 结构化网络实现，根据 Kademlia 的算法，同样为每一个 Peer 节点随机分配一个与镜像文件 Layer 标示一致的 sha256 值标识，每一个 Peer 节点维护一张自身的动态路由表，每一条路由信息包含了<IP 地址、UDP 端口、NodeID>元素，路由表通过网络学习而形成，并使用二叉树结构标示，即每一个 NodeID 作为二叉树的叶子节点，256-bit 位的 NodeID 则包含 256 个子树，每一个子树下包含2^i(0<=i<=256)到2^i+1(0<=i<=255)个 Peer 节点，如 i=2 的子树包含二进制 000...100、000...101、000...110、000...111 的4个节点，每一个这样的子树区间形成 bucket 桶，每一个桶设定最大路由数为 5 个，当一个 bucket 桶满时，则采用 LRU 规则进行更新，优先保证活跃的 Peer 节点存活在路由表中。根据二叉树的结构，只要知道任何一棵子树就能递归找到任意节点。
@@ -94,8 +94,11 @@ $ ls -l /tmp/aufs/
   ![img](/images/kademlia.png)
 
   Kademlia 定义节点之间的距离为 NodeID 之间 XOR 异或运算的值，如 X 与 Y 的距离 dis(x,y) = NodeIDx XOR NodeIDy，这是“逻辑距离”，并不是物理距离，XOR 异或运算符合如下3个几何特性：
+
     1. X 与 Y 节点的距离等于 Y 与 X 节点的距离，即 dis(x,y) = dis(y,x)，异或运算之间的距离是对称的。
+
     2. X 与 X 节点的距离是 0，异或运算是等同的。
+
     3. X、Y、Z 节点之间符合三角不等式，即 dis(x,y) <= dis(x,z) + dis(z,y)
 
   因此，Kademlia 寻址的过程，实际上不断缩小距离的过程，每一个节点
@@ -109,7 +112,7 @@ $ ls -l /tmp/aufs/
 
 ##### 查询镜像
 
-  在 DDR 镜像服务中，需要在 Kademlia 网络中需要找到指定的镜像文件，而 Kademlia 查询只是节点 NodeID 查询，为了查找指定的 sha256 镜像文件，常用的做法是建立节点 NodeID 和文件 fileID 的映射关系，但这需要依赖全局 Tracker 节点存储这种映射关系，而并不适合纯 P2P 模式。因此，为了找到对应的镜像文件，使用 NodeID 存储 FileID 路由信息的方法，即同样或者相近 FileID 的 NodeID 保存真正提供 FileID 下载的 NodeID 路由，并把路由信息返回给查询节点，查询节点则重定向到真正的 Peer 进行镜像文件下载。在这个方法中，节点 Peer 可分为消费节点、代理节点、生产节点、副本节点4种角色，生产节点为镜像文件真正制作和存储的节点，当新镜像制作出来后，把镜像 Image Layer 的 sha256 fileID 作为参数进行 FIND_NODE 查询与 fileID 相近或相等的 NodeID 节点，并推送生产节点的 IP、Port、NodeID 路由信息。这些被推送的节点称为 Proxy 代理节点，同时代理节点也作为对生产节点的缓存节点存储镜像文件。当消费节点下载镜像文件 Image Layer 时，通过 fileID 的 sha256 值作为参数 FIND_NODE 查找代理节点，并向代理节点发送 FIND_VALE 请求返回真正镜像的生产节点路由信息，消费节点对生产节点进行 docker pull 镜像拉取工作。
+  在 DDR 镜像服务中，需要在 Kademlia 网络中需要找到指定的镜像文件，而 Kademlia 查询只是节点 NodeID 查询，为了查找指定的 sha256 镜像文件，常用的做法是建立节点 NodeID 和文件 LayerID 的映射关系，但这需要依赖全局 Tracker 节点存储这种映射关系，而并不适合纯 P2P 模式。因此，为了找到对应的镜像文件，使用 NodeID 存储 LayerID 路由信息的方法，即同样或者相近 LayerID 的 NodeID 保存真正提供 LayerID 下载的 NodeID 路由，并把路由信息返回给查询节点，查询节点则重定向到真正的 Peer 进行镜像文件下载。在这个方法中，节点 Peer 可分为消费节点、代理节点、生产节点、副本节点4种角色，生产节点为镜像文件真正制作和存储的节点，当新镜像制作出来后，把镜像 Image Layer 的 sha256 LayerID 作为参数进行 FIND_NODE 查询与 LayerID 相近或相等的 NodeID 节点，并推送生产节点的 IP、Port、NodeID 路由信息。这些被推送的节点称为 Proxy 代理节点，同时代理节点也作为对生产节点的缓存节点存储镜像文件。当消费节点下载镜像文件 Image Layer 时，通过 LayerID 的 sha256 值作为参数 FIND_NODE 查找代理节点，并向代理节点发送 FIND_VALE 请求返回真正镜像的生产节点路由信息，消费节点对生产节点进行 docker pull 镜像拉取工作。
 
   ![img](/images/find_image.png)
 
@@ -172,18 +175,13 @@ $ ls -l /tmp/aufs/
   以上就是整个 DDR 完全去中心化 P2P Docker 镜像仓库的设计，主要利用纯网络结构化 P2P 网络实现镜像文件的 manifest 和 blob 数据的路由存储、查询，同时每一个节点作为一个独立的镜像仓库服务为全网提供镜像的上传和下载。
 
 ###### 其他工作
+
   Docker Registry 在 push/pull 下载的时候需要对 Client 进行认证工作，类似 Docker Client 需要在 DDR Driver 同样采用标准的 RFC 7519 JWT 方式进行认证鉴权。
 
-[docker]
-https://www.docker.com/
-[dokcer registry]
-https://docs.docker.com/registry/
-[Dragonfly]
-https://github.com/alibaba/Dragonfly
-[FID]
-https://ieeexplore.ieee.org/document/8064123/
-[btrfs driver]
-https://docs.docker.com/storage/storagedriver/btrfs-driver/
-[zfs driver] https://docs.docker.com/storage/storagedriver/zfs-driver/
-[JWT]
-https://jwt.io/
+[Docker]https://www.docker.com/
+[Dokcer Registry]https://docs.docker.com/registry/
+[Dragonfly]https://github.com/alibaba/Dragonfly
+[FID]https://ieeexplore.ieee.org/document/8064123/
+[Btrfs Driver]https://docs.docker.com/storage/storagedriver/btrfs-driver/
+[ZFS Driver]https://docs.docker.com/storage/storagedriver/zfs-driver/
+[JWT]https://jwt.io/
