@@ -172,14 +172,14 @@ $ ls -l /tmp/aufs/
 
   以上就是整个 DDR 完全去中心化 P2P Docker 镜像仓库的设计，主要利用纯网络结构化 P2P 网络实现镜像文件的 manifest 和 blob 数据的路由存储、查询，同时每一个节点作为一个独立的镜像仓库服务为全网提供镜像的上传和下载。
 
-###### 其他工作
+#### 其他工作
 
   Docker Registry 在 push/pull 下载的时候需要对 Client 进行认证工作，类似 Docker Client 需要在 DDR Driver 同样采用标准的 RFC 7519 JWT 方式进行认证鉴权。
 
-[Docker](https://www.docker.com/)
-[Dokcer Registry](https://docs.docker.com/registry/)
-[Dragonfly](https://github.com/alibaba/Dragonfly)
-[FID](https://ieeexplore.ieee.org/document/8064123/)
-[Btrfs Driver](https://docs.docker.com/storage/storagedriver/btrfs-driver/)
-[ZFS Driver](https://docs.docker.com/storage/storagedriver/zfs-driver/)
-[JWT](https://jwt.io/)
+1. [Docker](https://www.docker.com/)
+* [Dokcer Registry](https://docs.docker.com/registry/)
+* [Dragonfly](https://github.com/alibaba/Dragonfly)
+* [FID](https://ieeexplore.ieee.org/document/8064123/)
+* [Btrfs Driver](https://docs.docker.com/storage/storagedriver/btrfs-driver/)
+* [ZFS Driver](https://docs.docker.com/storage/storagedriver/zfs-driver/)
+* [JWT](https://jwt.io/)
