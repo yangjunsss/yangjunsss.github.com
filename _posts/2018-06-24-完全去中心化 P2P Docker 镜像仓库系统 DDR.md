@@ -177,9 +177,9 @@ $ ls -l /tmp/aufs/
   Docker Registry 在 push/pull 下载的时候需要对 Client 进行认证工作，类似 Docker Client 需要在 DDR Driver 同样采用标准的 RFC 7519 JWT 方式进行认证鉴权。
 
 1. [Docker](https://www.docker.com/)
-* [Dokcer Registry](https://docs.docker.com/registry/)
-* [Dragonfly](https://github.com/alibaba/Dragonfly)
-* [FID](https://ieeexplore.ieee.org/document/8064123/)
-* [Btrfs Driver](https://docs.docker.com/storage/storagedriver/btrfs-driver/)
-* [ZFS Driver](https://docs.docker.com/storage/storagedriver/zfs-driver/)
-* [JWT](https://jwt.io/)
+2. [Dokcer Registry](https://docs.docker.com/registry/)
+3. [Dragonfly](https://github.com/alibaba/Dragonfly)
+4. [FID](https://ieeexplore.ieee.org/document/8064123/)
+5. [Btrfs Driver](https://docs.docker.com/storage/storagedriver/btrfs-driver/)
+6. [ZFS Driver](https://docs.docker.com/storage/storagedriver/zfs-driver/)
+7. [JWT](https://jwt.io/)
