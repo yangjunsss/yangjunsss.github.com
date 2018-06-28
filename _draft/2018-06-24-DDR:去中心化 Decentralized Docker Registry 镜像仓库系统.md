@@ -20,14 +20,14 @@ description: "
 
   ![img](/images/image_layer1.png)
 
-  alpine 是基础镜像，提供了一个轻量的、安全的 Linux 运行环境，Basic App1 和 Basic App2 都基于和共享这个基础镜像 alpine，Basci App 1/2 可作为一个单独的镜像发布，同时也是 Advanced App 2/3 的父镜像，在 Advanced App 2/3 下载的时候，会检测并下载所有的父镜像和基础镜像，而往往在 registry 存储节点里，只会存储一份父镜像实例和基础镜像，并被其他镜像所共享，高效节省存储空间。
+  alpine 是基础镜像，提供了一个轻量的、安全的 Linux 运行环境，Basic App1 和 Basic App2 都基于和共享这个基础镜像 alpine，Basci App 1/2 可作为一个单独的镜像发布，同时也是 Advanced App 2/3 的父镜像，在 Advanced App 2/3 下载的时候，会检测并下载所有依赖的父镜像和基础镜像，而往往在 registry 存储节点里，只会存储一份父镜像实例和基础镜像，并被其他镜像所共享，高效节省存储空间。
 
 
    一个镜像内部分层 Layer 结构如下：
 
    ![img](/images/rw_layer.png)
 
-   Advanced App1 内部文件分为 5 个 layer 层存储，每一个层 Layer 为 application/vnd.docker.image.rootfs.diff.tar.gzip 压缩类型文件，并通过文件 sha256 值标识，所有 layer 层的文件组成了最终镜像的内容，在容器从镜像启动后，容器实例看到所有 layer 层的文件内容。如其中一层 Layer 存储如下：
+   Advanced App1 内部文件分为 4 个 layer 层存储，每一个层 Layer 为 application/vnd.docker.image.rootfs.diff.tar.gzip 压缩类型文件，并通过文件 sha256 值标识，所有 layer 层的文件组成了最终镜像的内容，在容器从镜像启动后，容器实例看到所有 layer 层的文件内容。如其中一层 Layer 存储如下：
 
 ```sh
 $ file /var/lib/registry/docker/registry/v2/blobs/sha256/40/4001a1209541c37465e524db0b9bb20744ceb319e8303ebec3259fc8317e2dec/data
@@ -62,7 +62,7 @@ $ ls -l /tmp/aufs/
   Docker Registry 镜像仓库存储、分发和管理着镜像，流行的镜像仓库服务有 Docker Hub、Quary.io、Google Container Registry。每一个用户可以在仓库内注册一个 namespace 命名空间，用户可以通过 `docker push` 命令把自己的镜像上传到这个 namespace 命名空间，其他用户则可以使用 `docker pull `命令从此命名空间中下载对应的镜像，同时一个镜像名可以配置不同的 tags 用以表示不同的版本。
 
 #### Push 上传镜像
-  当要上传镜像时，Docker Client 向 Docker Daemon 发送 push 命令，并传入本地通过 `docker tag` 打包的上传地址，即 host:port/<namespace>/<image_name>:<tag>，创建对应的 manifest 元信息，元信息包括 docker version、layers、image id 等，先通过 HEAD <name>/blob/<digest> 检查需要上传的 layer 在 Registry 仓库中是否存在，如果存在则无需上传 layer，否则通过 POST <name>/blob/upload 上传 blob 数据文件，Docker 使用 PUT 分段并发上传，每一次上传一段文件的 bytes 内容，最终 blob 文件上传完成后，通过 PUT <name>/manifest/<tag> 完成元数据上传并结束整个上传过程。
+  当要上传镜像时，Docker Client 向 Docker Daemon 发送 push 命令，并传入本地通过 `docker tag` 打包的上传地址，即 <host>:<port>/<namespace>/<image_name>:<tag>，创建对应的 manifest 元信息，元信息包括 docker version、layers、image id 等，先通过 HEAD <name>/blob/<digest> 检查需要上传的 layer 在 Registry 仓库中是否存在，如果存在则无需上传 layer，否则通过 POST <name>/blob/upload 上传 blob 数据文件，Docker 使用 PUT 分段并发上传，每一次上传一段文件的 bytes 内容，最终 blob 文件上传完成后，通过 PUT <name>/manifest/<tag> 完成元数据上传并结束整个上传过程。
 
   ![img](/images/push_image.png)
 
@@ -89,11 +89,11 @@ $ ls -l /tmp/aufs/
   ![img](/images/struct-peer.png)
   结构 P2P，按照一定的规则相互互联
 
-  DDR 镜像仓库服务系统采用纯网络和 DHT（Distribution Hash Table) 的 Kademlia 结构化网络实现，根据 Kademlia 的算法，同样为每一个 Peer 节点随机分配一个与镜像文件 Layer 标示一致的 sha256 值标识，每一个 Peer 节点维护一张自身的动态路由表，每一条路由信息包含了<IP 地址、UDP 端口、NodeID>元素，路由表通过网络学习而形成，并使用二叉树结构标示，即每一个 NodeID 作为二叉树的叶子节点，256-bit 位的 NodeID 则包含 256 个子树，每一个子树下包含2^i(0<=i<=256)到2^i+1(0<=i<=255)个 Peer 节点，如 i=2 的子树包含二进制 000...100、000...101、000...110、000...111 的4个节点，每一个这样的子树区间形成 bucket 桶，每一个桶设定最大路由数为 5 个，当一个 bucket 桶满时，则采用 LRU 规则进行更新，优先保证活跃的 Peer 节点存活在路由表中。根据二叉树的结构，只要知道任何一棵子树就能递归找到任意节点。
+  DDR 镜像仓库服务系统采用纯网络和 DHT（Distribution Hash Table) 的 Kademlia 结构化网络实现，根据 Kademlia 的算法，同样为每一个 Peer 节点随机分配一个与镜像文件 Layer 标示一致的 sha256 值标识，每一个 Peer 节点维护一张自身的动态路由表，每一条路由信息包含了<IP 地址、UDP 端口、PeerID>元素，路由表通过网络学习而形成，并使用二叉树结构标示，即每一个 PeerID 作为二叉树的叶子节点，256-bit 位的 PeerID 则包含 256 个子树，每一个子树下包含2^i(0<=i<=256)到2^i+1(0<=i<=255)个 Peer 节点，如 i=2 的子树包含二进制 000...100、000...101、000...110、000...111 的4个节点，每一个这样的子树区间形成 bucket 桶，每一个桶设定最大路由数为 5 个，当一个 bucket 桶满时，则采用 LRU 规则进行更新，优先保证活跃的 Peer 节点存活在路由表中。根据二叉树的结构，只要知道任何一棵子树就能递归找到任意节点。
 
   ![img](/images/kademlia.png)
 
-  Kademlia 定义节点之间的距离为 NodeID 之间 XOR 异或运算的值，如 X 与 Y 的距离 dis(x,y) = NodeIDx XOR NodeIDy，这是“逻辑距离”，并不是物理距离，XOR 异或运算符合如下3个几何特性：
+  Kademlia 定义节点之间的距离为 PeerID 之间 XOR 异或运算的值，如 X 与 Y 的距离 dis(x,y) = PeerIDx XOR PeerIDy，这是“逻辑距离”，并不是物理距离，XOR 异或运算符合如下3个几何特性：
 
     1. X 与 Y 节点的距离等于 Y 与 X 节点的距离，即 dis(x,y) = dis(y,x)，异或运算之间的距离是对称的。
 
@@ -106,13 +106,13 @@ $ ls -l /tmp/aufs/
 
 ##### 查询节点
 
-  当节点需要查询某个 NodeID 时，查询二叉树路由表，计算目标 NodeID 在当前哪个子树区间（bucket 桶）中，并向此 bucket 桶中 n(n<=5) 节点同时发送 FIND_NODE 请求，n 个节点收到 FIND_NODE 请求后根据自己的路由表信息返回与目标 NodeID 最接近的节点 NodeID，源节点再根据 FIND_NODE 返回的路由信息进行学习，再次向新节点发送 FIND_NODE 请求，可见每一次迭代至少保证精确一个 bit 位，以此迭代，并最终找到目标节点，查询次数为 logN。
+  当节点需要查询某个 PeerID 时，查询二叉树路由表，计算目标 PeerID 在当前哪个子树区间（bucket 桶）中，并向此 bucket 桶中 n(n<=5) 节点同时发送 FIND_NODE 请求，n 个节点收到 FIND_NODE 请求后根据自己的路由表信息返回与目标 PeerID 最接近的节点 PeerID，源节点再根据 FIND_NODE 返回的路由信息进行学习，再次向新节点发送 FIND_NODE 请求，可见每一次迭代至少保证精确一个 bit 位，以此迭代，并最终找到目标节点，查询次数为 logN。
 
   ![img](/images/kad-find-node.png)
 
 ##### 查询镜像
 
-  在 DDR 镜像服务中，需要在 Kademlia 网络中需要找到指定的镜像文件，而 Kademlia 查询只是节点 NodeID 查询，为了查找指定的 sha256 镜像文件，常用的做法是建立节点 NodeID 和文件 LayerID 的映射关系，但这需要依赖全局 Tracker 节点存储这种映射关系，而并不适合纯 P2P 模式。因此，为了找到对应的镜像文件，使用 NodeID 存储 LayerID 路由信息的方法，即同样或者相近 LayerID 的 NodeID 保存真正提供 LayerID 下载的 NodeID 路由，并把路由信息返回给查询节点，查询节点则重定向到真正的 Peer 进行镜像文件下载。在这个方法中，节点 Peer 可分为消费节点、代理节点、生产节点、副本节点4种角色，生产节点为镜像文件真正制作和存储的节点，当新镜像制作出来后，把镜像 Image Layer 的 sha256 LayerID 作为参数进行 FIND_NODE 查询与 LayerID 相近或相等的 NodeID 节点，并推送生产节点的 IP、Port、NodeID 路由信息。这些被推送的节点称为 Proxy 代理节点，同时代理节点也作为对生产节点的缓存节点存储镜像文件。当消费节点下载镜像文件 Image Layer 时，通过 LayerID 的 sha256 值作为参数 FIND_NODE 查找代理节点，并向代理节点发送 FIND_VALE 请求返回真正镜像的生产节点路由信息，消费节点对生产节点进行 docker pull 镜像拉取工作。
+  在 DDR 镜像服务中，需要在 Kademlia 网络中需要找到指定的镜像文件，而 Kademlia 查询只是节点 PeerID 查询，为了查找指定的 sha256 镜像文件，常用的做法是建立节点 PeerID 和文件 LayerID 的映射关系，但这需要依赖全局 Tracker 节点存储这种映射关系，而并不适合纯 P2P 模式。因此，为了找到对应的镜像文件，使用 PeerID 存储 LayerID 路由信息的方法，即同样或者相近 LayerID 的 PeerID 保存真正提供 LayerID 下载的 PeerID 路由，并把路由信息返回给查询节点，查询节点则重定向到真正的 Peer 进行镜像文件下载。在这个方法中，节点 Peer 可分为消费节点、代理节点、生产节点、副本节点4种角色，生产节点为镜像文件真正制作和存储的节点，当新镜像制作出来后，把镜像 Image Layer 的 sha256 LayerID 作为参数进行 FIND_NODE 查询与 LayerID 相近或相等的 PeerID 节点，并推送生产节点的 IP、Port、PeerID 路由信息。这些被推送的节点称为 Proxy 代理节点，同时代理节点也作为对生产节点的缓存节点存储镜像文件。当消费节点下载镜像文件 Image Layer 时，通过 LayerID 的 sha256 值作为参数 FIND_NODE 查找代理节点，并向代理节点发送 FIND_VALE 请求返回真正镜像的生产节点路由信息，消费节点对生产节点进行 docker pull 镜像拉取工作。
 
   在开始 docker pull 下载镜像时，需要先找到对应的 manifest 信息，如 docker pull os/centos:7.2，因此，在生成者制作新镜像时，需要以<namespace>/<image>:<tag>作为输入同样生成对应的 sha256 值，并类似 Layer 一样推送给代理节点，当消费节点需要下载镜像时，先下载镜像 manifest 元信息，再进行 Layer 下载，这个和 Docker Client 从 Docker Registry 服务下载的流程一致。
 
@@ -123,7 +123,7 @@ $ ls -l /tmp/aufs/
 
   ![img](/images/ddr_arch1.png)
 
-  DDR 分为 DDR Driver 插件和 DDR Daemon 常驻进程，DDR Driver 作为 Docker Registry 的存储插件承接 Registry 的 blob 和 manifest 数据的查询、下载、上传的工作，并与 DDR Daemon 交互，主要对需要查询的 blob 和 manifest 数据做 P2P 网络寻址和在写入新的 blob 和 manifest 时推送路由信息给 P2P 网络中代理节点。DDR Daemon 作为 P2P 网路中一个 Peer 节点接入，负责 Peer 查询、Blob、Manifest 的路由查询，并返回路由信息给 DDR Driver，DDR Driver 再作为 Client 根据路由去 P2P 网络目的 Docker Registry 节点进行 Push/Pull 镜像。
+  每一个节点都部署 Docker Registry 和 DDR，DDR 分为 DDR Driver 插件和 DDR Daemon 常驻进程，DDR Driver 作为 Docker Registry 的存储插件承接 Registry 的 blob 和 manifest 数据的查询、下载、上传的工作，并与 DDR Daemon 交互，主要对需要查询的 blob 和 manifest 数据做 P2P 网络寻址和在写入新的 blob 和 manifest 时推送路由信息给 P2P 网络中代理节点。DDR Daemon 作为 P2P 网路中一个 Peer 节点接入，负责 Peer 查询、Blob、Manifest 的路由查询，并返回路由信息给 DDR Driver，DDR Driver 再作为 Client 根据路由去 P2P 网络目的 Docker Registry 节点进行 Push/Pull 镜像。
 
 #### DDR 与 Docker Registry 集成
 
