@@ -1,22 +1,22 @@
 ---
 description: "
-  Docker 作为轻量级容器技术已经为广大用户使用，它提供了应用的打包、部署、测试、运行等整个周期。Docker Registry 提供了一个存储、分发、管理 Docker 镜像文件的服务，镜像仓库服务为运行 Docker 容器提供了基础和重要的前提，在跨国部署场景下要求镜像仓库服务提供更快的上传下载速度，同时具备服务高可用性。因此，本文设计了一种去中心化节点 P2P 网络的镜像仓库服务满足以上需求。
+  Docker 作为轻量级容器技术解决应用容器化已经为广大用户使用，涵盖了应用的编译、打包、部署、测试等整个周期。镜像为运行 Docker 容器提供了基础和重要的前提，Docker Registry 提供了一个存储、分发、管理 Docker 镜像的仓库服务，在某些场景下，如跨国部署场景，要求镜像仓库服务提供更高效的上传下载，同时降低复杂度和具备服务高可用。因此，本文设计了一种镜像仓库服务的去中心化的新思路。
 "
 ---
 #### 摘要
-  Docker 作为轻量级容器技术已经为广大用户使用，它提供了应用的打包、部署、测试、运行等整个周期。Docker Registry 提供了一个存储、分发、管理 Docker 镜像文件的服务，镜像仓库服务为运行 Docker 容器提供了基础和重要的前提，在跨国部署场景下要求镜像仓库服务提供更快的上传下载速度，同时具备服务高可用性。因此，本文设计了一种去中心化节点 P2P 网络的镜像仓库服务满足以上需求。
+  Docker 作为轻量级容器技术解决应用容器化已经为广大用户使用，涵盖了应用的编译、打包、部署、测试等整个周期。镜像为运行 Docker 容器提供了基础和重要的前提，Docker Registry 提供了一个存储、分发、管理 Docker 镜像的仓库服务，在某些场景下，如跨国部署场景，要求镜像仓库服务提供更高效的上传下载，同时降低复杂度和具备服务高可用。因此，本文设计了一种镜像仓库服务的去中心化的新思路。
 
 #### 介绍
-  Docker 是一种面向开发和运维人员进行开发、部署和运行的容器平台，相对于 Virtual Machine 更加轻量，底层使用 Linux Namespace（UTS、IPC、PID、Network、Mount、User）和 cgroups（Control Groups）技术对进程进行虚拟化隔离和资源管控，并拥有灵活性、轻量、可扩展性、可伸缩性等特点。启动一个 Docker 容器实例从镜像文件加载，镜像文件包含应用所需的所有可执行文件、配置文件、运行时依赖库、环境变量等。这个镜像文件可以被加载在任何装有 Docker Engine 机器上，越来越多的开发者和公司都将自己产品的打包成 Docker 镜像文件进行发布和销售。
+  Docker 是一种面向应用开发和运维人员的开发、部署和运行的容器平台，相对于 Virtual Machine 更加轻量，底层使用 Linux Namespace（UTS、IPC、PID、Network、Mount、User）和 cgroups（Control Groups）技术对应用进程进行虚拟化隔离和资源管控，并拥有灵活性、轻量、可扩展性、可伸缩性等特点。Docker 容器实例从镜像加载，镜像包含应用所需的所有可执行文件、配置文件、运行时依赖库、环境变量等，这个镜像可以被加载在任何 Docker Engine 机器上。越来越多的开发者和公司都将自己产品的打包成 Docker 镜像进行发布和销售。
 
-  在 Docker 生态中，提供镜像文件存储、分发和管理的服务为 Docker Registry 镜像仓库服务，是 Docker 生态重要的组成部分。用户通过 `docker push` 命令把打包好的镜像文件发布到 Docker Registry 镜像仓库服务中，其他的用户通过 `docker pull` 从镜像仓库中获取镜像文件，并由 Docker Engine 启动 Docker 实例。
+  在 Docker 生态中，提供存储、分发和管理镜像的服务为 Docker Registry 镜像仓库服务，是 Docker 生态重要组成部分，我甚至认为这是 Docker 流行起来最重要的原因。用户通过 `docker push` 命令把打包好的镜像发布到 Docker Registry 镜像仓库服务中，其他的用户通过 `docker pull` 从镜像仓库中获取镜像，并由 Docker Engine 启动 Docker 实例。
 
-  Docker Registry 镜像仓库，是一种集中式存储、应用无状态、节点可扩展的公共服务。提供镜像管理和存储、上传下载、AAA 认证鉴权、WebHook 通知、日志等功能的服务。几乎所有的用户都从镜像仓库中进行上传和下载，在跨国上传下载的场景下，这种集中式服务显然存在性能瓶颈，跨国间的网络延迟导致用户 pull 下载需要消耗更长的时间。同时集中式服务会遭到黑客的 DDos 攻击。当然你可以部署多个节点，但也面临如多节点间镜像文件同步的问题。因此，可以设计一种去中心化的分布式镜像仓库服务来避免中心化服务的缺陷。这篇文章起草了一个新的纯 P2P 式结构化网络无中心化节点的新镜像仓库服务 Decentralized Docker Registry(DDR)，和阿里的蜻蜓 Dragonfly、腾讯的 FID 混合型 P2P 模式不同，DDR 采用纯 P2P 网络结构，没有镜像文件 Tracker 管理节点，网络中所有节点既是镜像的生产者同时也是消费者，是一个纯扁平的对等系统，这种结构能有效地防止拒绝服务 DDos 攻击，没有单点故障，并拥有高水平扩展和高并发能力，高效利用带宽，极速提高下载速度。
+  Docker Registry 镜像仓库，是一种集中式存储、应用无状态、节点可扩展的 HTTP 公共服务。提供了镜像管理、存储、上传下载、AAA 认证鉴权、WebHook 通知、日志等功能。几乎所有的用户都从镜像仓库中进行上传和下载，在跨国上传下载的场景下，这种集中式服务显然存在性能瓶颈，高网络延迟导致用户 pull 下载消耗更长的时间。同时集中式服务遭黑客的 DDos 攻击会面临瘫痪。当然你可以部署多个节点，但也要解决多节点间镜像同步的问题。因此，可以设计一种去中心化的分布式镜像仓库服务来避免这种中心化的缺陷。本文起草了一个纯 P2P 式结构化网络无中心化节点的新镜像仓库服务 Decentralized Docker Registry(DDR)，和阿里的蜻蜓 Dragonfly、腾讯的 FID 混合型 P2P 模式不同，DDR 采用纯 P2P 网络结构，没有镜像 Tracker 管理节点，网络中所有节点既是镜像的生产者同时也是消费者，纯扁平对等，这种结构能有效地防止拒绝服务 DDos 攻击，没有单点故障，并拥有高水平扩展和高并发能力，高效利用带宽，极速提高下载速度。
 
-#### 镜像文件
-  Docker 是一个容器管理框架，它负责创建和管理容器实例，一个容器实例从 Docker 镜像文件加载，镜像文件类似一种压缩文件，包含了一个应用所需的所有文件内容。一个镜像可以依赖另一个镜像，镜像之间是一种单继承关系。最底层的镜像叫做 Base 基础镜像，所有的用户镜像都可以继承 Base 镜像制作新镜像，也可以继承其他镜像制作新镜像，被继承的镜像叫做 Parent 父镜像。
+#### 镜像
+  Docker 是一个容器管理框架，它负责创建和管理容器实例，一个容器实例从 Docker 镜像加载，镜像是一种压缩文件，包含了一个应用所需的所有内容。一个镜像可以依赖另一个镜像，并是一种单继承关系。最初始的镜像叫做 Base 基础镜像，可以继承 Base 镜像制作新镜像，新镜像也可以被其他的镜像再继承，这个新镜像被称作 Parent 父镜像。
 
-  一个镜像内部被切分称多个层级 Layer，每一个 Layer 包含整个镜像的部分文件。当 Docker 容器实例从镜像加载后，将看到所有 Layer 共同合并的文件集合，镜像里面所有的 Layer 属性为只读，当容器进行写操作的时候，从旧的 Layer 中复制文件，记录变更，并产生了新的 Layer 层级，这种做法叫做 COW（Copy-On-Write）。这种 COW 做法能最大化节省空间，层级见也能充分复用。一个典型的镜像结构如下：
+  而一个镜像内部被切分称多个层级 Layer，每一个 Layer 包含整个镜像的部分文件。当 Docker 容器实例从镜像加载后，实例将看到所有 Layer 共同合并的文件集合，实例不需要关心 Layer 层级关系。镜像里面所有的 Layer 属性为只读，当前容器实例进行写操作的时候，从旧的 Layer 中进行 Copy On Write 操作，复制旧文件，产生新文件，并产生一层可写的新 Layer。这种 COW 做法能最大化节省空间和效率，层级见也能充分复用。一个典型的镜像结构如下：
 
   ![img](/images/image_layer1.png)
 
@@ -35,9 +35,9 @@ data: gzip compressed data
 $ sha256sum /var/lib/registry/docker/registry/v2/blobs/sha256/40/4001a1209541c37465e524db0b9bb20744ceb319e8303ebec3259fc8317e2dec/data
 4001a1209541c37465e524db0b9bb20744ceb319e8303ebec3259fc8317e2dec
 ```
-   其中实现这种分层模型的文件系统叫 UnionFS 联合文件系统 AUFS、Overlay、Overlay2 等，UnionFS 分配了只读目录、读写目录、挂载目录，只读目录和读写目录的文件全部映射到挂载目录，即挂载目录是一个逻辑目录，并能看到所有的文件内容，每一个目录叫做 Branch，即镜像文件中的 Layer。
+   其中实现这种分层模型的文件系统叫 UnionFS 联合文件系统，实现有 AUFS、Overlay、Overlay2 等，UnionFS 分配只读目录、读写目录、挂载目录，只读目录类似镜像里的只读 Layer，读写目录类似可写 Layer，所有文件的合集为挂载目录，即挂载目录是一个逻辑目录，并能看到所有的文件内容，在 UnionFS 中，目录叫做 Branch，也即镜像中的 Layer。
 
-   例如，使用 AUFS 构建一个 2 层 Branch 如下：
+   使用 AUFS 构建一个 2 层 Branch 如下：
 
    ```sh
    $ mkdir /tmp/rw /tmp/r /tmp/aufs
@@ -56,7 +56,7 @@ $ ls -l /tmp/aufs/
 -rw-r--r-- 1 root       root            26 Mar 25 14:20 file_in_r_dir
 -rw-r--r-- 1 root       root            23 Mar 25 14:21 file_in_rw_dir
 ```
-可以看到挂载目录 /tmp/aufs 下显示了 /tmp/rw 和 /tmp/r 目录下的所有文件，通过这种方式实现了镜像文件多层 Layer 的结构。除开使用联合文件系统，Docker 还提供了其他的实现方式，比如给目录创建 Snapshot 快照为一个 Layer 的方式来实现，如 Btrfs Driver、ZFS Driver 等。
+可以看到挂载目录 /tmp/aufs 下显示了 /tmp/rw 和 /tmp/r 目录下的所有文件，通过这种方式实现了镜像多层 Layer 的结构。除了 UnionFS 能实现这种模型，通过 Snapshot 快照和 Clone 层也能实现类似的效果，如 Btrfs Driver、ZFS Driver 等实现。
 
 #### Docker Registry
   Docker Registry 镜像仓库存储、分发和管理着镜像，流行的镜像仓库服务有 Docker Hub、Quary.io、Google Container Registry。每一个用户可以在仓库内注册一个 namespace 命名空间，用户可以通过 `docker push` 命令把自己的镜像上传到这个 namespace 命名空间，其他用户则可以使用 `docker pull `命令从此命名空间中下载对应的镜像，同时一个镜像名可以配置不同的 tags 用以表示不同的版本。
@@ -89,7 +89,7 @@ $ ls -l /tmp/aufs/
   ![img](/images/struct-peer.png)
   结构 P2P，按照一定的规则相互互联
 
-  DDR 镜像仓库服务系统采用纯网络和 DHT（Distribution Hash Table) 的 Kademlia 结构化网络实现，根据 Kademlia 的算法，同样为每一个 Peer 节点随机分配一个与镜像文件 Layer 标示一致的 sha256 值标识，每一个 Peer 节点维护一张自身的动态路由表，每一条路由信息包含了<IP 地址、UDP 端口、PeerID>元素，路由表通过网络学习而形成，并使用二叉树结构标示，即每一个 PeerID 作为二叉树的叶子节点，256-bit 位的 PeerID 则包含 256 个子树，每一个子树下包含2^i(0<=i<=256)到2^i+1(0<=i<=255)个 Peer 节点，如 i=2 的子树包含二进制 000...100、000...101、000...110、000...111 的4个节点，每一个这样的子树区间形成 bucket 桶，每一个桶设定最大路由数为 5 个，当一个 bucket 桶满时，则采用 LRU 规则进行更新，优先保证活跃的 Peer 节点存活在路由表中。根据二叉树的结构，只要知道任何一棵子树就能递归找到任意节点。
+  DDR 镜像仓库服务系统采用纯网络和 DHT（Distribution Hash Table) 的 Kademlia 结构化网络实现，根据 Kademlia 的算法，同样为每一个 Peer 节点随机分配一个与镜像 Layer 标示一致的 sha256 值标识，每一个 Peer 节点维护一张自身的动态路由表，每一条路由信息包含了<IP 地址、UDP 端口、PeerID>元素，路由表通过网络学习而形成，并使用二叉树结构标示，即每一个 PeerID 作为二叉树的叶子节点，256-bit 位的 PeerID 则包含 256 个子树，每一个子树下包含2^i(0<=i<=256)到2^i+1(0<=i<=255)个 Peer 节点，如 i=2 的子树包含二进制 000...100、000...101、000...110、000...111 的4个节点，每一个这样的子树区间形成 bucket 桶，每一个桶设定最大路由数为 5 个，当一个 bucket 桶满时，则采用 LRU 规则进行更新，优先保证活跃的 Peer 节点存活在路由表中。根据二叉树的结构，只要知道任何一棵子树就能递归找到任意节点。
 
   ![img](/images/kademlia.png)
 
@@ -112,7 +112,7 @@ $ ls -l /tmp/aufs/
 
 ##### 查询镜像
 
-  在 DDR 镜像服务中，需要在 Kademlia 网络中需要找到指定的镜像文件，而 Kademlia 查询只是节点 PeerID 查询，为了查找指定的 sha256 镜像文件，常用的做法是建立节点 PeerID 和文件 LayerID 的映射关系，但这需要依赖全局 Tracker 节点存储这种映射关系，而并不适合纯 P2P 模式。因此，为了找到对应的镜像文件，使用 PeerID 存储 LayerID 路由信息的方法，即同样或者相近 LayerID 的 PeerID 保存真正提供 LayerID 下载的 PeerID 路由，并把路由信息返回给查询节点，查询节点则重定向到真正的 Peer 进行镜像文件下载。在这个方法中，节点 Peer 可分为消费节点、代理节点、生产节点、副本节点4种角色，生产节点为镜像文件真正制作和存储的节点，当新镜像制作出来后，把镜像 Image Layer 的 sha256 LayerID 作为参数进行 FIND_NODE 查询与 LayerID 相近或相等的 PeerID 节点，并推送生产节点的 IP、Port、PeerID 路由信息。这些被推送的节点称为 Proxy 代理节点，同时代理节点也作为对生产节点的缓存节点存储镜像文件。当消费节点下载镜像文件 Image Layer 时，通过 LayerID 的 sha256 值作为参数 FIND_NODE 查找代理节点，并向代理节点发送 FIND_VALE 请求返回真正镜像的生产节点路由信息，消费节点对生产节点进行 docker pull 镜像拉取工作。
+  在 DDR 镜像服务中，需要在 Kademlia 网络中需要找到指定的镜像，而 Kademlia 查询只是节点 PeerID 查询，为了查找指定的 sha256 镜像，常用的做法是建立节点 PeerID 和文件 LayerID 的映射关系，但这需要依赖全局 Tracker 节点存储这种映射关系，而并不适合纯 P2P 模式。因此，为了找到对应的镜像，使用 PeerID 存储 LayerID 路由信息的方法，即同样或者相近 LayerID 的 PeerID 保存真正提供 LayerID 下载的 PeerID 路由，并把路由信息返回给查询节点，查询节点则重定向到真正的 Peer 进行镜像下载。在这个方法中，节点 Peer 可分为消费节点、代理节点、生产节点、副本节点4种角色，生产节点为镜像真正制作和存储的节点，当新镜像制作出来后，把镜像 Image Layer 的 sha256 LayerID 作为参数进行 FIND_NODE 查询与 LayerID 相近或相等的 PeerID 节点，并推送生产节点的 IP、Port、PeerID 路由信息。这些被推送的节点称为 Proxy 代理节点，同时代理节点也作为对生产节点的缓存节点存储镜像。当消费节点下载镜像 Image Layer 时，通过 LayerID 的 sha256 值作为参数 FIND_NODE 查找代理节点，并向代理节点发送 FIND_VALE 请求返回真正镜像的生产节点路由信息，消费节点对生产节点进行 docker pull 镜像拉取工作。
 
   在开始 docker pull 下载镜像时，需要先找到对应的 manifest 信息，如 docker pull os/centos:7.2，因此，在生成者制作新镜像时，需要以<namespace>/<image>:<tag>作为输入同样生成对应的 sha256 值，并类似 Layer 一样推送给代理节点，当消费节点需要下载镜像时，先下载镜像 manifest 元信息，再进行 Layer 下载，这个和 Docker Client 从 Docker Registry 服务下载的流程一致。
 
@@ -170,7 +170,7 @@ $ ls -l /tmp/aufs/
 
 #### 总结
 
-  以上就是整个 DDR 完全去中心化 P2P Docker 镜像仓库的设计，主要利用纯网络结构化 P2P 网络实现镜像文件的 manifest 和 blob 数据的路由存储、查询，同时每一个节点作为一个独立的镜像仓库服务为全网提供镜像的上传和下载。
+  以上就是整个 DDR 完全去中心化 P2P Docker 镜像仓库的设计，主要利用纯网络结构化 P2P 网络实现镜像的 manifest 和 blob 数据的路由存储、查询，同时每一个节点作为一个独立的镜像仓库服务为全网提供镜像的上传和下载。
 
 #### 其他工作
 
