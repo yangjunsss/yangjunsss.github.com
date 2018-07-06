@@ -114,7 +114,7 @@ $ ls -l /tmp/aufs/
 
   在 DDR 镜像服务中，需要在 Kademlia 网络中需要找到指定的镜像，而 Kademlia 查询只是节点 PeerID 查询，为了查找指定的 sha256 镜像，常用的做法是建立节点 PeerID 和文件 LayerID 的映射关系，但这需要依赖全局 Tracker 节点存储这种映射关系，而并不适合纯 P2P 模式。因此，为了找到对应的镜像，使用 PeerID 存储 LayerID 路由信息的方法，即同样或者相近 LayerID 的 PeerID 保存真正提供 LayerID 下载的 PeerID 路由，并把路由信息返回给查询节点，查询节点则重定向到真正的 Peer 进行镜像下载。在这个方法中，节点 Peer 可分为消费节点、代理节点、生产节点、副本节点4种角色，生产节点为镜像真正制作和存储的节点，当新镜像制作出来后，把镜像 Image Layer 的 sha256 LayerID 作为参数进行 FIND_NODE 查询与 LayerID 相近或相等的 PeerID 节点，并推送生产节点的 IP、Port、PeerID 路由信息。这些被推送的节点称为 Proxy 代理节点，同时代理节点也作为对生产节点的缓存节点存储镜像。当消费节点下载镜像 Image Layer 时，通过 LayerID 的 sha256 值作为参数 FIND_NODE 查找代理节点，并向代理节点发送 FIND_VALE 请求返回真正镜像的生产节点路由信息，消费节点对生产节点进行 docker pull 镜像拉取工作。
 
-  在开始 docker pull 下载镜像时，需要先找到对应的 manifest 信息，如 docker pull os/centos:7.2，因此，在生成者制作新镜像时，需要以<namespace>/<image>:<tag>作为输入同样生成对应的 sha256 值，并类似 Layer 一样推送给代理节点，当消费节点需要下载镜像时，先下载镜像 manifest 元信息，再进行 Layer 下载，这个和 Docker Client 从 Docker Registry 服务下载的流程一致。
+  在开始 docker pull 下载镜像时，需要先找到对应的 manifest 信息，如 `docker pull os/centos:7.2`，因此，在生成者制作新镜像时，需要以 `<namespace>/<image>:<tag>` 作为输入同样生成对应的 sha256 值，并类似 Layer 一样推送给代理节点，当消费节点需要下载镜像时，先下载镜像 manifest 元信息，再进行 Layer 下载，这个和 Docker Client 从 Docker Registry 服务下载的流程一致。
 
   ![img](/images/ddr_process.png)
 
