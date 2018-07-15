@@ -1,12 +1,12 @@
 ---
 description: "
-SDN 改变了传统的网络世界，在 Underlay 之上构建 Overlay 灵活性带来了巨大的红利，如[fastly成本案例](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。在容器生态中，[flannel](https://github.com/coreos/flannel/)为容器集群构建 Overlay 网络。本文介绍 Flannel 介绍第一代和第二代 Flannel VXLAN （2017年）的实现方式。
+SDN 改变了传统的网络世界，在 Underlay 之上构建 Overlay 灵活性带来了巨大的红利，如[fastly成本案例](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。在容器生态中，[flannel](https://github.com/coreos/flannel/)为容器集群构建 Overlay 网络。本文介绍 Flannel 第一代和第二代 Flannel VXLAN （2017年）的实现方式。
 "
 ---
 
 ### 摘要
 
-  SDN 改变了传统的网络世界，在 Underlay 之上构建 Overlay 灵活性带来了巨大的红利，如[fastly成本案例](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。在容器生态中，[flannel](https://github.com/coreos/flannel/)为容器集群构建 Overlay 网络。本文介绍 Flannel 介绍第一代和第二代 Flannel VXLAN （2017年）的实现方式。
+  SDN 改变了传统的网络世界，在 Underlay 之上构建 Overlay 灵活性带来了巨大的红利，如[fastly成本案例](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。在容器生态中，[flannel](https://github.com/coreos/flannel/)为容器集群构建 Overlay 网络。本文介绍 Flannel 第一代和第二代 Flannel VXLAN （2017年）的实现方式。如有错误，感谢指正，共同学习；）
 
 ### flannel vxlan 核心设计和历史
 
