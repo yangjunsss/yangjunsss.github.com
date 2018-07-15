@@ -10,7 +10,7 @@ SDN 改变了传统的网络世界，在 Underlay 之上构建 Overlay 灵活性
 
 ### flannel vxlan 核心设计和历史
 
-关于 VXLAN 的认识可见 [这里](yangjunsss.github.com/_posts/2016-07-12-初识 vxlan.md)，简单来讲就是在 Underlay 之上使用 UDP 封装一层二层数据包，从而实现跨 Underlay 三层的网络实现一种 Overlay 的逻辑二层网络，逻辑网络与物理网络解耦，从而实现灵活的组网需求。在一个二层数据包发送和接收的时候核心主要是 RIB 路由表、FDB 转发表、 ARP 路由表，即 VXLAN 要解决 VM MAC 地址寻址、跨三层 VM IP 地址寻址的问题，并实现全网路由分发和同步，就各家有各家的细节方案，这里讨论容器生态中 Flannel 的实现方案。
+关于 VXLAN 的知识网上很多，[这里](yangjunsss.github.com/_posts/2016-07-12-初识 vxlan.md)有一些基础介绍，简单来讲就是在 Underlay 之上使用 UDP 封装一层二层数据包，从而实现跨 Underlay 三层的网络实现一种 Overlay 的逻辑二层网络，逻辑网络与物理网络解耦，从而实现灵活的组网需求。在一个二层数据包发送和接收的时候核心主要是 RIB 路由表、FDB 转发表、 ARP 路由表，即 VXLAN 要解决 Guest MAC 地址寻址、跨三层 Guest IP 地址寻址的问题，并实现全网路由分发和同步，各家有各家的细节方案，这里讨论容器生态中 Flannel 的实现方案。
 
 在最新的 Flannel VXLAN 代码 [vxlan.go](https://github.com/coreos/flannel/blob/master/backend/vxlan/vxlan.go) 官方有一段注释说明如下：
 
@@ -54,7 +54,7 @@ SDN 改变了传统的网络世界，在 Underlay 之上构建 Overlay 灵活性
 大致意思是：
 
   1. 第一代 VXLAN 我们使用 L2&L3 Miss 事件监听来实现 Container ARP 和 FDB 路由表的更新，但可靠性和效率不高
-  2. 第二带 VXLAN 实现采用 RIB+ARP+FDB 的新方式实现，路由记录与物理机器成线性关系，提高可靠性和性能
+  2. 第二带 VXLAN 实现采用 RIB+ARP+FDB 的新方式实现，路由个数与物理机器成线性关系，提高可靠性和性能
 
 ### L2&L3 Miss VXLAN 实现方案
 
@@ -66,7 +66,7 @@ SDN 改变了传统的网络世界，在 Underlay 之上构建 Overlay 灵活性
 
 流程：
 
-  1. 当 VM0 第一次发送一个数据包的时候，发现目的地址 `10.20.1.3` 在同一个子网，转为二层转发，查询本地 VM ARP 表，无记录发送 ARP 请求；
+  1. 当 VM0 第一次发送一个数据包的时候，发现目的地址 `10.20.1.3` 在同一个子网，转为二层转发，查询本地 Guest ARP 表，无记录发送 ARP 请求 `who is 10.20.1.3`；
   2. vxlan 开启了的 proxy、l3miss 功能，数据包通过 vtep0， ARP 请求不对外广播，转为本地代答，查询 Host ARP 表，无记录，触发 L2Miss 事件，ARP 表是用于三层 IP 进行二层 MAC 转发的映射表，存储着 IP-MAC-NIC 记录，在二层转发过程中往往需要根据 IP 地址查询对应的 MAC 地址从而通过数据链路转发到目的接口中；
   3. L2Miss 事件被 Flannel Daemon 捕捉到，Daemon 根据自身的 Etcd 存储的路由数据库返回对应 `10.20.1.3` 的 MAC 地址 `e6:4b:f9:ce:d7:7b` 并存储 Host ARP 表；
   4. vtep0 命中 ARP 记录回复 ARP Reply；
@@ -125,7 +125,7 @@ This patch provides extensions to VXLAN for supporting Distributed Overlay Virtu
   5. vm0 ping vm1，在 veth 上观察 l2miss 和 l3miss 事件
   6. 添加 ARP 和 FDB 路由，验证 vm0 ping vm1 的连通性
 
-配置后的网口如下：
+我们用 NETNS 模拟 Container/VM 的网络环境，配置的网络接口如下：
 
 ```sh
 [root@i-7dlclo08 ~]# ip a
@@ -153,7 +153,7 @@ This patch provides extensions to VXLAN for supporting Distributed Overlay Virtu
     link/ether 4e:94:01:25:a2:fa brd ff:ff:ff:ff:ff:ff
 ```
 
-测试连通性如下：
+正确配置路由后，测试连通性成功，如下：
 
 同 VNI,`10.20.1.4 - 10.20.1.3`
 ![img](/images/ping_same_vni.png)
@@ -164,7 +164,7 @@ This patch provides extensions to VXLAN for supporting Distributed Overlay Virtu
 
 #### l2miss l3miss 方案的缺陷
 
-1. 每一台 Host 需要配置所有互通 Container 的 ARP、FDB 记录，导致路由记录较多，不适合大型组网
+1. 每一台 Host 需要配置所有互通 Container/VM 的 ARP、FDB 记录，导致路由记录较多，不适合大型组网
 2. 通过 netlink 通知的效率不高
 3. Flannel Daemon 异常后，无法更新 ARP 和 FDB 表影响 Container 之间互通
 
@@ -176,7 +176,7 @@ This patch provides extensions to VXLAN for supporting Distributed Overlay Virtu
 组网：
 ![img](/images/dvr_flannel_impl.png)
 
-在最新的 flannel vxlan 实现上，flannel 把 L2MISS & L3MISS 已经移除了，flannel deamon 不再监听 netlink 通知，而是给 vtep 分配一个三层地址，本地主机配置一条远端的子网路由，nexthop 指向 vtep 分配的三层 IP 地址，并配置好 FDB 转发表和 ARP 表，当数据包到达远端 HOST 后，再通过 Bridge 的网关送达目的 veth ，flannel 本质使用了网关路由的方式实现了一种分层路由，这样的好处就是 HOST 不需要配置所有的 Container FDB 和 ARP 地址路由，使路由信息与物理机器线性相关，基本做到每一台主机 1 route，1 arp entry and 1 FDB entry。
+在最新的 flannel vxlan 实现上，flannel 把 L2MISS & L3MISS 去掉了，flannel deamon 不再监听 netlink 通知，而是给 vtep 分配一个三层地址，本地主机配置一条远端的子网路由，nexthop 指向 vtep 分配的三层 IP 地址，并配置好 FDB 转发表和 ARP 表，当数据包到达远端 HOST 后，再通过 Bridge 的网关送达目的 veth ，flannel 本质使用了网关路由的方式实现了一种分层路由，这样的好处就是 HOST 不需要配置所有的 Container FDB 和 ARP 地址路由，使路由信息与物理机器线性相关，基本做到每一台主机 1 route，1 arp entry and 1 FDB entry。
 
 #### 模拟验证
 
