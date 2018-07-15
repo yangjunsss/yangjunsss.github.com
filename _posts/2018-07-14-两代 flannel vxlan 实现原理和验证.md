@@ -52,6 +52,7 @@ SDN 改变了传统的网络世界，在 Underlay 之上构建 Overlay 灵活性
 ```
 
 大致意思是：
+
   1. 第一代 VXLAN 我们使用 L2&L3 Miss 事件监听来实现 Container ARP 和 FDB 路由表的更新，但可靠性和效率不高
   2. 第二带 VXLAN 实现采用 RIB+ARP+FDB 的新方式实现，路由记录与物理机器成线性关系，提高可靠性和性能
 
@@ -64,6 +65,7 @@ SDN 改变了传统的网络世界，在 Underlay 之上构建 Overlay 灵活性
 ![img](/images/l2l3miss_flannel_impl.png)
 
 流程：
+
   1. 当 VM0 第一次发送一个数据包的时候，发现目的地址 `10.20.1.3` 在同一个子网，转为二层转发，查询本地 VM ARP 表，无记录发送 ARP 请求；
   2. vxlan 开启了的 proxy、l3miss 功能，数据包通过 vtep0， ARP 请求不对外广播，转为本地代答，查询 Host ARP 表，无记录，触发 L2Miss 事件，ARP 表是用于三层 IP 进行二层 MAC 转发的映射表，存储着 IP-MAC-NIC 记录，在二层转发过程中往往需要根据 IP 地址查询对应的 MAC 地址从而通过数据链路转发到目的接口中；
   3. L2Miss 事件被 Flannel Daemon 捕捉到，Daemon 根据自身的 Etcd 存储的路由数据库返回对应 `10.20.1.3` 的 MAC 地址 `e6:4b:f9:ce:d7:7b` 并存储 Host ARP 表；
@@ -109,11 +111,13 @@ This patch provides extensions to VXLAN for supporting Distributed Overlay Virtu
 #### 模拟验证
 
 环境：
+
   1. 2 台 Centos7.x 机器，2张网卡
   2. 2 个 Bridge，2 张 vtep 网卡
   3. 2 个 Namespace，2 对 veth 接口
 
 步骤：
+
   1. 创建 Namespace 网络隔离空间模拟容器或虚拟
   2. 创建 veth 接口
   3. 创建 Bridge，并与 veth 相连
@@ -177,11 +181,13 @@ This patch provides extensions to VXLAN for supporting Distributed Overlay Virtu
 #### 模拟验证
 
 环境：
+
   1. 2 台 Centos7.x 机器，2张网卡
   2. 2 个 Bridge，2 张 vtep 网卡
   3. 3 个 Namespace，3 对 veth 接口
 
 步骤：
+
   1. 创建 Namespace 网络隔离空间模拟容器或虚拟
   2. 创建 veth 接口
   3. 创建 Bridge，并与 veth 相连
