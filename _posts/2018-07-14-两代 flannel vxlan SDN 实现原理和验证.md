@@ -169,7 +169,7 @@ This patch provides extensions to VXLAN for supporting Distributed Overlay Virtu
 3. Flannel Daemon 异常后，无法更新 ARP 和 FDB 表影响 Container 之间互通
 
 
-### 路由网关方案 VXLAN 实现方案
+### 路由网关 VXLAN 实现方案
 
 #### 理论基础
 
