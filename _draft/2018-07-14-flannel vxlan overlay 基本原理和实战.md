@@ -1,12 +1,12 @@
 ---
 description: "
-SDN（软件定义网络）改变了传统的网络世界规则，它的灵活性和开放性带来了成本的优势，如 [fastly 使用 SDN 技术构建了一个可伸缩的低成本路由器](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。而在容器生态中，[Flannel](https://github.com/coreos/Flannel/)为容器集群构建 Overlay 网络。网上大多数文章还是介绍的 Flannel 第一个版本 vxlan overlay 实现原理，本文介绍 Flannel vxlan overlay 第一版和最新版两种方式的基本原理。
+SDN（软件定义网络）改变了传统的网络世界规则，它的灵活性和开放性带来了成本的优势，如 [fastly 使用 SDN 技术构建了一个可伸缩的低成本路由器](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。而在容器生态中，[Flannel](https://github.com/coreos/Flannel/) 为容器集群构建 Overlay 网络。网上大多数文章还是介绍的 Flannel 第一个版本 vxlan overlay 实现原理，本文介绍 Flannel vxlan overlay 第一版和最新版两种方式的基本原理。
 "
 ---
 
 ### 摘要
 
-SDN（软件定义网络）改变了传统的网络世界规则，它的灵活性和开放性带来了成本的优势，如 [fastly 使用 SDN 技术构建了一个可伸缩的低成本路由器](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。而在容器生态中，[Flannel](https://github.com/coreos/Flannel/)为容器集群构建 Overlay 网络。网上大多数文章还是介绍的 Flannel 第一个版本 vxlan overlay 实现原理，本文介绍 Flannel vxlan overlay 第一版和最新版两种方式的基本原理。
+SDN（软件定义网络）改变了传统的网络世界规则，它的灵活性和开放性带来了成本的优势，如 [fastly 使用 SDN 技术构建了一个可伸缩的低成本路由器](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。而在容器生态中，[Flannel](https://github.com/coreos/Flannel/) 为容器集群构建 Overlay 网络。网上大多数文章还是介绍的 Flannel 第一个版本 vxlan overlay 实现原理，本文介绍 Flannel vxlan overlay 第一版和最新版两种方式的基本原理。
 
 ### Flannel vxlan 核心设计和历史
 
