@@ -59,9 +59,9 @@ SDN（软件定义网络）改变了传统的网络世界规则，它的灵活�
 3. Flannel的最新版本，移除了 l2miss 学习的需求，不再监听 netlink 消息。
   它的工作模式：
     1. 创建 vxlan 设备，不再监听任何 l2miss 和 l3miss 事件消息
-    2. 为远端的子网创建路由表
-    3. 为远端主机创建静态 ARP 表
-    4. 创建 FDB 转发表，包含 VTEP MAC 和远端 Flannel 的 public IP
+    2. 为远端的子网创建路由
+    3. 为远端主机创建静态 ARP 表项
+    4. 创建 FDB 转发表项，包含 VTEP MAC 和远端 Flannel 的 public IP
 
 ### l2miss 和 l3miss vxlan 实现方案
 
@@ -98,7 +98,7 @@ This patch provides extensions to vxlan for supporting Distributed Overlay Virtu
 +		vxlan_ip_miss(dev, tip);
 ```
 
-可以看到内核在查询 `vxlan_find_mac` FDB 转发时未命中则发送 l2miss netlink 通知，在查询 `neigh_lookup` ARP 表时未命中则发送 l3miss netlink 通知，以便有机会给用户态路由，这就是第一代 Flannel vxlan 的实现基础。
+可以看到内核在查询 `vxlan_find_mac` FDB 转发时未命中则发送 l2miss netlink 通知，在查询 `neigh_lookup` ARP 表时未命中则发送 l3miss netlink 通知，以便有机会让用户态学习路由，这就是第一代 Flannel vxlan 的实现基础。
 
 模拟组网：
 
@@ -253,7 +253,7 @@ PING 10.20.1.3 (10.20.1.3) 56(84) bytes of data.
 
 ### 三层路由 vxlan 实现方案
 
-为了弥补 l2miss 和 l3miss 的缺陷，flannel 改用了远端路由的实现方案。
+为了弥补 l2miss 和 l3miss 的缺陷，flannel 改用了三层路由的实现方案。
 
 #### 理论基础
 
@@ -371,7 +371,7 @@ PING 10.20.2.4 (10.20.2.4) 56(84) bytes of data.
 64 bytes from 10.20.2.4: icmp_seq=2 ttl=62 time=0.518 ms
 ```
 
-可以看到，通过增加一条远端路由 `10.20.2.0/24 via 10.20.2.0 dev vtep0 onlink` 使目标为 10.20.2.0/24 的目的 IP 包通过 vtep0 接口送往目的 Host1，目的 Host1 收到后，在本地 Host 做三层转发，最终送往 veth0 接口。在 Host 多个 Guest 场景下也无需额外配置 Guest 路由，从而减少路由数量，方法变得高效。
+可以看到，通过增加一条三层路由 `10.20.2.0/24 via 10.20.2.0 dev vtep0 onlink` 使目标为 10.20.2.0/24 的目的 IP 包通过 vtep0 接口送往目的 Host1，目的 Host1 收到后，在本地 Host 做三层转发，最终送往 veth0 接口。在 Host 多个 Guest 场景下也无需额外配置 Guest 路由，从而减少路由数量，方法变得高效。
 
 ### 总结
 以上就是对 Flannel 第一个版本和最新版本 vxlan overlay 实现基本原理的解析和验证，可以看到 SDN 的 Overlay 配置很灵活也很巧妙，Overlay 的数据包通过 vxlan 这种隧道技术穿透 Underlay 网络，路由配置很灵活，同时主机中迭代着两层网络配置带来了一定的复杂性，但最终无论方案如何变化都离不开二三层路由转发的基本原则。
