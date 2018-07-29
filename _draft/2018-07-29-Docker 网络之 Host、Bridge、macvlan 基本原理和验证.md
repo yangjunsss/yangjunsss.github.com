@@ -20,7 +20,7 @@ Host 模式为容器实例直接使用 Host 网络能力，与 Host 共享网卡
 不仅仅 netns 可以共享，同一个 namespace 可以被多个容器实例共享。
 
 ## Bridge 模式
-Bridge 模式为在 Host 机器上为每一个容器或者多个容器创建 Network Namespace 进行网络隔离，并创建一对 veth，一端连接着 netns，一端连接着 Host 上的 bridge 设备，bridge 作为二层交换设备进行数据转发，可以用软件或硬件实现，Docker 使用 linux bridge 软件实现方式，连通隔离的容器实例路由设备进行二三层通信。这里的二三层可以为同一台 Host，也可以为不同 Host。
+Bridge 模式为在 Host 机器上为每一个容器或者多个容器创建 Network Namespace 进行网络隔离，并创建一对 veth，一端连接着 netns，一端连接着 Host 上的 bridge 设备，bridge 作为二层交换设备进行数据转发，可以用软件或硬件实现，Docker 使用 linux bridge 软件实现方式，并且 docker 使 FORWARD chain 默认策略为 DROP，不允许 bridge 容器实例与其他链路连通。在虚拟化技术中这种方式使最普遍最经典的方式，以下我们通过 netns、bridge 模拟实现。
 
 模拟组网：
 
@@ -113,7 +113,50 @@ PING 10.20.2.2 (10.20.2.2) 56(84) bytes of data.
 ```
 
 ## macvlan 模式
+在一些特定场景中，比如一些传统应用或者监控应用需要直接使用 HOST 的物理网络，则可以使用 kernel 提供的 macvlan 的方式，macvlan 是在 HOST 网卡上创建多个子网卡，并分配独立的 IP 地址和 MAC 地址，把子网卡分配给容器实例来实现实例与物理网络的直通，并同时保持容器实例的隔离性。Host 收到数据包后，则根据不同的 MAC 地址把数据包从转发给不同的子接口，在外界来看就相当于多台主机。macvlan 要求物理网卡支持混杂 promisc 模式并且要求kernel为v3.9-3.19 和 4.0+，因为是直接通过子接口转发数据包，所以可想而知，性能比 bridge 要高，不需要经过 NAT。
 
+结构如下：
+
+![img](http://yangjunsss.github.io/images/docker_macvlan_subeth.png)
+
+macvlan 支持四种模式：
+1. private：子接口之间不允许通信，子接口能与物理网络通讯。
+2. vepa（Virtual Ethernet Port Aggregator)：子接口之间、子接口与物理网络允许通讯，数据包都经过 eth0 进出，要求交换机支持 IEEE 802.1Q。
+3. bridge：子接口之间直接通讯，不经过 eth0 网口
+4. passthru：Allows a single VM to be connected directly to the physical interface. The advantage of this mode is that VM is then able to change MAC address and other interface parameters.
+
+![img](http://yangjunsss.github.io/images/docker_macvlan.png)
+
+```sh
+## HOST0
+[root@i-7dlclo08 ~]# ip netns exec ns1 ping 192.168.100.3
+PING 192.168.100.3 (192.168.100.3) 56(84) bytes of data.
+64 bytes from 192.168.100.3: icmp_seq=1 ttl=64 time=1.48 ms
+64 bytes from 192.168.100.3: icmp_seq=2 ttl=64 time=0.355 ms
+^C
+--- 192.168.100.3 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 0.355/0.917/1.480/0.563 ms
+[root@i-7dlclo08 ~]# ip netns exec ns1 ping 192.168.100.2
+PING 192.168.100.2 (192.168.100.2) 56(84) bytes of data.
+^C
+--- 192.168.100.2 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 1999ms
+
+[root@i-7dlclo08 ~]# ip netns exec ns1 ping 192.168.100.10
+PING 192.168.100.10 (192.168.100.10) 56(84) bytes of data.
+^C
+--- 192.168.100.10 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 1999ms
+[root@i-7dlclo08 ~]# ip netns exec ns1 ping 192.168.100.12
+PING 192.168.100.12 (192.168.100.12) 56(84) bytes of data.
+64 bytes from 192.168.100.12: icmp_seq=1 ttl=64 time=1.33 ms
+
+[root@i-hh5ai710 ~]# sudo ip link add macvlan0 link eth0 type macvlan mode private
+[root@i-hh5ai710 ~]# ip link set macvlan0 netns ns0
+[root@i-hh5ai710 ~]# ip netns exec ns0 ip addr add 192.168.100.12/24 dev macvlan0
+[root@i-hh5ai710 ~]# ip netns exec ns1 ip link set macvlan0 up
+```
 
 ip link delete br0
 ip link delete veth0
@@ -147,3 +190,8 @@ ip netns exec ns1 ip link set eth0 up
 ip netns exec ns1 ip route add default via 10.20.1.1 dev eth0
 
 ip route add 10.20.2.0/24 via 192.168.100.3 dev eth0
+
+
+## 参考
+
+[http://hicu.be/bridge-vs-macvlan](http://hicu.be/bridge-vs-macvlan)
