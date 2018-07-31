@@ -30,7 +30,7 @@ Bridge 模式为在 Host 机器上为每一个容器或者多个容器创建 Net
 3. 检查 iptables 的配置，允许 FORWARD 为 ACCEPT，开启 ipv4 forward 转发标识位
 4. 给 Host 配置路由地址
 
-配置后网络如下：
+网络接口配置如下：
 
 ```sh
 [root@i-7dlclo08 ~]# ip -d a
@@ -113,11 +113,11 @@ PING 10.20.2.2 (10.20.2.2) 56(84) bytes of data.
 ```
 
 ## macvlan 模式
-在一些特定场景中，比如一些传统应用或者监控应用需要直接使用 HOST 的物理网络，则可以使用 kernel 提供的 macvlan 的方式，macvlan 是在 HOST 网卡上创建多个子网卡，并分配独立的 IP 地址和 MAC 地址，把子网卡分配给容器实例来实现实例与物理网络的直通，并同时保持容器实例的隔离性。Host 收到数据包后，则根据不同的 MAC 地址把数据包从转发给不同的子接口，在外界来看就相当于多台主机。macvlan 要求物理网卡支持混杂 promisc 模式并且要求kernel为v3.9-3.19 和 4.0+，因为是直接通过子接口转发数据包，所以可想而知，性能比 bridge 要高，不需要经过 NAT。
+在一些特定场景中，比如一些传统应用或者监控应用需要直接使用 HOST 的物理网络，则可以使用 kernel 提供的 macvlan 的方式，macvlan 是在 HOST 网卡上创建多个子网卡，并分配独立的 IP 地址和 MAC 地址，把子网卡分配给容器实例来实现实例与物理网络的直通，并同时保持容器实例的隔离性。Host 收到数据包后，则根据不同的 MAC 地址把数据包从转发给不同的子接口，在外界来看就相当于多台主机。macvlan 要求物理网卡支持混杂 promisc 模式并且要求 kernel 为 v3.9-3.19 和 4.0+，因为是直接通过子接口转发数据包，所以可想而知，性能比 bridge 要高，不需要经过 NAT。
 
 结构如下：
 
-![img](http://yangjunsss.github.io/images/docker_macvlan_subeth.png)
+![img](http://yangjunsss.github.io/images/macvlan/docker_macvlan_subeth.png)
 
 macvlan 支持四种模式：
 1. private：子接口之间不允许通信，子接口能与物理网络通讯。
@@ -125,11 +125,15 @@ macvlan 支持四种模式：
 3. bridge：子接口之间直接通讯，不经过 eth0 网口
 4. passthru：Allows a single VM to be connected directly to the physical interface. The advantage of this mode is that VM is then able to change MAC address and other interface parameters.
 
-![img](http://yangjunsss.github.io/images/docker_macvlan.png)
+所以模式都不能与 eth0 通信。
+
+![img](http://yangjunsss.github.io/images/macvlan/docker_macvlan.png)
+
+### private mode
 
 ```sh
 ## HOST0
-[root@i-7dlclo08 ~]# ip netns exec ns1 ping 192.168.100.3
+[root@i-7dlclo08 ~]# ip netns exec ns0 ping 192.168.100.3
 PING 192.168.100.3 (192.168.100.3) 56(84) bytes of data.
 64 bytes from 192.168.100.3: icmp_seq=1 ttl=64 time=1.48 ms
 64 bytes from 192.168.100.3: icmp_seq=2 ttl=64 time=0.355 ms
@@ -137,59 +141,66 @@ PING 192.168.100.3 (192.168.100.3) 56(84) bytes of data.
 --- 192.168.100.3 ping statistics ---
 2 packets transmitted, 2 received, 0% packet loss, time 1001ms
 rtt min/avg/max/mdev = 0.355/0.917/1.480/0.563 ms
-[root@i-7dlclo08 ~]# ip netns exec ns1 ping 192.168.100.2
-PING 192.168.100.2 (192.168.100.2) 56(84) bytes of data.
-^C
---- 192.168.100.2 ping statistics ---
-3 packets transmitted, 0 received, 100% packet loss, time 1999ms
 
-[root@i-7dlclo08 ~]# ip netns exec ns1 ping 192.168.100.10
-PING 192.168.100.10 (192.168.100.10) 56(84) bytes of data.
+[root@i-7dlclo08 ~]# ip netns exec ns0 ping 192.168.100.11
+PING 192.168.100.11 (192.168.100.11) 56(84) bytes of data.
 ^C
---- 192.168.100.10 ping statistics ---
+--- 192.168.100.11 ping statistics ---
 3 packets transmitted, 0 received, 100% packet loss, time 1999ms
 [root@i-7dlclo08 ~]# ip netns exec ns1 ping 192.168.100.12
 PING 192.168.100.12 (192.168.100.12) 56(84) bytes of data.
 64 bytes from 192.168.100.12: icmp_seq=1 ttl=64 time=1.33 ms
+```
+![img](http://yangjunsss.github.io/images/macvlan/macvlan_private.png)
 
-[root@i-hh5ai710 ~]# sudo ip link add macvlan0 link eth0 type macvlan mode private
-[root@i-hh5ai710 ~]# ip link set macvlan0 netns ns0
-[root@i-hh5ai710 ~]# ip netns exec ns0 ip addr add 192.168.100.12/24 dev macvlan0
-[root@i-hh5ai710 ~]# ip netns exec ns1 ip link set macvlan0 up
+### vepa
+
+```sh
+[root@i-7dlclo08 ~]# sudo ip netns exec ns0 ping 192.168.100.11
+PING 192.168.100.11 (192.168.100.11) 56(84) bytes of data.
+^C
+--- 192.168.100.11 ping statistics ---
+2 packets transmitted, 0 received, 100% packet loss, time 999ms
+
+[root@i-7dlclo08 ~]# sudo ip netns exec ns0 ping 192.168.100.12
+PING 192.168.100.12 (192.168.100.12) 56(84) bytes of data.
+64 bytes from 192.168.100.12: icmp_seq=1 ttl=64 time=1.37 ms
+64 bytes from 192.168.100.12: icmp_seq=2 ttl=64 time=0.530 ms
+^C
+--- 192.168.100.12 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 0.530/0.954/1.379/0.425 ms
 ```
 
-ip link delete br0
-ip link delete veth0
-ip netns delete ns0
-ip netns delete ns1
+![img](http://yangjunsss.github.io/images/macvlan/macvlan_vepa.png)
+与预期不符合的是不 10 不能 ping 通 11
 
-ip link add br0 type bridge
-ip link set br0 up
-ip addr add 10.20.1.1/24 dev br0
+### bridge
 
-ip netns add ns0
-ip link add veth0 type veth peer name veth0-0
-ip link set dev veth0 up
-ip link set dev veth0 master br0
-ip link set dev veth0-0 netns ns0
-ip netns exec ns0 ip link set lo up
-ip netns exec ns0 ip link set veth0-0 name eth0
-ip netns exec ns0 ip addr add 10.20.1.2/24 dev eth0
-ip netns exec ns0 ip link set eth0 up
-ip netns exec ns0 ip route add default via 10.20.1.1 dev eth0
+```sh
+## HOST0
+[root@i-7dlclo08 ~]# sudo ip netns exec ns0 ping 192.168.100.11
+PING 192.168.100.11 (192.168.100.11) 56(84) bytes of data.
+64 bytes from 192.168.100.11: icmp_seq=1 ttl=64 time=0.075 ms
+^C
+--- 192.168.100.11 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.075/0.075/0.075/0.000 ms
+[root@i-7dlclo08 ~]# sudo ip netns exec ns0 ping 192.168.100.12
+PING 192.168.100.12 (192.168.100.12) 56(84) bytes of data.
+64 bytes from 192.168.100.12: icmp_seq=1 ttl=64 time=1.29 ms
+64 bytes from 192.168.100.12: icmp_seq=2 ttl=64 time=0.469 ms
+^C
+--- 192.168.100.12 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 0.469/0.880/1.292/0.412 ms
+```
 
-ip netns add ns1
-ip link add veth1 type veth peer name veth1-1
-ip link set dev veth1 up
-ip link set dev veth1 master br0
-ip link set dev veth1-1 netns ns1
-ip netns exec ns1 ip link set lo up
-ip netns exec ns1 ip link set veth1-1 name eth0
-ip netns exec ns1 ip addr add 10.20.1.3/24 dev eth0
-ip netns exec ns1 ip link set eth0 up
-ip netns exec ns1 ip route add default via 10.20.1.1 dev eth0
+![img](http://yangjunsss.github.io/images/macvlan/macvlan_bridge.png)
 
-ip route add 10.20.2.0/24 via 192.168.100.3 dev eth0
+### passthru
+
+passthru 的模式在公有云上直接导致虚拟机不同，无法验证
 
 
 ## 参考
