@@ -24,6 +24,8 @@ Bridge 模式为在 Host 机器上为每一个容器或者多个容器创建 Net
 
 模拟组网：
 
+![img](http://yangjunsss.github.io/images/docker_bridge.png)
+
 组网思路：
 1. 创建2个 bridge，2 台 Host，3 个 netns，3对 veth
 2. 分配 IP 地址，bridge 网关地址
@@ -127,6 +129,8 @@ macvlan 支持四种模式：
 
 所以模式都不能与 eth0 通信。
 
+模拟组网：
+
 ![img](http://yangjunsss.github.io/images/macvlan/docker_macvlan.png)
 
 ### private mode
@@ -173,7 +177,8 @@ rtt min/avg/max/mdev = 0.530/0.954/1.379/0.425 ms
 ```
 
 ![img](http://yangjunsss.github.io/images/macvlan/macvlan_vepa.png)
-与预期不符合的是不 10 不能 ping 通 11
+
+与预期不符合的是不 10 不能 ping 通 11。
 
 ### bridge
 
@@ -200,7 +205,7 @@ rtt min/avg/max/mdev = 0.469/0.880/1.292/0.412 ms
 
 ### passthru
 
-passthru 的模式在公有云上直接导致虚拟机不同，无法验证
+passthru 的模式在公有云上直接导致虚拟机网络不通，暂无验证
 
 
 ## 参考
