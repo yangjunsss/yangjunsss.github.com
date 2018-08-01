@@ -12,7 +12,7 @@ layout: default
     <time>{{ page.date | date_to_string }}</time>
     <time>Words:
       {% raw %}
-      {{ content | strip_html | strip_newlines | size }}
+      { { content | strip_html | strip_newlines | size } }
       {% endraw %}
     </time>
   </span>
