@@ -10,6 +10,7 @@ layout: default
   <div class="post-title">{{ page.title }}</div>
   <span class="post-date">
     <time>{{ page.date | date_to_string }}</time>
+    <time>{{ page.content | number_of_words }}</time>
   </span>
   <div class="post-tag">
     <ul>
