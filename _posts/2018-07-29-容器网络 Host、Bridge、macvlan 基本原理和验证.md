@@ -127,7 +127,7 @@ macvlan 支持四种模式：
 3. bridge：子接口之间直接通讯，不经过 eth0 网口
 4. passthru：Allows a single VM to be connected directly to the physical interface. The advantage of this mode is that VM is then able to change MAC address and other interface parameters.
 
-所以模式都不能与 eth0 通信。
+所以模式都不能与 eth0 通信，并且 macvlan 在公有云上的支持并不友好。
 
 模拟组网：
 
