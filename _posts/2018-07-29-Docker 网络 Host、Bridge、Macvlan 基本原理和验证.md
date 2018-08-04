@@ -118,9 +118,9 @@ PING 10.20.2.2 (10.20.2.2) 56(84) bytes of data.
 ![img](http://yangjunsss.github.io/images/macvlan/docker_macvlan_subeth.png)
 
 macvlan 支持四种模式：
-1. private：子接口之间不允许通信，子接口能与物理网络通讯。
+1. private：子接口之间不允许通信，子接口能与物理网络通讯，所有数据包都经过父接口 eth0
 2. vepa（Virtual Ethernet Port Aggregator)：子接口之间、子接口与物理网络允许通讯，数据包都经过 eth0 进出，要求交换机支持 IEEE 802.1Q。
-3. bridge：子接口之间直接通讯，不经过 eth0 网口
+3. bridge：子接口之间直接通讯，不经过父接口 eth0 ，性能较高，但是父接口 down 之后也同样丧失通讯能力。
 4. passthru：Allows a single VM to be connected directly to the physical interface. The advantage of this mode is that VM is then able to change MAC address and other interface parameters.
 
 所以模式都不能与 eth0 通信，并且 macvlan 在公有云上的支持并不友好。
@@ -129,7 +129,7 @@ macvlan 支持四种模式：
 
 ![img](http://yangjunsss.github.io/images/macvlan/docker_macvlan.png)
 
-### private mode
+### private mode 模式
 
 ```sh
 ## HOST0
@@ -153,7 +153,7 @@ PING 192.168.100.12 (192.168.100.12) 56(84) bytes of data.
 ```
 ![img](http://yangjunsss.github.io/images/macvlan/macvlan_private.png)
 
-### vepa
+### vepa 模式
 
 ```sh
 [root@i-7dlclo08 ~]# sudo ip netns exec ns0 ping 192.168.100.11
@@ -176,7 +176,7 @@ rtt min/avg/max/mdev = 0.530/0.954/1.379/0.425 ms
 
 与预期不符合的是不 10 不能 ping 通 11。
 
-### bridge
+### bridge 模式
 
 ```sh
 ## HOST0
@@ -199,9 +199,9 @@ rtt min/avg/max/mdev = 0.469/0.880/1.292/0.412 ms
 
 ![img](http://yangjunsss.github.io/images/macvlan/macvlan_bridge.png)
 
-### passthru
+### passthru 模式
 
-passthru 的模式在公有云上直接导致虚拟机网络不通，暂无验证
+passthru 的模式在公有云上直接导致虚拟机网络不通，无法验证
 
 
 ## 参考
