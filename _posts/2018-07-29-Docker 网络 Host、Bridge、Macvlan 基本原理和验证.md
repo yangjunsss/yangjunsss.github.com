@@ -115,7 +115,7 @@ PING 10.20.2.2 (10.20.2.2) 56(84) bytes of data.
 
 结构如下：
 
-![img](http://yangjunsss.github.io/images/macvlan/docker_macvlan_subeth.png)
+![img](http://yangjunsss.github.io/images/macvlan/docker_macvlan.png)
 
 macvlan 支持四种模式：
 1. private：子接口之间不允许通信，子接口能与物理网络通讯，所有数据包都经过父接口 eth0
@@ -124,10 +124,6 @@ macvlan 支持四种模式：
 4. passthru：Allows a single VM to be connected directly to the physical interface. The advantage of this mode is that VM is then able to change MAC address and other interface parameters.
 
 所以模式都不能与 eth0 通信，并且 macvlan 在公有云上的支持并不友好。
-
-模拟组网：
-
-![img](http://yangjunsss.github.io/images/macvlan/docker_macvlan.png)
 
 ### private mode 模式
 
