@@ -426,7 +426,7 @@ func (be *HostgwBackend) RegisterNetwork(ctx context.Context, wg sync.WaitGroup,
 }
 ```
 
-可以看到添加 subnet 给 dst，同时添加 host 的 publicIP 给 gw。
+可以看到添加 subnet 给 dst，同时添加 host 的 publicIP 给 gw，主要对 host 直接进行路由操作。
 
 模拟组网：
 
@@ -532,7 +532,7 @@ func (n *network) processSubnetEvents(batch []subnet.Event) {
 }
 ```
 
-这里 flannel.0 的设备通过 `iface, err := netlink.LinkByName(ifname)` 获取，配置 ip 地址和路由。
+这里 flannel.0 的设备通过 `iface, err := netlink.LinkByName(ifname)` 获取，配置 ip 地址和路由，整理方案与 vxlan 类似，但性能和稳定性比 vxlan 要差，并不被官方推荐使用。
 
 ##### 附录
 
