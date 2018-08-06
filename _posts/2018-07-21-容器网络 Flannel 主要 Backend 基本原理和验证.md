@@ -8,6 +8,16 @@ SDN（软件定义网络）改变了传统的网络世界规则，它的灵活�
 
 SDN（软件定义网络）改变了传统的网络世界规则，它的灵活性和开放性带来了成本的优势，如 [fastly 使用 SDN 技术构建了一个可伸缩的低成本路由器](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。而在容器生态中，[Flannel](https://github.com/coreos/Flannel/) 为容器集群构建 Overlay 网络。网上大多数文章还是介绍的 Flannel 第一个版本 vxlan overlay 实现原理，本文介绍 Flannel vxlan overlay 第一版和最新版两种方式的基本原理及 hostgw、UDP 的实现。
 
+### 简介
+
+官方定义如下：
+
+```txt
+Flannel runs a small, single binary agent called flanneld on each host, and is responsible for allocating a subnet lease to each host out of a larger, preconfigured address space. Flannel uses either the Kubernetes API or etcd directly to store the network configuration, the allocated subnets, and any auxiliary data (such as the host's public IP). Packets are forwarded using one of several backend mechanisms including VXLAN and various cloud integrations.
+```
+
+Flannel 是一个简而精的构建容器三层网络的方案，它在每一台 host 上运行着叫 flanneld 的 daemon 进程，flanneld 负责申请容器网络的子网并存储在 k8s 或者 etcd 上，网络互通通过不同的 backend 组件实现，比如 vxlan、host-gw、udp等，它不关心 host 内部的容器间网络互通，而主要专注在 host 之间容器的互通。
+
 ### Flannel vxlan 核心设计和历史
 
 关于 vxlan 的知识网上很多，简单来讲是在 Underlay 网络之上使用隧道技术依托 UDP 协议层构建的 Overlay 的逻辑网络，并能灵活穿透三层 Underlay 网络，使逻辑网络与物理网络解耦，实现灵活的组网需求，不仅仅能适配 VM 虚拟机环境，还能用于 Container 容器环境。
@@ -532,7 +542,8 @@ func (n *network) processSubnetEvents(batch []subnet.Event) {
 }
 ```
 
-这里 flannel.0 的设备通过 `iface, err := netlink.LinkByName(ifname)` 获取，配置 ip 地址和路由，整理方案与 vxlan 类似，但性能和稳定性比 vxlan 要差，并不被官方推荐使用。
+这里 flannel.0 的设备通过 `iface, err := netlink.LinkByName(ifname)` 获取，配置 ip 地址和路由，整体方案与 vxlan 类似，但性能和稳定性比 vxlan 要差，并不被官方推荐使用。
+
 
 ##### 附录
 

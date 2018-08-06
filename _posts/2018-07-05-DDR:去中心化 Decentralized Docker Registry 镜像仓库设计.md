@@ -13,6 +13,16 @@ description: "
 
   Docker Registry 镜像仓库，是一种集中式存储、应用无状态、节点可扩展的 HTTP 公共服务。提供了镜像管理、存储、上传下载、AAA 认证鉴权、WebHook 通知、日志等功能。几乎所有的用户都从镜像仓库中进行上传和下载，在跨国上传下载的场景下，这种集中式服务显然存在性能瓶颈，高网络延迟导致用户 pull 下载消耗更长的时间。同时集中式服务遭黑客的 DDos 攻击会面临瘫痪。当然你可以部署多个节点，但也要解决多节点间镜像同步的问题。因此，可以设计一种去中心化的分布式镜像仓库服务来避免这种中心化的缺陷。本文起草了一个纯 P2P 式结构化网络无中心化节点的新镜像仓库服务 Decentralized Docker Registry(DDR)，和阿里的蜻蜓 Dragonfly、腾讯的 FID 混合型 P2P 模式不同，DDR 采用纯 P2P 网络结构，没有镜像 Tracker 管理节点，网络中所有节点既是镜像的生产者同时也是消费者，纯扁平对等，这种结构能有效地防止拒绝服务 DDos 攻击，没有单点故障，并拥有高水平扩展和高并发能力，高效利用带宽，极速提高下载速度。
 
+#### 动机
+
+1. 高并发，同时十万并发
+2. 减少网络拥堵，50x+
+3. 高可用
+4. 低成本 99%+
+5. 远距离传输
+
+DID、Quary and Docker are making torrent for the whole Docker image
+
 #### 镜像
   Docker 是一个容器管理框架，它负责创建和管理容器实例，一个容器实例从 Docker 镜像加载，镜像是一种压缩文件，包含了一个应用所需的所有内容。一个镜像可以依赖另一个镜像，并是一种单继承关系。最初始的镜像叫做 Base 基础镜像，可以继承 Base 镜像制作新镜像，新镜像也可以被其他的镜像再继承，这个新镜像被称作 Parent 父镜像。
 
@@ -116,12 +126,12 @@ $ ls -l /tmp/aufs/
 
   在开始 docker pull 下载镜像时，需要先找到对应的 manifest 信息，如 `docker pull os/centos:7.2`，因此，在生成者制作新镜像时，需要以 `<namespace>/<image>:<tag>` 作为输入同样生成对应的 sha256 值，并类似 Layer 一样推送给代理节点，当消费节点需要下载镜像时，先下载镜像 manifest 元信息，再进行 Layer 下载，这个和 Docker Client 从 Docker Registry 服务下载的流程一致。
 
-  ![img](/images/ddr_process.png)
+  ![img](http://yangjunsss.github.io/images/images/ddr_process.png)
 
 
 #### DDR 架构
 
-  ![img](/images/ddr_arch1.png)
+  ![img](http://yangjunsss.github.io/images/images/ddr_arch.png)
 
   每一个节点都部署 Docker Registry 和 DDR，DDR 分为 DDR Driver 插件和 DDR Daemon 常驻进程，DDR Driver 作为 Docker Registry 的存储插件承接 Registry 的 blob 和 manifest 数据的查询、下载、上传的工作，并与 DDR Daemon 交互，主要对需要查询的 blob 和 manifest 数据做 P2P 网络寻址和在写入新的 blob 和 manifest 时推送路由信息给 P2P 网络中代理节点。DDR Daemon 作为 P2P 网路中一个 Peer 节点接入，负责 Peer 查询、Blob、Manifest 的路由查询，并返回路由信息给 DDR Driver，DDR Driver 再作为 Client 根据路由去 P2P 网络目的 Docker Registry 节点进行 Push/Pull 镜像。
 
