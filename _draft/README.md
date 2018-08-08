@@ -12,6 +12,22 @@ More technical detail see my  [blog](http://yangjunsss.github.io/2018-07-05/DDR-
 3. High availability
 4. Low cost
 5. Long distance transfer
+6. Open source
+
+# Reinventing the wheel?
+1. Alibaba Dragonfly
+
+  Not a pure distribution service and base on BT protocol, use CDN as storage node.
+
+2. Tencent FID
+
+  Use BT protocol, simulate with Dragonfly but not open source.
+
+3. DID,Quay and Docket
+
+  Make torrent for the whole image,not for layer.
+
+
 
 # Design Goal
 1. Zero invading
