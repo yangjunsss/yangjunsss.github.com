@@ -1,3 +1,6 @@
+# Background
+Working docker registry and studying block chain technology bring me the idea.
+
 # What's ddr
 DDR is a Decentralized Docker Registry based on P2P technology to supply high concurrency, fast transfer, low cost for docker images distribution and storage.It does not requires any centralized service but docker users can push and pull the docker images from the system as usual.As pure P2P network structure model, each node is producer and consumer.
 
@@ -46,5 +49,9 @@ Each node is local registry service server and registry client to push and pull 
 ![ddr](http://yangjunsss.github.io/images/ddr_arch.png)
 
 # Plan
+1. August, September, core technical problems finish
+2. October, ddrd alpha release
+3. November, ddr driver alpha release
+4. December, bug fix and beta release
 
 # License
