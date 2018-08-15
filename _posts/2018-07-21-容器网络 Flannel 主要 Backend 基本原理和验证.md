@@ -108,13 +108,13 @@ This patch provides extensions to vxlan for supporting Distributed Overlay Virtu
 +		vxlan_ip_miss(dev, tip);
 ```
 
-可以看到内核在查询 `vxlan_find_mac` FDB 转发时未命中则发送 l2miss netlink 通知，在查询 `neigh_lookup` ARP 表时未命中则发送 l3miss netlink 通知，以便有机会让用户态学习路由，这就是第一代 Flannel vxlan 的实现基础。
+可以看到内核在查询 `vxlan_find_mac` FDB 转发时未命中则发送 l2miss netlink 通知，在查询 `neigh_lookup` ARP 表时未命中则发送 l3miss netlink 通知，以便有机会让用户态学习 vm 地址，这就是第一代 Flannel vxlan 的实现基础。
 
 模拟组网：
 
 ![img](http://yangjunsss.github.io/images/flannel_vxlan_1.0_impl.png)
 
-图中 10.20.1.4 与 10.20.1.3 通信流程：
+图中 10.20.1.4 与 10.20.1.3 通信流程(不考虑跨子网三层通讯)：
 
   1. 当 Guest0 第一次发送一个目的地址 `10.20.1.3` 数据包的时候，进行二层转发，查询本地 Guest ARP 表，无记录则发送 ARP 广播 `who is 10.20.1.3`；
   2. vxlan 开启了的本地 ARP 代答 proxy、l2miss、l3miss 功能，数据包经过 vtep0 逻辑设备时，当 Host ARP 表无记录时，vxlan 触发 l2miss 事件，ARP 表是用于三层 IP 进行二层 MAC 转发的映射表，存储着 IP-MAC-NIC 记录，在二层转发过程中往往需要根据 IP 地址查询对应的 MAC 地址从而通过数据链路转发到目的接口中；
@@ -131,7 +131,6 @@ This patch provides extensions to vxlan for supporting Distributed Overlay Virtu
 #### 模拟验证
 
 环境：
-
   1. 2 台 Centos7.x 机器，2 张物理网卡
   2. 2 个 Bridge，2 张 vtep 网卡
   3. 2 个 Namespace，2 对 veth 接口
@@ -234,11 +233,12 @@ From 10.20.1.4 icmp_seq=3 Destination Host Unreachable
 
 当缺失 ARP 记录时触发`[nsid 1]10.20.1.3 dev if45  FAILED`，当缺失 FDB 转发记录时触发`[nsid current]miss dev vtep0 lladdr e6:4b:f9:ce:d7:7b STALE`，与预期一样，未配置路由前，网络不通。
 
-##### 配置 Guest 的路由
+##### 配置 Guest 的转发表和路由表
 
 ```sh
 [root@i-7dlclo08 ~]# ip n add 10.20.1.3 lladdr e6:4b:f9:ce:d7:7b dev vtep0
 [root@i-7dlclo08 ~]# bridge fdb add e6:4b:f9:ce:d7:7b dst 192.168.100.3 dev vtep0
+[root@i-7dlclo08 ~]# ip r add 10.20.0.0/16 dev vtep0 scope link via 10.20.1.0
 ```
 
 回程路由类似，不赘述
@@ -391,7 +391,7 @@ PING 10.20.2.4 (10.20.2.4) 56(84) bytes of data.
 
 ### Host-gw 模式
 
-Host-gw 的基本原理比较简单，是直接在 host 主机上配置 Overlay 的 subnet 对端 host 的路由信息，数据包没有经过任何封装而直接送往对端，这就要求 Host 在同一个二层网络中，否则路由不可达，也意味着 Underlay 的安全策略需要和 Overlay 一致。这种模式也不需要任何额外的虚拟网络设备，数据包直接通过 eth0 进出，因为简单也是效率最高的。
+Host-gw 的基本原理比较简单，是直接在 host 主机上配置 Overlay 的 subnet 对端 host 的路由信息，数据包没有经过任何封装而直接送往对端，这就要求 Host 在同一个二层网络中，否则路由不可达，也意味着 Underlay 的安全策略需要和 Overlay 一致。这种模式也不需要任何额外的虚拟网络设备，数据包直接通过 eth0 进出，因为简单也是效率最高的，与 calico 的方案有点类似。
 整个后端核心代码量在 50 行左右，如下：
 
 ```golang
