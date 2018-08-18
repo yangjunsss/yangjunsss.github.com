@@ -256,7 +256,7 @@ PING 10.20.1.3 (10.20.1.3) 56(84) bytes of data.
 
 #### l2miss 和 l3miss 方案缺陷
 
-1. 每一台 Host 需要配置所有需要互通 Guest 路由，路由记录会膨胀，不适合大型组网
+1. 每一台 Host 需要配置所有需要互通 Guest MAC 地址，ARP 和 FDB 记录会膨胀，不适合大型组网
 2. 通过 netlink 通知学习路由的效率不高
 3. Flannel Daemon 异常后无法持续维护 ARP 和 FDB 表，从而导致网络不通
 
@@ -270,7 +270,7 @@ PING 10.20.1.3 (10.20.1.3) 56(84) bytes of data.
 组网：
 ![img](http://yangjunsss.github.io/images/flannel_vxlan_2.0_impl.png)
 
-Flannel 在最新 vxlan 实现上完全去掉了 l2miss & l3miss 方式，Flannel deamon 不再监听 netlink 通知，因此也不依赖 DOVE。而改成主动给目的子网添加远端 Host 路由的新方式，同时为 vtep 和 bridge 各自分配三层 IP 地址，当数据包到达目的 Host 后，在内部进行三层转发，这样的好处就是 Host 不需要配置所有的 Guest 二层 MAC 地址，从一个二层寻址转换成三层寻址，路由数目与 Host 机器数呈线性相关，官方声称做到了同一个 VNI 下每一台 Host 主机 1 route，1 arp entry and 1 FDB entry。
+Flannel 在最新 vxlan 实现上完全去掉了 l2miss & l3miss 方式，Flannel deamon 不再监听 netlink 通知，因此也不依赖 DOVE。而改成主动给目的子网添加远端 Host 走三层路由的新方式，当数据包到达目的 Host 后，通过 vtap 在内部进行三层转发，这样的好处就是 Host 不需要配置所有的 Guest 二层 MAC 地址，从一个二层寻址转换成三层寻址，路由数目与 Host 机器数呈线性相关，官方声称做到了同一个 VNI 下每一台 Host 主机 1 route，1 arp entry and 1 FDB entry。
 
 #### 模拟验证
 
