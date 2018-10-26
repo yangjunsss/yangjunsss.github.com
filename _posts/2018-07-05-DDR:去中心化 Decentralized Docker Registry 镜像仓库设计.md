@@ -124,12 +124,12 @@ $ ls -l /tmp/aufs/
 
   在开始 docker pull 下载镜像时，需要先找到对应的 manifest 信息，如 `docker pull os/centos:7.2`，因此，在生成者制作新镜像时，需要以 `<namespace>/<image>:<tag>` 作为输入同样生成对应的 sha256 值，并类似 Layer 一样推送给代理节点，当消费节点需要下载镜像时，先下载镜像 manifest 元信息，再进行 Layer 下载，这个和 Docker Client 从 Docker Registry 服务下载的流程一致。
 
-  ![img](http://yangjunsss.github.io/images/images/ddr_process.png)
+  ![img](/images/ddr_process.png)
 
 
 #### DDR 架构
 
-  ![img](http://yangjunsss.github.io/images/images/ddr_arch.png)
+  ![img](/images/ddr_arch.png)
 
   每一个节点都部署 Docker Registry 和 DDR，DDR 分为 DDR Driver 插件和 DDR Daemon 常驻进程，DDR Driver 作为 Docker Registry 的存储插件承接 Registry 的 blob 和 manifest 数据的查询、下载、上传的工作，并与 DDR Daemon 交互，主要对需要查询的 blob 和 manifest 数据做 P2P 网络寻址和在写入新的 blob 和 manifest 时推送路由信息给 P2P 网络中代理节点。DDR Daemon 作为 P2P 网路中一个 Peer 节点接入，负责 Peer 查询、Blob、Manifest 的路由查询，并返回路由信息给 DDR Driver，DDR Driver 再作为 Client 根据路由去 P2P 网络目的 Docker Registry 节点进行 Push/Pull 镜像。
 
