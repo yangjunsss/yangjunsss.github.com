@@ -251,6 +251,16 @@ PING 10.20.1.3 (10.20.1.3) 56(84) bytes of data.
 
 Flannel 在最新 vxlan 实现上完全去掉了 l2miss & l3miss 方式，Flannel deamon 不再监听 netlink 通知，因此也不依赖 DOVE。而改成给每一台 Node 分配独自的 subnet 子网地址（通过 docker 的 --bip 参数分配 br0 上的 subnet range），所有送往这个子网的数据包都在其他 Node 上主动配置路由信息，相当于原来通过 MAC 寻址的方式，现在按照 DST IP 归属哪个 subnet 就送达到固定的 Node 上，这样的好处就是 Host 不需要配置所有的 Guest 二层 MAC 地址，从一个二层寻址转换成三层寻址，路由数目与 Host 机器数呈线性相关，做到了同一个 VNI 下每一台 Host 主机 1 route，1 arp entry and 1 FDB entry。
 
+#### 流程如下：
+
+1. Host0 中 flanneld 启动时候为 Host0 注册 `10.20.1.0/24` 子网，同时添加 `10.20.2.0/24` 的路由在 host0 中，host1 同理。
+2. 配置 ARP 记录 `10.20.2.0` 范围的地址的 MAC 地址为 Host1 中 vtep 地址 `52:2f:17:7c:bc:0f`
+3. 配置 br0 中 FDB 表发送给 `52:2f:17:7c:bc:0f` 的数据包走 `vtep0` 出，目的为 `192.168.100.3`
+4. Guest0 访问 `10.20.2.4` 时发现为三层寻址，则通过 host 路由匹配通过 host0 的 vtep 网卡出去
+5. Host0 开始寻找`10.20.2.0` 的 MAC 地址，匹配 ARP 记录 `52:2f:17:7c:bc:0f`
+6. 匹配 FDB 表中 `52:2f:17:7c:bc:0f` 记录开始走 host0 的 vtep0 封装出去
+7. 数据包达到 Host1 后，解包匹配 br0 的 `10.20.2.0/24` 路由把数据包传递给 br0，最终通过二层 MAC 寻址找到 Container
+
 #### 模拟验证
 
 环境：
