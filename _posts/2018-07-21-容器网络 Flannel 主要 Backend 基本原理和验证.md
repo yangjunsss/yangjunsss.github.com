@@ -6,7 +6,7 @@ SDN（软件定义网络）改变了传统的网络世界规则，它的灵活�
 
 ### 摘要
 
-SDN（软件定义网络）改变了传统的网络世界规则，它的灵活性和开放性带来了成本的优势，如 [fastly 使用 SDN 技术构建了一个可伸缩的低成本路由器](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。而在容器生态中，[Flannel](https://github.com/coreos/Flannel/) 为容器集群构建 Overlay 网络。网上大多数文章还是介绍的 Flannel 第一个版本 vxlan overlay 实现原理，本文介绍 Flannel vxlan overlay 第一版和最新版两种方式的基本原理及 hostgw、UDP 的实现。
+SDN（软件定义网络）使用虚拟设备和转发规则等技术构造了基于物理网络之上的虚拟网络，如 [fastly 使用 SDN 技术构建了一个可伸缩的低成本路由器](https://www.fastly.com/blog/building-and-scaling-fastly-network-part-1-fighting-fib)。而在容器生态中，[Flannel](https://github.com/coreos/Flannel/) 为容器网络的一种经典的实现方式，本文探索一下这种实现的基本原理。网上大多数文章还是介绍的 Flannel 第一个 v1 版本 vxlan overlay 实现原理，本文介绍 Flannel vxlan overlay v1 和 v2 两种方式的基本原理及 hostgw、UDP 的实现。
 
 ### 简介
 
@@ -16,13 +16,13 @@ SDN（软件定义网络）改变了传统的网络世界规则，它的灵活�
 Flannel runs a small, single binary agent called flanneld on each host, and is responsible for allocating a subnet lease to each host out of a larger, preconfigured address space. Flannel uses either the Kubernetes API or etcd directly to store the network configuration, the allocated subnets, and any auxiliary data (such as the host's public IP). Packets are forwarded using one of several backend mechanisms including VXLAN and various cloud integrations.
 ```
 
-Flannel 是一个简而精的构建容器三层网络的方案，它在每一台 host 上运行着叫 flanneld 的 daemon 进程，flanneld 负责申请容器网络的子网并存储在 k8s 或者 etcd 上，网络互通通过不同的 backend 组件实现，比如 vxlan、host-gw、udp等，它不关心 host 内部的容器间网络互通，而主要专注在 host 之间容器的互通。
+Flannel 是一个极其精简的 Overlay 的容器网络方案，它通常只依赖 kube-api 和每台 Node 运行的 flanneld 进程完成，flanneld 负责为每台 Node 申请一个子网并存储到 kube-api 或 etcd 中，然后通过 vxlan、ipsec、hostgw 等技术实现跨 Node 节点容器互访，同时各个云厂商可以集成各自的实现。实现的核心代码都在 flannel 的 `github.com/flannel-io/flannel/backend` 目录下：
 
 ### Flannel vxlan 核心设计和历史
 
-关于 vxlan 的知识网上很多，简单来讲是在 Underlay 网络之上使用隧道技术依托 UDP 协议层构建的 Overlay 的逻辑网络，并能灵活穿透三层 Underlay 网络，使逻辑网络与物理网络解耦，实现灵活的组网需求，不仅仅能适配 VM 虚拟机环境，还能用于 Container 容器环境。
+关于 vxlan 的知识网上很多，简单来讲是在 Underlay 网络之上使用 vxlan 网卡把普通 IP 数据封装在 UDP 包中然后穿透 Underlay 层网络从而实现 L2/L3 层的网络包互通，不仅虚拟化使用，K8S 也在应用。
 
-这里网络数据包转发的核心是 RIB 路由表、FDB 转发表、ARP 路由表，即 vxlan 要解决二层 Guest MAC 地址寻址、跨三层 Guest IP 地址寻址的问题，并实现全网高效路由分发和同步，这里讨论容器生态中 Flannel 的实现方案。
+这里网络数据包转发的核心是 RIB 路由表、FDB 转发表、ARP 路由表，即 vxlan 要解决二层 MAC 地址寻址、跨三层 IP 地址寻址的问题，并实现全网高效路由分发和同步，这里先看看 Flannel 的 v1 早期的实现方案。
 
 在最新的 Flannel vxlan 代码 [vxlan.go](https://github.com/coreos/Flannel/blob/master/backend/vxlan/vxlan.go) 官方有一段注释说明如下：
 
@@ -63,10 +63,8 @@ Flannel 是一个简而精的构建容器三层网络的方案，它在每一台
 // In this scheme the scaling of table entries is linear to the number of remote hosts - 1 route, 1 arp entry and 1 FDB entry per host
 ```
 
-大致意思：
-1. Flannel 的第一个版本，l3miss 学习，通过查找 ARP 表 MAC 完成的。 l2miss 学习，通过获取 VTEP 上的 public ip 完成的。
-2. Flannel 的第二个版本，移除了 l3miss 学习的需求，当远端主机上线，只是直接添加对应的 ARP 表项即可，不用查找学习了。
-3. Flannel的最新版本，移除了 l2miss 学习的需求，不再监听 netlink 消息。
+1. Flannel 的 v1 版本，使用 kernal 发出的 l2miss/l3miss 消息 hook 来触发 ARP 和 FDB 流表的定向注入实现。
+2. Flannel 的 v2 版本，为了更优的可用性、减少流表数量，移除了 l2miss/l3miss 而方式，改为为目的 Node 配置相应的子网，通过配置目的 Node 的子网路由来实现跨 Node 通信。
   它的工作模式：
     1. 创建 vxlan 设备，不再监听任何 l2miss 和 l3miss 事件消息
     2. 为远端的子网创建路由
@@ -95,7 +93,7 @@ This patch provides extensions to vxlan for supporting Distributed Overlay Virtu
 +		dst = vxlan->gaddr;
 +		if (!dst && (vxlan->flags & vxlan_F_L2MISS) &&
 +		    !is_multicast_ether_addr(eth->h_dest))
-+			vxlan_fdb_miss(vxlan, eth->h_dest);
++			vxlan_fdb_miss(vxlan, eth->h_dest); // 发送 fdb miss 消息
 +	}
 ```
 
@@ -105,25 +103,25 @@ This patch provides extensions to vxlan for supporting Distributed Overlay Virtu
 +
 +	if (n) {...}
 + else if (vxlan->flags & vxlan_F_L3MISS)
-+		vxlan_ip_miss(dev, tip);
++		vxlan_ip_miss(dev, tip); // 发送 ip miss 消息
 ```
 
 可以看到内核在查询 `vxlan_find_mac` FDB 转发时未命中则发送 l2miss netlink 通知，在查询 `neigh_lookup` ARP 表时未命中则发送 l3miss netlink 通知，以便有机会让用户态学习 vm 地址，这就是第一代 Flannel vxlan 的实现基础。
 
-模拟组网：
+模拟如下：
 
 ![img](http://yangjunsss.github.io/images/flannel_vxlan_1.0_impl.png)
 
 图中 10.20.1.4 与 10.20.1.3 通信流程(不考虑跨子网三层通讯)：
 
   1. 当 Guest0 第一次发送一个目的地址 `10.20.1.3` 数据包的时候，进行二层转发，查询本地 Guest ARP 表，无记录则发送 ARP 广播 `who is 10.20.1.3`；
-  2. vxlan 开启了的本地 ARP 代答 proxy、l2miss、l3miss 功能，数据包经过 vtep0 逻辑设备时，当 Host ARP 表无记录时，vxlan 触发 l2miss 事件，ARP 表是用于三层 IP 进行二层 MAC 转发的映射表，存储着 IP-MAC-NIC 记录，在二层转发过程中往往需要根据 IP 地址查询对应的 MAC 地址从而通过数据链路转发到目的接口中；
-  3. l2miss 事件被 Flannel 的 Daemon 进程捕捉到，Daemon 查询 Etcd 存储的路由数据库并返回 `10.20.1.3` 的 MAC 地址 `e6:4b:f9:ce:d7:7b` 并存储 Host ARP 表；
-  4. vtep0 命中 ARP 记录后回复 ARP Reply；
+  2. vxlan 开启了的本地 ARP 代答 proxy、l2miss、l3miss 功能，当 Host ARP 表无记录时，vxlan 触发 l2miss 事件，ARP 表存储着 IP-MAC-NIC 映射记录，从而实现二层转发；
+  3. l2miss 事件被 Flannel 的 Daemon 进程捕捉到，Daemon 查询后端存储，并代答 `10.20.1.3` 的 MAC 地址为 `e6:4b:f9:ce:d7:7b` 并存储 Host ARP 表，因此第一次 ARP 消息是失败的；
+  4. 经过步骤3 存入 ARP 表中后，vtep0 命中 ARP 记录后回复 ARP Reply；
   5. Guest0 收到 ARP Reply 后存 Guest ARP 表，开始发送数据，携带目的 `e6:4b:f9:ce:d7:7b` 地址；
   6. 数据包经过 bridge 时查询 FDB（Forwarding Database entry） 转发表，询问 where `e6:4b:f9:ce:d7:7b` send to? 如未命中记录，发生 l3miss 事件，FDB 表为 2 层交换机的转发表，FDB 存储这 MAC-PORT 的映射关系，用于 MAC数据包从哪个接口出；
   7. Flannel Daemon 捕捉 l3miss 事件，并向 FDB 表中加入目的 `e6:4b:f9:ce:d7:7b` 的数据包发送给对端 Host `192.168.100.3` ；
-  8. 此时 `e6:4b:f9:ce:d7:7b` 数据包流向 vtep0 接口，vtep0 开始进行 UDP 封装，填充 VNI 号为 1，并与对端 `192.168.100.3` 建立隧道，对端收到 vxlan 包进行拆分，根据 VNI 分发 vtep0 ，拆分后传回 Bridge，Bridge 根据 dst mac 地址转发到对应的 veth 接口上，此时就完成了整个数据包的转发；
+  8. 此时 `e6:4b:f9:ce:d7:7b` 数据包流向 vtep0 接口，vtep0 开始进行 UDP 封装，填充 VNI 号为 1，并与对端 `192.168.100.3` 建立隧道，对端收到 vxlan 包进行拆分，根据 VNI 分发 vtep0 ，拆分后传回 Bridge，Bridge 根据本地 FDB 表找到 dst mac 地址，并转发到对应的 veth 接口上，此时就完成了整个数据包的转发；
   9. 回程流程类似；
 
 下面我们来模拟行 Flannel 的网络实现：
@@ -150,12 +148,6 @@ This patch provides extensions to vxlan for supporting Distributed Overlay Virtu
 ```sh
 # Host0
 [root@i-7dlclo08 ~]# ip -d a
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
     link/ether 52:54:ca:9d:db:ff brd ff:ff:ff:ff:ff:ff promiscuity 0
     inet 192.168.100.2/24 brd 192.168.100.255 scope global dynamic eth0
@@ -182,12 +174,6 @@ This patch provides extensions to vxlan for supporting Distributed Overlay Virtu
 
 # Host1
 [root@i-hh5ai710 ~]# ip -d a
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
     link/ether 52:54:d5:9b:94:4c brd ff:ff:ff:ff:ff:ff promiscuity 0
     inet 192.168.100.3/24 brd 192.168.100.255 scope global dynamic eth0
@@ -220,13 +206,9 @@ This patch provides extensions to vxlan for supporting Distributed Overlay Virtu
 [root@i-7dlclo08 ~]# ip netns exec ns0 ping 10.20.1.3
 PING 10.20.1.3 (10.20.1.3) 56(84) bytes of data.
 From 10.20.1.4 icmp_seq=1 Destination Host Unreachable
-From 10.20.1.4 icmp_seq=2 Destination Host Unreachable
-From 10.20.1.4 icmp_seq=3 Destination Host Unreachable
 
 # See l2miss & l3miss
 [root@i-7dlclo08 ~]# ip monitor all
-[nsid current]miss 10.20.1.3 dev vtep0  STALE
-[nsid current]miss 10.20.1.3 dev vtep0  STALE
 [nsid current]miss 10.20.1.3 dev vtep0  STALE
 [nsid 1]10.20.1.3 dev if49  FAILED
 ```
@@ -240,8 +222,7 @@ From 10.20.1.4 icmp_seq=3 Destination Host Unreachable
 [root@i-7dlclo08 ~]# bridge fdb add e6:4b:f9:ce:d7:7b dst 192.168.100.3 dev vtep0
 [root@i-7dlclo08 ~]# ip r add 10.20.0.0/16 dev vtep0 scope link via 10.20.1.0
 ```
-
-回程路由类似，不赘述
+回程路由类似。
 
 ##### 测试连通性
 
@@ -252,25 +233,23 @@ PING 10.20.1.3 (10.20.1.3) 56(84) bytes of data.
 64 bytes from 10.20.1.3: icmp_seq=1 ttl=64 time=1.04 ms
 64 bytes from 10.20.1.3: icmp_seq=2 ttl=64 time=0.438 ms
 ```
-配置好对端 Guest 路由后，网络连通成功。通过成功配置需要互通所有 Guest 路由转发信息后，Overlay 的数据包能成功抵达最终目的 Host 的目的 Guest 接口上。这种方式存在明显的缺陷：
+配置好对端 Guest 路由后，网络连通成功。通过成功配置需要互通所有 Guest 路由转发信息后，Overlay 的数据包能成功抵达最终目的 Host 的目的 Guest 接口上。
 
 #### l2miss 和 l3miss 方案缺陷
 
-1. 每一台 Host 需要配置所有需要互通 Guest MAC 地址，ARP 和 FDB 记录会膨胀，不适合大型组网
-2. 通过 netlink 通知学习路由的效率不高
-3. Flannel Daemon 异常后无法持续维护 ARP 和 FDB 表，从而导致网络不通
-
+1. 每一台 Host 需要配置所有需要互通 Guest MAC 地址，ARP 和 FDB 记录会膨胀，不适合海量 Container 场景
+2. 对 kernel DOVE 机制有依赖，且首次一定失败，要通过 miss 消息通知而学习规则
 
 ### 三层路由 vxlan 实现方案
 
-为了弥补 l2miss 和 l3miss 的缺陷，flannel 改用了三层路由的实现方案。
+为了弥补 l2miss 和 l3miss 的缺陷，flannel 改用了更普遍的三层路由的实现方案。
 
 #### 理论基础
 
 组网：
 ![img](http://yangjunsss.github.io/images/flannel_vxlan_2.0_impl.png)
 
-Flannel 在最新 vxlan 实现上完全去掉了 l2miss & l3miss 方式，Flannel deamon 不再监听 netlink 通知，因此也不依赖 DOVE。而改成主动给目的子网添加远端 Host 走三层路由的新方式，当数据包到达目的 Host 后，通过 vtap 在内部进行三层转发，这样的好处就是 Host 不需要配置所有的 Guest 二层 MAC 地址，从一个二层寻址转换成三层寻址，路由数目与 Host 机器数呈线性相关，官方声称做到了同一个 VNI 下每一台 Host 主机 1 route，1 arp entry and 1 FDB entry。
+Flannel 在最新 vxlan 实现上完全去掉了 l2miss & l3miss 方式，Flannel deamon 不再监听 netlink 通知，因此也不依赖 DOVE。而改成给每一台 Node 分配独自的 subnet 子网地址（通过 docker 的 --bip 参数分配 br0 上的 subnet range），所有送往这个子网的数据包都在其他 Node 上主动配置路由信息，相当于原来通过 MAC 寻址的方式，现在按照 DST IP 归属哪个 subnet 就送达到固定的 Node 上，这样的好处就是 Host 不需要配置所有的 Guest 二层 MAC 地址，从一个二层寻址转换成三层寻址，路由数目与 Host 机器数呈线性相关，做到了同一个 VNI 下每一台 Host 主机 1 route，1 arp entry and 1 FDB entry。
 
 #### 模拟验证
 
@@ -293,12 +272,6 @@ Flannel 在最新 vxlan 实现上完全去掉了 l2miss & l3miss 方式，Flanne
 ```sh
 # Host0 网络配置接口
 [root@i-7dlclo08 ~]# ip -d a
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
     link/ether 52:54:ca:9d:db:ff brd ff:ff:ff:ff:ff:ff promiscuity 0
     inet 192.168.100.2/24 brd 192.168.100.255 scope global dynamic eth0
@@ -326,12 +299,6 @@ Flannel 在最新 vxlan 实现上完全去掉了 l2miss & l3miss 方式，Flanne
 
 # Host1 网络配置接口
 [root@i-hh5ai710 ~]# ip -d a
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 promiscuity 0
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
     link/ether 52:54:d5:9b:94:4c brd ff:ff:ff:ff:ff:ff promiscuity 0
     inet 192.168.100.3/24 brd 192.168.100.255 scope global dynamic eth0
@@ -381,17 +348,17 @@ PING 10.20.2.4 (10.20.2.4) 56(84) bytes of data.
 64 bytes from 10.20.2.4: icmp_seq=2 ttl=62 time=0.518 ms
 ```
 
-可以看到，通过增加一条三层路由 `10.20.2.0/24 via 10.20.2.0 dev vtep0 onlink` 使目标为 10.20.2.0/24 的目的 IP 包通过 vtep0 接口送往目的 Host1，目的 Host1 收到后，在本地 Host 做三层转发，最终送往 veth0 接口。在 Host 多个 Guest 场景下也无需额外配置 Guest 路由，从而减少路由数量，方法变得高效。
+可以看到，通过增加一条三层路由 `10.20.2.0/24 via 10.20.2.0 dev vtep0 onlink` 使目标匹配 10.20.2.0/24 的目的 IP 包通过 vtep0 接口送往目的 Host1，目的 Host1 收到后，在本地 Host 做转发，最终送往 veth0 接口。在 Host 多个 Guest 场景下也无需额外配置 Guest 路由，从而减少路由数量，方法变得高效。
 
 ### 总结
-以上就是对 Flannel 第一个版本和最新版本 vxlan overlay 实现基本原理的解析和验证，可以看到 SDN 的 Overlay 配置很灵活也很巧妙，Overlay 的数据包通过 vxlan 这种隧道技术穿透 Underlay 网络，路由配置很灵活，同时主机中迭代着两层网络配置带来了一定的复杂性，但最终无论方案如何变化都离不开二三层路由转发的基本原则。
+可以看到 SDN 的 Overlay 配置很灵活也很巧妙，Overlay 的数据包通过 vxlan 这种隧道技术穿透 Underlay 网络，路由配置很灵活，不管多么灵活，最终还是基于网络中的二三层路由转发的基本原则。
 
 ### 其他
-分析了 vxlan 的基本原理后，flannel 还主要支持 hostgw、udp 的实现，索性在这里继续分析和验证。
+分析了 vxlan 的基本原理后，flannel 还主要支持 hostgw、udp 的实现。
 
 ### Host-gw 模式
 
-Host-gw 的基本原理比较简单，是直接在 host 主机上配置 Overlay 的 subnet 对端 host 的路由信息，数据包没有经过任何封装而直接送往对端，这就要求 Host 在同一个二层网络中，否则路由不可达，也意味着 Underlay 的安全策略需要和 Overlay 一致。这种模式也不需要任何额外的虚拟网络设备，数据包直接通过 eth0 进出，因为简单也是效率最高的，与 calico 的方案有点类似。
+Host-gw 的基本原理比较简单，是直接在 host 主机上配置 Overlay 的 subnet 对端 host 的路由信息，数据包没有经过任何封装而直接送往对端，这就要求 Host 在同一个二层网络中，因为没有 vetp 做封装，也意味着 Underlay 的安全策略需要和 Overlay 一致。这种模式也不需要任何额外的虚拟网络设备，数据包直接通过 eth0 进出，因为简单也是效率最高的，与 calico 的方案有点类似。
 整个后端核心代码量在 50 行左右，如下：
 
 ```golang
