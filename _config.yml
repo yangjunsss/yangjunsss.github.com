@@ -23,7 +23,7 @@ copyright:
 #  id:               "yangjunsss"
 
 # URL
-url:                "https://yangjunsss.github.io" # the base hostname & protocol for your site
+url:                "http://yangjunsss.github.io" # the base hostname & protocol for your site
 # url:                "http://localhost:4000" # use this url when you develop
 baseurl:            "/" # the subpath of your site, e.g. /blog
 
