@@ -18,9 +18,9 @@ copyright:
 # google-analytics:
 #  id:               "UA-123033748-1"
 
-# Disqus
-# disqus:
-#  id:               "yangjunsss"
+ Disqus
+ disqus:
+  id:               "yangjunsss"
 
 # URL
 url:                "http://yangjunsss.github.io" # the base hostname & protocol for your site
