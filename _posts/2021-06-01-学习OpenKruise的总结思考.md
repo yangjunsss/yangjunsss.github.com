@@ -26,7 +26,7 @@ type Reconciler struct {
 
 实现一个面向状态的控制器比传统过程式 CURD 要复杂多了，主要复杂度集中在要正确处理对象多个状态之间的转换，而且可能多个状态会同时并存，比如 Pod 的 Phase = running 和 ReadyCondition = True，同时 reconcile 方法要求是幂等的，任何一种 Event 都会触发 reconcile，执行又线性的，处理状态要考虑哪个状态先处理，哪个后处理的问题。明确定义好对象的状态和状态之间的转换动作是关键，看 Kruise 几个核心的 Resource(CloneSet/AdvancedStatefulset/AdvancedDaemonSet/AdvancedCronJob/AdvancedBroadcastJob) 状态及转换思路如下（每个 Controller 会略有差异，但整体思路不变）：
 
-![img.png](../images/kruise/img.png)
+![img.png](https://yangjunsss.github.io/images/kruise/img.png)
 
 1. 正确处理好资源对象状态和 Pod 对象状态，先处理 scale 数量状态再处理 update 版本状态
 2. 本质围绕着 Pod 对象的终态进行状态编程，根据不同的策略决定了 Pod 的 CURD 操作
@@ -37,10 +37,10 @@ type Reconciler struct {
 
 可以看到，reconcile 核心逻辑就是处理好 current 状态和 desired 状态之间的转换，这种转换路径又不同的转换策略算法决定，比如升级的策略、异常启动的策略、删除的策略等，策略确定后，下一步就是确定具体 Pod 的筛选内容和顺序，Kruise 实现了多种筛选策略，比如优先级筛选:
 
-![img.png](../images/kruise/img_3.png)
+![img.png](https://yangjunsss.github.io/images/kruise/img_3.png)
 
 1. 按照 Pod 的 label 优先级计算滚动顺序
-2. 升级虽然按照顺序，但并不是等待线性
+2. 升级虽然按照顺序，但并不是 Pod 等待线性的
 
 ### 关于原地升级
 在 K8 的设计中，Pod 升级应该推荐能任意重建，这对无状态服务比较友善，但对有状态 stateful 和 batch 批量任务等场景中，用户更希望 Pod 原地升级，保持 PV 和 IP 不变，比如如下场景：
