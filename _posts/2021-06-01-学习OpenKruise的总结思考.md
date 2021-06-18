@@ -55,7 +55,7 @@ in-place 原地升级的诉求早在 2015 年社区就有人提出 [issue#9043](
 1. Container Image in-place 更新无需重启 Pod
 2. Container Limit&Request 更新无需重启 Pod
 
-其中 #1 腾讯已经[实现](https://cloud.tencent.com/developer/article/1413743)， [阿里 Kruise 实现](https://www.alibabacloud.com/blog/explaining-in-place-pod-updates-in-a-kubernetes-cluster_597133)
+其中 #1 腾讯的[实现](https://cloud.tencent.com/developer/article/1413743)， [Kruise 实现](https://www.alibabacloud.com/blog/explaining-in-place-pod-updates-in-a-kubernetes-cluster_597133)
 
 其中 #2 在 2016 年 docker 1.10 支持 [live update resource constraints](https://docker.com/blog/docker-1-10/) ，社区 2018 年开始着手设计 [Pod VPA](https://github.com/kubernetes/enhancements/tree/master/keps/sig-node/1287-in-place-update-pod-resources)，目前有望合入 v1.22 版本。
 
