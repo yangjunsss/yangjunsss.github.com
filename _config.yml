@@ -47,8 +47,8 @@ nav:
     url:            "/about"
   - name:           "目录"
     url:            "/archive"
-  - name:           "Tags"
-    url:            "/tags"
+#  - name:           "Tags"
+#    url:            "/tags"
 
 # Sass
 sass:
