@@ -35,7 +35,7 @@ type Reconciler struct {
 
 #### Pod 筛选策略算法
 
-可以看到，reconcile 核心逻辑就是处理好 current 状态和 desired 状态之间的转换，这种转换路径又不同的转换策略算法决定，比如升级的策略、异常启动的策略、删除的策略等，策略确定后，下一步就是确定具体 Pod 的筛选内容和顺序，Kruise 实现了多种筛选策略，比如优先级筛选:
+可以看到，reconcile 核心逻辑就是处理好 current 状态和 desired 状态之间的转换，这种转换路径又不同的转换策略算法决定，比如升级的策略、异常启动的策略、删除的策略等，策略确定后，下一步就是确定具体 Pod 的筛选内容和顺序，Kruise 实现了多种筛选策略，比如优先级和离散筛选:
 
 ![img.png](https://yangjunsss.github.io/images/kruise/img_3.png)
 
